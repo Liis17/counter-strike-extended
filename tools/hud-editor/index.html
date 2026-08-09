@@ -46,10 +46,12 @@
 	}
 	input[type="number"] { width: 64px; }
 	input[type="color"] { width: 32px; padding: 2px; }
+	input:disabled { opacity: .5; cursor: not-allowed; }
 	button { cursor: pointer; }
 	button:hover { border-color: var(--accent); }
 	button.primary { background: var(--accent); color: #1b1d21; font-weight: 600; border-color: var(--accent); }
 	#fsapiWarning { color: #ff6b6b; font-size: 12px; }
+	#resolutionHint { color: var(--muted); font-size: 11px; }
 	#main { flex: 1; display: flex; min-height: 0; }
 	aside {
 		width: 340px;
@@ -91,18 +93,50 @@
 		background: #14151a;
 		transform-origin: top left;
 		outline: 1px solid var(--border);
+		overflow: hidden;
 	}
-	.marker {
+	.hud-preview {
 		position: absolute;
-		transform: translate(-2px, -2px);
-		border: 1px dashed var(--accent);
-		background: rgba(255, 140, 0, 0.12);
-		color: var(--accent);
-		font-size: 11px;
+		display: flex;
+		align-items: center;
+		gap: 4px;
+		border: 1px solid rgba(255, 140, 0, .8);
+		background: rgba(255, 140, 0, .09);
+		color: #ffb347;
+		font-family: "Courier New", monospace;
+		font-weight: 700;
 		padding: 2px 4px;
 		white-space: nowrap;
 		cursor: move;
 		user-select: none;
+		overflow: visible;
+	}
+	.hud-preview-label {
+		position: absolute;
+		left: -1px;
+		top: -16px;
+		padding: 1px 3px;
+		border: 1px dashed var(--accent);
+		background: rgba(255, 140, 0, .12);
+		font: 11px "Segoe UI", Tahoma, sans-serif;
+		font-weight: 400;
+		color: var(--accent);
+	}
+	.hud-preview-content {
+		font-size: var(--preview-font-size);
+		line-height: var(--preview-line-height);
+	}
+	.hud-origin {
+		position: absolute;
+		width: 8px;
+		height: 8px;
+		transform: translate(-4px, -4px);
+		border: 1px solid #fff0c2;
+		background: var(--accent);
+		box-shadow: 0 0 0 2px rgba(255, 140, 0, .25);
+		cursor: move;
+		user-select: none;
+		z-index: 2;
 	}
 	.decor-box {
 		position: absolute;
@@ -126,10 +160,12 @@
 <header>
 	<h1>HUD Layout Editor</h1>
 	<div class="toolbar">
-		<label>W <input id="resW" type="number" value="1920" min="320" step="1"></label>
-		<label>H <input id="resH" type="number" value="1080" min="240" step="1"></label>
+		<label>W <input id="resW" type="number" value="2560" min="320" step="1"></label>
+		<label>H <input id="resH" type="number" value="1440" min="240" step="1"></label>
 		<select id="resPreset">
 			<option value="">пресет...</option>
+			<option value="2560x1440">2560×1440 (runtime)</option>
+			<option value="2048x1152">2048×1152</option>
 			<option value="1920x1080">1920×1080</option>
 			<option value="1280x720">1280×720</option>
 			<option value="1024x768">1024×768</option>
@@ -141,6 +177,7 @@
 		<button id="btnNew">Новый</button>
 		<button id="btnOpen" class="primary">Открыть...</button>
 		<button id="btnSave" class="primary">Сохранить</button>
+		<span id="resolutionHint">Превью в пикселях игры; разрешение сохраняется в комментарии файла</span>
 		<span id="fsapiWarning" hidden>Нужен Chrome/Edge (File System Access API)</span>
 	</div>
 </header>
@@ -170,6 +207,25 @@
 const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar"];
 const ANCHORS = ["top_left", "top_right", "bottom_left", "bottom_right", "center"];
 const DECOR_TYPES = ["Line", "Shade", "Panel"];
+const DEFAULT_RESOLUTION = { w: 2560, h: 1440 };
+
+// Representative cstrike 640-HUD footprints. The point returned by the
+// runtime is the top-left for left/center elements and the right edge for
+// Ammo/Money/Flashlight/DeathNotice. StatusBar receives a bottom margin.
+// These previews use the same origin and scale semantics; their content is
+// illustrative because live values and weapon sprites are not available in a
+// standalone browser editor.
+const ELEMENT_PREVIEWS = {
+	Health:        { width: 94,  height: 25, fontSize: 20, scalable: true,  sample: "✚ 100" },
+	Battery:       { width: 84,  height: 25, fontSize: 20, scalable: true,  sample: "▣ 100" },
+	Ammo:          { width: 192, height: 32, fontSize: 20, scalable: true,  align: "right", sample: "13 | 90  ▪" },
+	AmmoSecondary: { width: 106, height: 50, fontSize: 20, scalable: false, align: "right", sample: "▪ 2 | 1" },
+	Money:         { width: 125, height: 25, fontSize: 20, scalable: true,  align: "right", sample: "$ 800" },
+	Timer:         { width: 114, height: 25, fontSize: 20, scalable: true,  sample: "◷ 04:52" },
+	Flashlight:    { width: 48,  height: 32, fontSize: 20, scalable: false, align: "right", sample: "▰" },
+	DeathNotice:   { width: 240, height: 16, fontSize: 12, scalable: false, align: "right", sample: "Killer ▪ Victim" },
+	StatusBar:     { width: 220, height: 13, fontSize: 13, scalable: false, originY: -4, sample: "Player: 100 HP" },
+};
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
 const DEFAULT_ELEMENTS = {
@@ -185,8 +241,8 @@ const DEFAULT_ELEMENTS = {
 };
 
 let state = {
-	resW: 1920,
-	resH: 1080,
+	resW: DEFAULT_RESOLUTION.w,
+	resH: DEFAULT_RESOLUTION.h,
 	elements: {},
 	decorations: [],
 };
@@ -195,11 +251,11 @@ let scaleK = 1;
 
 function newConfig() {
 	state = {
-		resW: 1920,
-		resH: 1080,
+		resW: DEFAULT_RESOLUTION.w,
+		resH: DEFAULT_RESOLUTION.h,
 		elements: JSON.parse(JSON.stringify(DEFAULT_ELEMENTS)),
 		decorations: [
-			{ type: "Shade", x: 0,  y: 0,  anchor: "top_left", w: 1920, h: 36, r: 0,  g: 0,  b: 0,  a: 140, radius: 0 },
+			{ type: "Shade", x: 0,  y: 0,  anchor: "top_left", w: DEFAULT_RESOLUTION.w, h: 36, r: 0,  g: 0,  b: 0, a: 140, radius: 0 },
 			{ type: "Line",  x: 10, y: 40, anchor: "top_left", w: 300,  h: 2,  r: 255, g: 140, b: 0, a: 255, radius: 0 },
 		],
 	};
@@ -256,6 +312,7 @@ function tokenize(text) {
 }
 
 function parseHudLayout(text) {
+	const resolutionMatch = text.match(/^\s*\/\/\s*Editor preview resolution:\s*(\d+)\s*x\s*(\d+)/im);
 	const tokens = tokenize(text);
 	let idx = 0;
 	const next = () => tokens[idx++];
@@ -302,7 +359,12 @@ function parseHudLayout(text) {
 		}
 	}
 
-	return { elements, decorations };
+	const parsed = { elements, decorations };
+	if (resolutionMatch) {
+		parsed.resW = parseInt(resolutionMatch[1], 10);
+		parsed.resH = parseInt(resolutionMatch[2], 10);
+	}
+	return parsed;
 }
 
 function serializeHudLayout(st) {
@@ -310,6 +372,7 @@ function serializeHudLayout(st) {
 	lines.push("// Customizable HUD layout for CS16Client.");
 	lines.push('// Format: "id" "x" "y" "anchor" ["scale"]');
 	lines.push('// Set "hud_layout_reload 1" in console to reload. Generated by tools/hud-editor.');
+	lines.push(`// Editor preview resolution: ${st.resW}x${st.resH} (game uses its current screen resolution).`);
 	lines.push('"HudLayout"');
 	lines.push("{");
 	for (const id of ELEMENT_IDS) {
@@ -362,6 +425,36 @@ function layoutStageScale() {
 	const sizer = document.getElementById("stageSizer");
 	sizer.style.width = Math.round(state.resW * scaleK) + "px";
 	sizer.style.height = Math.round(state.resH * scaleK) + "px";
+}
+
+function getElementPreview(id, e) {
+	const meta = ELEMENT_PREVIEWS[id];
+	const origin = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
+	const scale = meta.scalable ? Math.max(0.1, Number(e.scale) || 1) : 1;
+	const width = meta.width * scale;
+	const height = meta.height * scale;
+	return {
+		origin,
+		left: meta.align === "right" ? origin.x - width : origin.x,
+		top: origin.y + (meta.originY || 0),
+		width,
+		height,
+		scale,
+	};
+}
+
+function beginElementDrag(node, e) {
+	node.addEventListener("mousedown", (ev) => {
+		ev.preventDefault();
+		ev.stopPropagation();
+		beginDrag((dx, dy) => {
+			const cur = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
+			const np = inverseAnchoredPos(e.anchor, cur.x + dx, cur.y + dy, state.resW, state.resH);
+			e.x = Math.round(np.x);
+			e.y = Math.round(np.y);
+			renderStage();
+		}, renderElementsList);
+	});
 }
 
 function render() {
@@ -421,28 +514,40 @@ function renderStage() {
 		stage.appendChild(box);
 	});
 
-	// Required elements on top, as draggable label markers.
+	// Required elements on top. The preview box follows the drawn footprint,
+	// while the small square stays on the exact layout origin for right/bottom
+	// aligned elements.
 	for (const id of ELEMENT_IDS) {
 		const e = state.elements[id];
-		const pos = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
-		const marker = document.createElement("div");
-		marker.className = "marker";
-		marker.textContent = id;
-		marker.style.left = pos.x + "px";
-		marker.style.top = pos.y + "px";
+		const meta = ELEMENT_PREVIEWS[id];
+		const preview = getElementPreview(id, e);
 
-		marker.addEventListener("mousedown", (ev) => {
-			ev.preventDefault();
-			ev.stopPropagation();
-			beginDrag((dx, dy) => {
-				const cur = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
-				const np = inverseAnchoredPos(e.anchor, cur.x + dx, cur.y + dy, state.resW, state.resH);
-				e.x = Math.round(np.x);
-				e.y = Math.round(np.y);
-				renderStage();
-			}, renderElementsList);
-		});
-		stage.appendChild(marker);
+		const box = document.createElement("div");
+		box.className = "hud-preview hud-preview-" + id.toLowerCase();
+		box.style.left = preview.left + "px";
+		box.style.top = preview.top + "px";
+		box.style.width = preview.width + "px";
+		box.style.height = preview.height + "px";
+		box.style.setProperty("--preview-font-size", `${meta.fontSize * preview.scale}px`);
+		box.style.setProperty("--preview-line-height", `${25 * preview.scale}px`);
+		const label = document.createElement("span");
+		label.className = "hud-preview-label";
+		label.textContent = id;
+		box.appendChild(label);
+		const content = document.createElement("span");
+		content.className = "hud-preview-content";
+		content.textContent = meta.sample;
+		box.appendChild(content);
+		beginElementDrag(box, e);
+		stage.appendChild(box);
+
+		const origin = document.createElement("div");
+		origin.className = "hud-origin";
+		origin.style.left = preview.origin.x + "px";
+		origin.style.top = preview.origin.y + "px";
+		origin.title = `${id}: точка layout`;
+		beginElementDrag(origin, e);
+		stage.appendChild(origin);
 	}
 }
 
@@ -492,7 +597,11 @@ function renderElementsList() {
 		grid.className = "field-grid";
 		grid.appendChild(labeled("x", numberInput(e.x, 1, (v) => { e.x = Math.round(v); renderStage(); })));
 		grid.appendChild(labeled("y", numberInput(e.y, 1, (v) => { e.y = Math.round(v); renderStage(); })));
-		grid.appendChild(labeled("scale", numberInput(e.scale, 0.1, (v) => { e.scale = v; })));
+		const scaleInput = numberInput(e.scale, 0.1, (v) => { e.scale = Math.max(0.1, v); renderStage(); });
+		scaleInput.min = "0.1";
+		scaleInput.disabled = !ELEMENT_PREVIEWS[id].scalable;
+		scaleInput.title = scaleInput.disabled ? "Для этого элемента scale не поддерживается игрой" : "Масштабирует глифы элемента";
+		grid.appendChild(labeled("scale", scaleInput));
 		grid.appendChild(labeled("anchor", anchorSelect(e.anchor, (v) => { e.anchor = v; renderStage(); })));
 		row.appendChild(grid);
 
@@ -552,8 +661,8 @@ function renderDecorationsList() {
 }
 
 // --- Toolbar wiring ---
-document.getElementById("resW").addEventListener("change", (e) => { state.resW = parseInt(e.target.value, 10) || 1920; renderStage(); });
-document.getElementById("resH").addEventListener("change", (e) => { state.resH = parseInt(e.target.value, 10) || 1080; renderStage(); });
+document.getElementById("resW").addEventListener("change", (e) => { state.resW = parseInt(e.target.value, 10) || DEFAULT_RESOLUTION.w; renderStage(); });
+document.getElementById("resH").addEventListener("change", (e) => { state.resH = parseInt(e.target.value, 10) || DEFAULT_RESOLUTION.h; renderStage(); });
 document.getElementById("resPreset").addEventListener("change", (e) => {
 	if (!e.target.value) return;
 	const [w, h] = e.target.value.split("x").map(Number);
@@ -595,6 +704,10 @@ document.getElementById("btnOpen").addEventListener("click", async () => {
 		const parsed = parseHudLayout(text);
 		state.elements = parsed.elements;
 		state.decorations = parsed.decorations;
+		if (parsed.resW && parsed.resH) {
+			state.resW = parsed.resW;
+			state.resH = parsed.resH;
+		}
 		render();
 	} catch (err) {
 		if (err.name !== "AbortError") alert("Не удалось открыть файл: " + err.message);
