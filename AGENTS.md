@@ -48,6 +48,27 @@ Submodule `src/xash3d-fwgs` и `src/cs16-client` — сторонний апст
   `cmake --install build --prefix <путь-к-установленному-движку>` (см. `src/cs16-client/README.md`)
 - Инициализация submodules: `git submodule update --init --recursive`
 
+## MCP-сервер `game` (tools/mcp-game)
+
+Локальный MCP-сервер на TypeScript (`@modelcontextprotocol/sdk`), зарегистрирован в `opencode.json` под ключом
+`mcp.game`. Запускается через `npm start --prefix tools/mcp-game` (tsx выполняет TypeScript напрямую). Один сервер
+с несколькими tools — реализует типовые шаги dev-цикла без ручного вызова shell-команд:
+
+| Tool              | Что делает                                                                                                       |
+|-------------------|------------------------------------------------------------------------------------------------------------------|
+| `build_engine`    | `waf build` (+ опционально `clean`/`rebuild`) в `src/xash3d-fwgs`, затем `waf install --destdir=build/engine`. Configure НЕ запускает (одноразовая ручная операция с `--sdl2`). |
+| `build_client`    | `cmake --build build --config <cfg>` + `cmake --install build --prefix=build/cs16-client` в `src/cs16-client`. По умолчанию пресет `win32-release-x86`; configure пропускается, если `build/CMakeCache.txt` уже есть. |
+| `deploy_runtime`  | Копирует артефакты из `build/engine` → `runtime/` и из `build/cs16-client/cstrike` → `runtime/cstrike/`. Поддерживает `target` (engine/client/all), `include_pdb`, `dry_run`. |
+| `run_game`        | Запускает `runtime/xash3d.exe` (detached, non-blocking), возвращает pid. Параметры: `game`, `map`, `windowed`, `width/height`, `dev`, `extra_args`, `log_file`. |
+| `stop_game`       | Останавливает xash3d по pid или все экземпляры сразу (`taskkill /F`).                                            |
+| `game_status`     | Показывает, запущен ли xash3d, и его pid(ы).                                                                     |
+| `tail_log`        | Хвост `runtime/engine.log` (или другого файла в runtime/) прямо в чат.                                          |
+| `project_paths`   | Диагностика: печатает все пути, которые сервер резолвит из корня репозитория.                                    |
+
+ВАЖНО: MCP-сервер общается по stdio, поэтому весь stdout дочерних процессов (waf/cmake/xash3d) перехватывается
+сервером и не выводится наружу — для лога используй `tail_log` или смотри `runtime/engine.log`. Любые
+диагностические сообщения сервер пишет в stderr.
+
 ## Правила работы с Git репозиторием
 
 - Запрещено создавать ветки для работы со своей задачей, всегда работать с текущей веткой, если явно не сказано работать в отдельной

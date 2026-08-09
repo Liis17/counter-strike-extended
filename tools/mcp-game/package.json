@@ -1,0 +1,20 @@
+{
+  "name": "game-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP server for building and running the counter-strike-extended Xash3D + CS16Client project.",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "*",
+    "zod": "*"
+  },
+  "devDependencies": {
+    "tsx": "*",
+    "typescript": "*",
+    "@types/node": "*"
+  }
+}
