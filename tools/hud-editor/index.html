@@ -7,10 +7,18 @@
 </head>
 <body>
 <header>
-	<h1>HUD Layout Editor</h1>
 	<div class="toolbar">
-		<label>W <input id="resW" type="number" value="2560" min="320" step="1"></label>
-		<label>H <input id="resH" type="number" value="1440" min="240" step="1"></label>
+		<h1>HUD Layout Editor</h1>
+		<button id="btnNew">Новый</button>
+		<button id="btnOpen" class="primary">Открыть...</button>
+		<button id="btnSave" class="primary">Сохранить</button>
+		<button id="btnUndo" title="Отменить (Ctrl+Z)">↶</button>
+		<button id="btnRedo" title="Повторить (Ctrl+Shift+Z)">↷</button>
+		<span id="fsapiWarning" hidden>Нужен Chrome/Edge (File System Access API)</span>
+	</div>
+	<div class="toolbar">
+		<label title="Разрешение превью; в файл пишется комментарием, игра использует своё текущее">W <input id="resW" type="number" value="2560" min="320" step="1"></label>
+		<label title="Разрешение превью; в файл пишется комментарием, игра использует своё текущее">H <input id="resH" type="number" value="1440" min="240" step="1"></label>
 		<select id="resPreset">
 			<option value="">пресет...</option>
 			<option value="2560x1440">2560×1440 (runtime)</option>
@@ -21,17 +29,51 @@
 			<option value="800x600">800×600</option>
 			<option value="640x480">640×480</option>
 		</select>
+		<span class="sep"></span>
+		<label>зум
+			<select id="zoomSelect">
+				<option value="fit" selected>по окну</option>
+				<option value="0.25">25%</option>
+				<option value="0.5">50%</option>
+				<option value="0.75">75%</option>
+				<option value="1">100%</option>
+				<option value="1.5">150%</option>
+				<option value="2">200%</option>
+			</select>
+		</label>
+		<span id="zoomHint">100%</span>
+		<label>сетка <input id="gridSize" type="number" value="0" min="0" step="1" title="0 — выключена"></label>
+		<label><input id="snapToggle" type="checkbox" checked> привязка</label>
+		<label><input id="rulersToggle" type="checkbox" checked> линейки</label>
+		<span class="sep"></span>
+		<label>подложка <input id="underlayFile" type="file" accept="image/*"></label>
+		<input id="underlayAlpha" type="range" min="0" max="100" value="60" title="Прозрачность подложки">
+		<button id="underlayClear">убрать</button>
 	</div>
 	<div class="toolbar">
-		<button id="btnNew">Новый</button>
-		<button id="btnOpen" class="primary">Открыть...</button>
-		<button id="btnSave" class="primary">Сохранить</button>
-		<span id="resolutionHint">Превью в пикселях игры; разрешение сохраняется в комментарии файла</span>
-		<span id="fsapiWarning" hidden>Нужен Chrome/Edge (File System Access API)</span>
+		<span class="tool-label">Выравнивание</span>
+		<button data-align="left" title="По левому краю">⇤</button>
+		<button data-align="hcenter" title="По центру (гор.)">⇔</button>
+		<button data-align="right" title="По правому краю">⇥</button>
+		<button data-align="top" title="По верхнему краю">⤒</button>
+		<button data-align="vcenter" title="По центру (верт.)">⇕</button>
+		<button data-align="bottom" title="По нижнему краю">⤓</button>
+		<button data-distribute="x" title="Распределить по горизонтали">↔</button>
+		<button data-distribute="y" title="Распределить по вертикали">↕</button>
+		<span class="sep"></span>
+		<button id="btnGroup" title="Сгруппировать (Ctrl+G)">Сгруппировать</button>
+		<button id="btnUngroup" title="Разгруппировать (Ctrl+Shift+G)">Разгруппировать</button>
+		<span id="selectionHint">Ничего не выделено</span>
+		<span id="shortcutHint" title="Alt+клик — выбрать один элемент внутри группы; Alt при перетаскивании — без привязки">
+			Ctrl/Shift+клик — добавить · рамка — выделить · стрелки — 1px, Shift — 10px · Del — удалить декорацию
+		</span>
 	</div>
 </header>
 <div id="main">
 	<aside>
+		<h2>Группы</h2>
+		<div id="groupsList"></div>
+
 		<h2>Обязательные элементы HUD</h2>
 		<div id="elementsList"></div>
 
@@ -44,8 +86,13 @@
 		<div id="decorationsList"></div>
 	</aside>
 	<div id="stageWrap">
-		<div id="stageSizer">
-			<div id="stage"></div>
+		<div id="stageArea">
+			<div id="rulerCorner"></div>
+			<div id="rulerTop"></div>
+			<div id="rulerLeft"></div>
+			<div id="stageSizer">
+				<div id="stage"></div>
+			</div>
 		</div>
 	</div>
 </div>
