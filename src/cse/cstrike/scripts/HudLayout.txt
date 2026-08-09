@@ -14,6 +14,7 @@
 	 "Flashlight" "17" "275" "top_right" "2"
 	 "DeathNotice" "12" "27" "top_right" "2"
 	 "StatusBar" "227" "229" "top_right" "2"
+	 "TeamBar" "0" "40" "top_center" "1"
 }
 
 // "Type" "x" "y" "anchor" "w" "h" "r" "g" "b" "a" "radius"

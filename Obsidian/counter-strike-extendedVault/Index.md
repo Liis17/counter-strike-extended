@@ -17,7 +17,7 @@
 |------|-----------|----------|
 | [[Client/cs16-client]] | cs16-client | Реверс-инженеренный клиент CS 1.6, submodule |
 | [[Client/HUD-layout]] | HUD-layout | Кастомизация позиций/декораций HUD через `scripts/HudLayout.txt`, редактируется визуально через `tools/hud-editor` |
-| [[Client/HUD-TeamBar]] | HUD TeamBar | **План (не реализовано)** — лента «аватары T / счёт / аватары CT»: данные, рендер через `gRenderAPI`, цепочка Steam-аватаров |
+| [[Client/HUD-TeamBar]] | HUD TeamBar | Лента «слоты T / счёт / слоты CT» (`cl_dll/hud/teambar.cpp`); Steam-аватары в слотах — этапы 3–5, в работе |
 
 ### CSE (собственный код проекта)
 | Файл | Компонент | Описание |

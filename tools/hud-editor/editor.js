@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar"];
 const ANCHORS = [
 	"top_left",    "top_center",    "top_right",
 	"center_left", "center",        "center_right",
@@ -27,7 +27,8 @@ const RULER_SIZE = 20;
 
 // Representative cstrike 640-HUD footprints. The point returned by the
 // runtime is the top-left for left/center elements and the right edge for
-// Ammo/Money/Flashlight/DeathNotice. StatusBar receives a bottom margin.
+// Ammo/Money/Flashlight/DeathNotice, and the horizontal center for TeamBar.
+// StatusBar receives a bottom margin.
 // These previews use the same origin and scale semantics; their content is
 // illustrative because live values and weapon sprites are not available in a
 // standalone browser editor.
@@ -41,6 +42,12 @@ const ELEMENT_PREVIEWS = {
 	Flashlight:    { width: 48,  height: 32, fontSize: 20, scalable: false, align: "right", sample: "▰" },
 	DeathNotice:   { width: 240, height: 16, fontSize: 12, scalable: false, align: "right", sample: "Killer ▪ Victim" },
 	StatusBar:     { width: 220, height: 13, fontSize: 13, scalable: false, originY: -4, sample: "Player: 100 HP" },
+	// TeamBar's layout point is the center of the score block, so the preview is
+	// center-aligned. Width is a full 5v5 row as drawn by teambar.cpp: two
+	// 336px slot blocks, two 16px gaps and a single-digit score block. A team
+	// over 5 players wraps into a second row and a two-digit score widens the
+	// middle, neither of which the preview reflects.
+	TeamBar:       { width: 804, height: 64, fontSize: 20, scalable: true, align: "center", sample: "▪▪▪▪▪ 1:3 ▪▪▪▪▪" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -54,6 +61,7 @@ const DEFAULT_ELEMENTS = {
 	Flashlight:    { x: 40,  y: 10, anchor: "top_right",    scale: 2 },
 	DeathNotice:   { x: 20,  y: 40, anchor: "top_right",    scale: 2 },
 	StatusBar:     { x: 10,  y: 40, anchor: "bottom_left",  scale: 2 },
+	TeamBar:       { x: 0,   y: 40, anchor: "top_center",   scale: 1 },
 };
 
 // Everything under `state` is persisted (groups via a comment line); the view
@@ -163,7 +171,9 @@ function getElementPreview(id, e) {
 	const height = meta.height * scale;
 	return {
 		origin,
-		left: meta.align === "right" ? origin.x - width : origin.x,
+		left: meta.align === "right" ? origin.x - width
+			: meta.align === "center" ? origin.x - width / 2
+			: origin.x,
 		top: origin.y + (meta.originY || 0),
 		width,
 		height,

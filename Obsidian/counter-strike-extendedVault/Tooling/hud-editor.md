@@ -38,7 +38,7 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 | `resolveAnchoredPos` / `inverseAnchoredPos` | Зеркало `ResolveAnchoredPos()` из `hud_layout.cpp`: две независимые оси, полная сетка 3×3 якорей |
 | `normalizeAnchor(name)` | Приводит алиасы (`center_top`, `topright`, …) к каноническому имени |
 | `itemOrigin(key)` / `setItemOrigin(key, x, y)` | Точка привязки, которую резолвит игра; запись идёт через inverse-anchor + округление |
-| `itemRect(key)` | Нарисованный footprint. Отличается от origin у right-aligned элементов и `StatusBar` — поэтому перемещение идёт через origin, а привязка и выравнивание через rect |
+| `itemRect(key)` | Нарисованный footprint. Отличается от origin у right-aligned элементов, `StatusBar` и центрированного `TeamBar` — поэтому перемещение идёт через origin, а привязка и выравнивание через rect |
 | `getElementPreview(id, element)` | Габариты HUD-блока и его runtime-origin для превью |
 | `beginDrag(startEv, onMove, onEnd)` | Считает **float**-дельту от точки mousedown; вызывающий применяет `round(start + delta)` |
 | `computeSnap(keys, startRects, dx, dy)` | Одно смещение на всё выделение: края/центр холста, рёбра и центры соседей, сетка. Возвращает направляющие |
