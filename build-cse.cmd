@@ -11,6 +11,7 @@ set "ENGINE_INSTALL=%ROOT%\build\engine"
 set "CLIENT_INSTALL=%ROOT%\build\cs16-client"
 set "RUNTIME_DIR=%ROOT%\runtime"
 set "PRESET=win32-release-x86"
+set "CLIENT_CONFIG=Release"
 
 echo === [1/4] Build engine (waf) ===
 pushd "%ENGINE_SRC%" || goto :fail
@@ -23,8 +24,8 @@ pushd "%CLIENT_SRC%" || goto :fail
 if not exist "build\CMakeCache.txt" (
     cmake --preset %PRESET% || (popd & goto :fail)
 )
-cmake --build build || (popd & goto :fail)
-cmake --install build --prefix "%CLIENT_INSTALL%" || (popd & goto :fail)
+cmake --build build --config %CLIENT_CONFIG% || (popd & goto :fail)
+cmake --install build --config %CLIENT_CONFIG% --prefix "%CLIENT_INSTALL%" || (popd & goto :fail)
 popd
 
 echo === [3/4] Deploy to runtime ===

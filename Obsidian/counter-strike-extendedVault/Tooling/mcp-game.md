@@ -20,7 +20,7 @@ Parent: [[Tools]] · [[Index]]
 | Tool | Что делает |
 |------|-----------|
 | `build_engine` | `waf build` (+`clean`/`rebuild`) в `src/xash3d-fwgs`, затем `waf install --destdir=build/engine`. **Configure не запускает** — ручной one-time шаг с `--sdl2`. |
-| `build_client` | `cmake --build build --config <cfg>` + `cmake --install build --prefix=build/cs16-client`. Пресет по умолчанию `win32-release-x86`; configure пропускается при наличии `build/CMakeCache.txt`. |
+| `build_client` | `cmake --build build --config <cfg>` + `cmake --install build --config <cfg> --prefix=build/cs16-client`. По умолчанию используется `Release` и пресет `win32-release-x86`; configure пропускается при наличии `build/CMakeCache.txt`. |
 | `deploy_runtime` | Копирование `build/engine/*` → `runtime/`, `build/cs16-client/cstrike/*` → `runtime/cstrike/`. Параметры: `target` (engine/client/all), `include_pdb`, `dry_run`. Фильтрует `*.lib` всегда, `*.pdb` по флагу. |
 | `run_game` | Запускает `runtime/xash3d.exe` (detached, non-blocking), возвращает pid. Параметры: `game`, `map`, `windowed`, `width/height`, `dev`, `extra_args`, `log_file`. |
 | `stop_game` | `taskkill /F /PID <pid>` или все экземпляры `xash3d.exe`, если pid не задан. |
@@ -57,5 +57,7 @@ PROJECT_ROOT/
 ## Предостережения
 - Сервер перехватывает stdout всех дочерних процессов — иначе нарушил бы JSON-RPC поверх stdio.
   Диагностика пишется в stderr (`process.stderr.write`). Для inspect лога используй `tail_log`.
+- Для multi-config генератора Visual Studio `build_client` явно передаёт одну и ту же конфигурацию (по умолчанию
+  `Release`) в `cmake --build` и `cmake --install`; без этого install мог взять устаревший Release после сборки Debug.
 - `run_game` не отслеживает завершение процесса (detached + `unref`); PID только для `stop_game`.
   При рестарте MCP-сервера tracked-pid теряются, но `stop_game` без pid всё равно найдёт все `xash3d.exe` через `tasklist`.

@@ -35,6 +35,7 @@ const server = new McpServer({
 const trackedChildren = new Map<number, ChildProcess>();
 
 const DEFAULT_PRESET = "win32-release-x86";
+const DEFAULT_CLIENT_CONFIG = "Release";
 
 server.tool(
   "build_engine",
@@ -113,8 +114,8 @@ server.tool(
       .describe("Force `cmake --preset` even if build/ is already configured"),
     config: z
       .enum(["Release", "Debug", "RelWithDebInfo"])
-      .optional()
-      .describe("Build config (default: taken from preset)"),
+      .default(DEFAULT_CLIENT_CONFIG)
+      .describe(`Build config (default: ${DEFAULT_CLIENT_CONFIG})`),
     skip_install: z.boolean().default(false).describe("Skip `cmake --install` step"),
   },
   async (args) => {
@@ -132,8 +133,7 @@ server.tool(
       }
     }
 
-    const buildArgs = ["--build", "build"];
-    if (args.config) buildArgs.push("--config", args.config);
+    const buildArgs = ["--build", "build", "--config", args.config];
     const br = await run("cmake", buildArgs, { cwd: CLIENT_SRC });
     if (br.exitCode !== 0) {
       return textResult(
@@ -145,7 +145,7 @@ server.tool(
     if (!args.skip_install) {
       const ir = await run(
         "cmake",
-        ["--install", "build", "--prefix", CLIENT_INSTALL],
+        ["--install", "build", "--config", args.config, "--prefix", CLIENT_INSTALL],
         { cwd: CLIENT_SRC },
       );
       if (ir.exitCode !== 0) {
