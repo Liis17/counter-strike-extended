@@ -28,7 +28,8 @@ src/cse/
 │   ├── valve/resource/             # → runtime/valve/resource/
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 ├── cstrike/
-│   └── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
+│   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
+│   └── scripts/HudLayout.txt       # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 ├── yapb/
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # per-map YaPB config, default yb_difficulty 0
@@ -51,6 +52,7 @@ src/cse/
 |--------|--------------|
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
+| `tools/install_hud_layout.ps1` | `src/cse/cstrike/scripts/HudLayout.txt` → `runtime/cstrike/scripts/HudLayout.txt` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
 

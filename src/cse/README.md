@@ -20,6 +20,9 @@ src/cse/
 │   │   └── 70_loc_russian.vdf     # токены Steam Rich Presence (для HL, appid 70)
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 │       └── cstrike_russian.txt    # CS 1.6 (оружие, режимы, scoreboard)
+├── cstrike/                        # ресурсы игры CS 1.6
+│   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt
+│   └── scripts/HudLayout.txt       # → runtime/cstrike/scripts/HudLayout.txt
 ├── yapb/                           # конфиги YaPB для отдельных карт
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # настройки YaPB для конкретной карты
@@ -36,6 +39,12 @@ src/cse/
 
 ```powershell
 tools\install_localization.ps1
+```
+
+Установить кастомный HUD-layout в `runtime/`:
+
+```powershell
+tools\install_hud_layout.ps1
 ```
 
 Создать и скопировать конфиги YaPB для всех карт из `runtime/`:

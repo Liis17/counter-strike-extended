@@ -9,6 +9,10 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 Опциональный параметр `scale` растягивает цифры и иконки элемента. Без файла поведение
 идентично ванильному CS 1.6.
 
+Источник проектной настройки — `src/cse/cstrike/scripts/HudLayout.txt`. Скрипт
+`tools/install_hud_layout.ps1` устанавливает его в `runtime/cstrike/scripts/`; этот шаг
+также выполняется в конце `build-cse.cmd`.
+
 Тот же файл содержит второй, необязательный блок `HudDecorations` — линии-разделители,
 затемнения и панели-подложки под текст (см. [[#Декорации (необязательные элементы)]]). Оба блока
 можно редактировать визуально через `tools/hud-editor` (см. [[Tooling/hud-editor]]). Редактор показывает
@@ -25,6 +29,8 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 | `src/cs16-client/cl_dll/hud_redraw.cpp` | Проверка `hud_layout_reload` в `CHud::Think()`; вызов `DrawDecorations()` в начале `CHud::Redraw()`, перед циклом отрисовки HUD-элементов |
 | `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()` (ручной textured quad через `pTriAPI` — `SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»), параметр `scale` у `DrawHudNumber*` |
 | `src/cs16-client/extras/HudLayout.txt` | Образец файла с комментариями |
+| `src/cse/cstrike/scripts/HudLayout.txt` | Текущая проектная настройка, устанавливаемая в runtime |
+| `tools/install_hud_layout.ps1` | Идемпотентная установка файла в `runtime/cstrike/scripts/` |
 | `tools/hud-editor/` | Визуальный веб-редактор: `index.html` + `editor.css` + `editor.js` (см. [[Tooling/hud-editor]]) |
 
 ## Как это работает
