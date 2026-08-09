@@ -23,6 +23,7 @@
 |------|-----------|----------|
 | [[CSE/cse-structure]] | src/cse/ | Правило «все моды/изменения проекта — только здесь» + структура |
 | [[Localization/Локализация]] | src/cse/localization/ | Русские переводы (GameUI, valve, mainui, CS, Discord RP) |
+| [[CSE/menu]] | src/cse/menu/ | Патч упрощённого главного меню (Online / Options / Quit) для mainui_cpp клиента |
 
 ### Tooling
 | Файл | Компонент | Описание |

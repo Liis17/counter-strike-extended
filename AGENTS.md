@@ -15,6 +15,7 @@ submodule) — Half-Life-совместимый движок + реверс-ин
 | `Obsidian/counter-strike-extendedVault/Tooling/Tools.md` | Заметка про `tools/screenshot_window.ps1` |
 | `Obsidian/counter-strike-extendedVault/CSE/cse-structure.md` | Правило «все моды/изменения — в `src/cse/`» |
 | `Obsidian/counter-strike-extendedVault/Localization/Локализация.md` | Русские переводы (gameui, valve, mainui, cstrike, Discord RP) |
+| `Obsidian/counter-strike-extendedVault/CSE/menu.md` | Патч главного меню + где реально живёт `menu.dll` |
 
 ## Правило собственного кода — `src/cse/`
 
