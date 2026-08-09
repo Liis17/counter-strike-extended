@@ -2,12 +2,28 @@
 
 Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HUD-layout]], [[Tooling/hud-editor]], [[CSE/rich_presence]]
 
-**Статус: этапы 1–2 сделаны** (элемент с плейсхолдер-слотами + редактор и конфиг),
-этапы 3–5 (Steam-аватары) в работе. Заметка описывает целевой дизайн и порядок работ.
+**Статус: все пять этапов реализованы.** Заметка описывает дизайн, порядок работ и что именно
+проверено.
 
-Реализовано и проверено в игре: `cl_dll/hud/teambar.cpp` (`CHudTeamBar`), запись `"TeamBar"` в
-`src/cse/cstrike/scripts/HudLayout.txt`, id в `tools/hud-editor/editor.js`. Слоты — плейсхолдеры:
-панель цветом команды, первая буква ника, затемнение для мёртвых.
+| Точка | Что |
+|-------|-----|
+| `src/cs16-client/cl_dll/hud/teambar.cpp` | `CHudTeamBar` + клиентская половина сервиса аватаров |
+| `src/cs16-client/cl_dll/hud.h`, `hud.cpp` | класс, член `CHud::m_TeamBar`, вызов `Init()` |
+| `src/xash3d-fwgs/engine/client/dll_int/cl_game.c` | `pfnGetPlayerInfo` заполняет `m_nSteamID` из userinfo-ключа `cse_sid` |
+| `src/cse/rich_presence/src/main.cpp` | Steam-сторона: SteamID64 + выкачка аватаров в TGA ([[CSE/rich_presence]]) |
+| `src/cse/cstrike/scripts/HudLayout.txt` | запись `"TeamBar" "0" "40" "top_center" "1"` |
+| `tools/hud-editor/editor.js` | id в трёх реестрах + ветка `align: "center"` в `getElementPreview()` |
+
+**Проверено:** лента рисуется в бою (слоты T слева, счёт, слоты CT справа; вторая строка при
+шести и более игроках в команде; мёртвые затемнены; счёт совпадает с табло); превью в редакторе
+совпадает с игрой; хелпер по `wanted.txt` кладёт корректный TGA (`type 2, 64×64, 32 bpp,
+attributes 0x28` — ровно то, что читает `img_tga.c`).
+
+**Не проверено вживую:** финальная картинка «реальный аватар внутри слота» — требует, чтобы
+игрок зашёл в команду, а ввод с клавиатуры в игру из среды агента не проходит (SDL raw input).
+Ручная проверка: запустить `start-cse.cmd` при запущенном Steam, подключиться, выбрать команду —
+свой аватар должен появиться в слоте в течение ~5–10 с (секунда на выкачку хелпером плюс
+пятисекундный retry загрузки текстуры).
 
 ## Цель
 

@@ -1,7 +1,7 @@
-# rich_presence — Steam Rich Presence helper
+# rich_presence — Steam-хелпер (Rich Presence + аватары)
 
 Parent: [[Index]]
-Связанные: [[CSE/cse-structure]], [[Локализация]], [[Архитектура]], [[Engine/xash3d-fwgs]]
+Связанные: [[CSE/cse-structure]], [[Локализация]], [[Архитектура]], [[Engine/xash3d-fwgs]], [[Client/HUD-TeamBar]]
 
 ## Назначение
 
@@ -9,6 +9,10 @@ Parent: [[Index]]
 `xash3d.exe`: инициализирует Steam API и выставляет Steam Rich Presence
 (статус «в игре» в профиле Steam у друзей), затем поднимает `xash3d.exe`
 как дочерний процесс и форвардит ему все аргументы.
+
+Вторая роль — **Steam-сторона игрового клиента**: клиентская dll не может
+линковать `steam_api`, поэтому хелпер отдаёт ей SteamID64 локального игрока и
+выкачивает аватары для [[Client/HUD-TeamBar]] (см. «Сервис аватаров» ниже).
 
 Хранится в `src/cse/rich_presence/` ([[CSE/cse-structure]]).
 
@@ -41,6 +45,32 @@ Parent: [[Index]]
 Все ошибки инициализации RP **не фатальны**: если `steam_api.dll` нет или Steam
 не запущен — helper всё равно запускает игру, пишет диагностику в stderr.
 
+## Сервис аватаров
+
+Клиентская dll не имеет доступа к Steam, поэтому хелпер работает её Steam-стороной.
+Обмен — через файлы в `runtime/<gamedir>/cache/` (пути относительно рабочего каталога
+`runtime/`, куда переходят все лаунчеры):
+
+| Файл | Кто пишет | Что |
+|------|-----------|-----|
+| `cache/cse_steam_self.txt` | хелпер | SteamID64 локального игрока; клиент публикует его как userinfo-ключ `cse_sid` |
+| `cache/avatars/wanted.txt` | клиент | по одному SteamID64 на строку — кого показывает лента |
+| `cache/avatars/<id64>.tga` | хелпер | 32-битный несжатый TGA, `attributes = 0x28` (top-down + альфа) |
+
+Цикл (раз в секунду, внутри того же pump-loop, что и Rich Presence):
+`RequestUserInformation(id, false)` → `GetMediumFriendAvatar(id)` (0, пока Steam не
+скачал) → `GetImageSize` + `GetImageRGBA` → RGBA конвертируется в BGRA и пишется в TGA.
+Уже существующие файлы пропускаются, незавершённые id повторяются на следующем тике.
+
+Формат TGA подобран под загрузчик движка `engine/common/imagelib/img_tga.c`: type 2,
+32 bpp, бит 0x20 в attributes → загрузка без переворота строк. **JPG движок не читает**
+(поддерживаются tga/png/bmp/dds/ktx2), поэтому прямая закачка с CDN Steam не подходит.
+
+Аксессоры интерфейсов версионированы (`SteamAPI_SteamUtils_v010` и т.п.) и версия плывёт
+вместе с SDK, поэтому `resolve_interface()` перебирает суффиксы `_v005`…`_v040` и берёт
+первый разрешившийся. Отсутствие любого экспорта не фатально — лента просто остаётся на
+плейсхолдерах.
+
 ## Экспорты steam_api.dll, которые использует helper
 
 (подтверждены dumpbin'ом для dll из `Half-Life\steam_api.dll`, file version 06.91.21.57)
@@ -51,6 +81,12 @@ Parent: [[Index]]
 - `SteamAPI_SteamFriends_v017`
 - `SteamAPI_ISteamFriends_SetRichPresence(self, key, value)`
 - `SteamAPI_ISteamFriends_ClearRichPresence(self)`
+
+Для аватаров (разрешаются перебором версий, см. выше):
+
+- `SteamAPI_SteamUser_v0NN` / `SteamAPI_ISteamUser_GetSteamID(self)`
+- `SteamAPI_SteamUtils_v0NN` / `SteamAPI_ISteamUtils_GetImageSize`, `..._GetImageRGBA`
+- `SteamAPI_ISteamFriends_RequestUserInformation`, `..._GetMediumFriendAvatar`
 
 ## Сборка
 

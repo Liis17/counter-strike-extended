@@ -1,4 +1,4 @@
-# rich_presence — Steam Rich Presence для xash3d
+# rich_presence — Steam-хелпер для xash3d (Rich Presence + аватары)
 
 Внешний C++-helper `cse_steamrp.exe`, который оборачивает `xash3d.exe`: при
 запуске игры инициализирует Steam API и выставляет Steam Rich Presence
@@ -73,6 +73,22 @@ cd runtime
 
 Все аргументы после `cse_steamrp.exe` форвардятся в `xash3d.exe` без изменений:
 `-window`, `-dev 3`, `+map de_dust2` и т.д.
+
+## Сервис аватаров (для HUD TeamBar)
+
+Клиентская dll не может линковать `steam_api`, поэтому хелпер работает её
+Steam-стороной. Обмен — файлами в `runtime/<gamedir>/cache/`:
+
+| Файл | Кто пишет | Что |
+|------|-----------|-----|
+| `cache/cse_steam_self.txt` | хелпер | SteamID64 локального игрока |
+| `cache/avatars/wanted.txt` | клиент | по одному SteamID64 на строку |
+| `cache/avatars/<id64>.tga` | хелпер | 32-битный несжатый TGA 64×64 |
+
+Раз в секунду: `RequestUserInformation` → `GetMediumFriendAvatar` →
+`GetImageSize`/`GetImageRGBA` → TGA (`attributes = 0x28`, BGRA). Уже скачанные
+пропускаются, ещё не готовые повторяются на следующем тике. Отсутствие нужных
+экспортов в `steam_api.dll` не фатально — лента остаётся на плейсхолдерах.
 
 ## Ограничения
 
