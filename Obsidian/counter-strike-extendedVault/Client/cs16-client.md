@@ -22,3 +22,9 @@ CMake (`cmake --preset <preset>`, либо ручная генерация по�
 ## Важные детали
 CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) документированы в апстрим README — не дублируем здесь,
 смотреть `src/cs16-client/README.md` при необходимости.
+
+## Собственные расширения репозитория
+- [[Client/HUD-layout]] — система кастомизации позиций элементов HUD (HP, броня, патроны, деньги,
+  таймер и др.) через внешний файл `scripts/HudLayout.txt`. Реализована в `cl_dll/hud_layout.cpp`,
+  точки расширения в `cl_dll/hud.h` (`CHudBase::m_szLayoutId`, `GetLayoutPos()`), интеграция в
+  `cl_dll/hud.cpp` (`CHud::LoadLayout()`, cvar `hud_layout_reload`).

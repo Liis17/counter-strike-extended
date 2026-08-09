@@ -16,6 +16,7 @@
 | Файл | Компонент | Описание |
 |------|-----------|----------|
 | [[Client/cs16-client]] | cs16-client | Реверс-инженеренный клиент CS 1.6, submodule |
+| [[Client/HUD-layout]] | HUD-layout | Кастомизация позиций элементов HUD через `scripts/HudLayout.txt` |
 
 ### Tooling
 | Файл | Компонент | Описание |
