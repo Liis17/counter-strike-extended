@@ -9,18 +9,18 @@ rem ============================================================
 
 rem --- Server parameters (edit here) ---
 set "SERVER_GAME=cstrike"
-set "SERVER_DLL=yapb.dll"
+set "SERVER_DLL=dlls\yapb.dll"
 set "SERVER_IP=0.0.0.0"
 set "SERVER_PORT=27015"
 set "SERVER_MAXPLAYERS=12"
 set "SERVER_MAP=de_dust2"
 set "SERVER_LOG=engine.log"
-set "SERVER_DEV=1"
+set "SERVER_DEV=0"
 
 rem --- Bot parameters (YaPB) ---
 set "BOT_QUOTA=9"
-set "BOT_QUOTA_MODE=fill"
-set "BOT_DIFFICULTY=3"
+set "BOT_QUOTA_MODE=normal"
+set "BOT_DIFFICULTY=0"
 set "BOT_LANGUAGE=ru"
 
 rem --- Allow map override from command-line arg ---
@@ -31,7 +31,7 @@ set "ROOT=%~dp0"
 if "%ROOT:~-1%"=="\" set "ROOT=%ROOT:~0,-1%"
 set "RUNTIME_DIR=%ROOT%\runtime"
 set "XASH_EXE=%RUNTIME_DIR%\xash3d.exe"
-set "GAME_DLL=%RUNTIME_DIR%\%SERVER_GAME%\dlls\%SERVER_DLL%"
+set "GAME_DLL=%RUNTIME_DIR%\%SERVER_GAME%\%SERVER_DLL%"
 
 rem --- Sanity checks ---
 if not exist "%XASH_EXE%" (

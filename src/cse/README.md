@@ -20,6 +20,9 @@ src/cse/
 │   │   └── 70_loc_russian.vdf     # токены Steam Rich Presence (для HL, appid 70)
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 │       └── cstrike_russian.txt    # CS 1.6 (оружие, режимы, scoreboard)
+├── yapb/                           # конфиги YaPB для отдельных карт
+│   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
+│       └── <map>.cfg               # настройки YaPB для конкретной карты
 └── rich_presence/                  # Steam Rich Presence helper (внешний wrapper)
     ├── src/main.cpp               # cse_steamrp.exe — грузит steam_api.dll, выставляет RP
     ├── CMakeLists.txt             # сборка x86 (MSVC)
@@ -33,6 +36,12 @@ src/cse/
 
 ```powershell
 tools\install_localization.ps1
+```
+
+Создать и скопировать конфиги YaPB для всех карт из `runtime/`:
+
+```powershell
+tools\install_yapb_map_configs.ps1
 ```
 
 Собрать и скопировать Steam Rich Presence helper:
@@ -49,7 +58,8 @@ tools\install_richpresence.ps1
 Copy-Item 'C:\Program Files (x86)\Steam\steamapps\common\Half-Life\steam_api.dll' 'runtime\steam_api.dll'
 ```
 
-Оба скрипта идемпотентны: повторный запуск безопасно перезаписывает целевые файлы.
+Install-скрипты идемпотентны: повторный запуск безопасно перезаписывает целевые
+файлы, а уже существующие исходные конфиги карт не перезаписываются.
 
 ## Правило
 

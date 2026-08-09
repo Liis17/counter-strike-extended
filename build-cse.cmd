@@ -13,13 +13,13 @@ set "RUNTIME_DIR=%ROOT%\runtime"
 set "PRESET=win32-release-x86"
 set "CLIENT_CONFIG=Release"
 
-echo === [1/4] Build engine (waf) ===
+echo === [1/5] Build engine (waf) ===
 pushd "%ENGINE_SRC%" || goto :fail
 call waf.bat build || (popd & goto :fail)
 call waf.bat install --destdir="%ENGINE_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [2/4] Build client (cmake) ===
+echo === [2/5] Build client (cmake) ===
 pushd "%CLIENT_SRC%" || goto :fail
 if not exist "build\CMakeCache.txt" (
     cmake --preset %PRESET% || (popd & goto :fail)
@@ -28,7 +28,7 @@ cmake --build build --config %CLIENT_CONFIG% || (popd & goto :fail)
 cmake --install build --config %CLIENT_CONFIG% --prefix "%CLIENT_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [3/4] Deploy to runtime ===
+echo === [3/5] Deploy to runtime ===
 if not exist "%RUNTIME_DIR%" mkdir "%RUNTIME_DIR%"
 
 rem Engine: build/engine -> runtime/   (incl. .pdb)
@@ -39,8 +39,11 @@ rem Client: build/cs16-client/cstrike -> runtime/cstrike/   (skip .lib)
 robocopy "%CLIENT_INSTALL%\cstrike" "%RUNTIME_DIR%\cstrike" /E /NFL /NDL /NP /NJH /NJS /XF *.lib >nul
 if errorlevel 8 goto :fail
 
-echo === [4/4] Install localization ===
+echo === [4/5] Install localization ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_localization.ps1" || goto :fail
+
+echo === [5/5] Install YaPB map configs ===
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_yapb_map_configs.ps1" || goto :fail
 
 echo.
 echo Build complete. Artifacts deployed to runtime\.
