@@ -11,7 +11,7 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 
 Тот же файл содержит второй, необязательный блок `HudDecorations` — линии-разделители,
 затемнения и панели-подложки под текст (см. [[#Декорации (необязательные элементы)]]). Оба блока
-можно редактировать визуально через `tools/hud-editor` (см. [[Tooling/Tools]]). Редактор показывает
+можно редактировать визуально через `tools/hud-editor` (см. [[Tooling/hud-editor]]). Редактор показывает
 ориентировочные габариты реального HUD, включая правую точку привязки для патронов/денег и
 эффективный `scale` только для поддерживаемых элементов.
 
@@ -19,13 +19,13 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 
 | Файл | Что |
 |------|-----|
-| `src/cs16-client/cl_dll/hud.h` | `enum HudAnchor`, `enum HudDecorationType`, `struct HudDecoration`, поля `CHudBase::m_szLayoutId/m_iLayoutX/m_iLayoutY/m_eLayoutAnchor/m_bLayoutOverridden/m_flLayoutScale`, методы `GetLayoutPos()`, `GetLayoutScale()`, `CHud::LoadLayout()`, `CHud::DrawDecorations()`, `CHud::m_LayoutDecorations`, `CHud::hud_layout_reload` |
-| `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика), `CHudBase::GetLayoutPos()`, `Decoration_ResolveTopLeft()`, парсер `CHud::LoadLayout()` (оба блока), `CHud::DrawDecorations()` |
+| `src/cs16-client/cl_dll/hud.h` | `enum HudAnchor` (9 значений, сетка 3×3), `enum HudDecorationType`, `struct HudDecoration`, поля `CHudBase::m_szLayoutId/m_iLayoutX/m_iLayoutY/m_eLayoutAnchor/m_bLayoutOverridden/m_flLayoutScale`, методы `GetLayoutPos()`, `GetLayoutScale()`, `CHud::LoadLayout()`, `CHud::DrawDecorations()`, `CHud::m_LayoutDecorations`, `CHud::hud_layout_reload` |
+| `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика, две независимые оси), `g_LayoutAnchorNames[]` + `Layout_ParseAnchor()` (таблица имён и алиасов), `CHudBase::GetLayoutPos()`, `Decoration_ResolveTopLeft()`, парсер `CHud::LoadLayout()` (оба блока), `CHud::DrawDecorations()` |
 | `src/cs16-client/cl_dll/hud.cpp` | Регистрация cvar `hud_layout_reload`, вызов `LoadLayout()` в конце `CHud::Init()` |
 | `src/cs16-client/cl_dll/hud_redraw.cpp` | Проверка `hud_layout_reload` в `CHud::Think()`; вызов `DrawDecorations()` в начале `CHud::Redraw()`, перед циклом отрисовки HUD-элементов |
 | `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()` (ручной textured quad через `pTriAPI` — `SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»), параметр `scale` у `DrawHudNumber*` |
 | `src/cs16-client/extras/HudLayout.txt` | Образец файла с комментариями |
-| `tools/hud-editor/index.html` | Визуальный веб-редактор (см. [[Tooling/Tools]]) |
+| `tools/hud-editor/` | Визуальный веб-редактор: `index.html` + `editor.css` + `editor.js` (см. [[Tooling/hud-editor]]) |
 
 ## Как это работает
 
@@ -79,13 +79,14 @@ additive-прозрачных глифов. Исправлено переход�
 
 ```
 // Editor preview resolution: 2560x1440 (game uses its current screen resolution).
+// EditorGroups: [{"name":"HP-блок","members":["el:Health","el:Battery","dec:1"]}]
 "HudLayout"
 {
     "Health"        "10"   "40"  "bottom_left"   "1.5"
     "Battery"       "120"  "40"  "bottom_left"   "1.5"
     "Ammo"          "20"   "40"  "bottom_right"  "1.5"
     "Money"         "20"   "75"  "bottom_right"  "1.3"
-    "Timer"         "0"    "35"  "center"        "1.3"
+    "Timer"         "0"    "35"  "top_center"    "1.3"
 }
 
 "HudDecorations"
@@ -97,11 +98,36 @@ additive-прозрачных глифов. Исправлено переход�
 ```
 
 Каждая запись `HudLayout` = 4 обязательных токена + 1 опциональный: `"id" "x" "y" "anchor" ["scale"]`.
-Якоря: `top_left`, `top_right`, `bottom_left`, `bottom_right`, `center`. Scale — float, по
-умолчанию 1.0 (1.5 = +50% к размеру, 0.75 = −25%). Комментарии вне `"HudLayout { ... }"` не
-поддерживаются (используйте закомментированные строки-образцы в файле — они просто не матчатся
-с id элементов). Комментарий `Editor preview resolution` записывается редактором только для
-повторного открытия с тем же холстом; игра его игнорирует.
+Scale — float, по умолчанию 1.0 (1.5 = +50% к размеру, 0.75 = −25%). Комментарии вне
+`"HudLayout { ... }"` не поддерживаются (используйте закомментированные строки-образцы в файле —
+они просто не матчатся с id элементов).
+
+Комментарии-метаданные редактора (`COM_ParseFile` пропускает `//`, игра их не видит):
+
+| Комментарий | Что хранит |
+|-------------|-----------|
+| `// Editor preview resolution: WxH` | Размер холста для повторного открытия в редакторе |
+| `// EditorGroups: [...]` | Именованные группы элементов (одна строка JSON). Элементы — `el:<Id>`, декорации — `dec:<индекс в блоке HudDecorations>`; индекс маппится в рантайм-uid при загрузке. Битый JSON и несуществующие члены молча отбрасываются |
+
+### Якоря
+
+Полная сетка 3×3, имя читается «вертикаль_горизонталь», одиночное `center` = центр по обеим осям:
+
+| | left | center | right |
+|-|------|--------|-------|
+| **top** | `top_left` | `top_center` | `top_right` |
+| **center** | `center_left` | `center` | `center_right` |
+| **bottom** | `bottom_left` | `bottom_center` | `bottom_right` |
+
+Оси резолвятся независимо (`ResolveAnchoredPos()` — два отдельных `switch`): по каждой оси
+значение это либо отсчёт от края (`…_left` / `top…`), либо отступ от противоположного края
+(`…_right` / `bottom…`), либо знаковое смещение от центра (`…_center` / `center…`). Привязка к
+центральной половине держит элемент у своей части экрана на любом разрешении — в отличие от
+`center` с большим смещением, которое «уезжает» при смене разрешения.
+
+`Layout_ParseAnchor()` дополнительно принимает алиасы: написание без подчёркивания
+(`topright`, `bottomleft`, …) и обратный порядок `center_top` / `center_bottom` / `left_center` /
+`right_center`. Неизвестное имя → `top_left`.
 
 Блок `HudDecorations` необязателен (если его нет в файле — декораций просто нет). Каждая запись —
 фиксированные 11 токенов: `"Type" "x" "y" "anchor" "w" "h" "r" "g" "b" "a" "radius"`. `radius`
@@ -131,13 +157,20 @@ anchor-математикой, что и HUD-элементы (`ResolveAnchoredP
 
 - Координаты — в **сырых пикселях** экрана (не масштабируются под разрешение). На разных
   разрешениях лейаут выглядит по-разному — это сознательный выбор. Scale, напротив, применяется
-  к размеру элемента, а не к координате.
+  к размеру элемента, а не к координате. Смягчить это можно выбором якоря: элемент, привязанный
+  к `top_center`/`bottom_center`/`center_*` с небольшим смещением, остаётся у своей части экрана
+  при смене разрешения.
+- Якорь задаёт только точку привязки, но **не** центрирует блок по его ширине: у `top_center`
+  с `x = 0` элемент начинается от центра и растёт вправо (для right-aligned элементов — влево).
+  Чтобы визуально отцентрировать блок, задайте `x = -w/2`; это константа, от разрешения она не
+  зависит. То же касается декораций (`Decoration_ResolveTopLeft()` не зеркалит по w/h).
 - В редакторе выбирайте фактическое разрешение игрового окна (`ScreenWidth × ScreenHeight`),
   иначе якоря и декорации будут визуально смещены. Для текущего `runtime/cstrike/video.cfg`
   используется пресет `2560×1440`; выбранный размер сохраняется в комментарии файла.
+  См. [[Tooling/hud-editor]].
 - Для right-aligned элементов (`Ammo`, `Money`, `Flashlight`, `DeathNotice`) семантика `x` =
-  «правый край блока», имеет смысл использовать только `top_right`/`bottom_right`. Иные якоря
-  дадут неожиданные позиции.
+  «правый край блока», поэтому естественны якоря с горизонталью `right`. Иные якоря работают, но
+  блок будет расти влево от точки привязки.
 - HP и броня исторически на одной `y` и разнесены по `x` вручную. При свободном позиционировании
   возможно наложение — ответственность пользователя через `HudLayout.txt`.
 - Scale применяется только к элементам, у которых он реализован (Health, Battery, Ammo, Money,
