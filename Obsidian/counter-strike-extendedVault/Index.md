@@ -22,13 +22,15 @@
 | Файл | Компонент | Описание |
 |------|-----------|----------|
 | [[CSE/cse-structure]] | src/cse/ | Правило «все моды/изменения проекта — только здесь» + структура |
-| [[Localization/Локализация]] | src/cse/localization/ | Русские переводы (GameUI, valve, mainui, CS, Discord RP) |
+| [[Localization/Локализация]] | src/cse/localization/ | Русские переводы (GameUI, valve, mainui, CS, токены Steam RP) |
+| [[CSE/rich_presence]] | src/cse/rich_presence/ | Steam Rich Presence helper (`cse_steamrp.exe`) — внешний wrapper xash3d |
 | [[CSE/menu]] | mainui_cpp (форк) | Упрощённое главное меню (Online / Options / Quit) в `Liis17/mainui_cpp` |
 
 ### Tooling
 | Файл | Компонент | Описание |
 |------|-----------|----------|
 | [[Tooling/Tools]] | tools/ | Вспомогательные скрипты (скриншот окна игры, install локализации) |
+| [[Tooling/mcp-game]] | tools/mcp-game | MCP-сервер `game` для opencode: build/deploy/run игры через tools |
 
 ## Правила обновления базы знаний
 
