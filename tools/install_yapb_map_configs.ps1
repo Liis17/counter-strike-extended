@@ -13,20 +13,52 @@ else {
     $Root = (Resolve-Path -LiteralPath $Root).Path
 }
 
-$mapsDir = Join-Path $Root 'runtime\cstrike\maps'
+$gameDir = Join-Path $Root 'runtime\cstrike'
+$mapsDir = Join-Path $gameDir 'maps'
 $sourceDir = Join-Path $Root 'src\cse\yapb\conf\maps'
-$targetDir = Join-Path $Root 'runtime\cstrike\addons\yapb\conf\maps'
+$targetDir = Join-Path $gameDir 'addons\yapb\conf\maps'
 
-if (-not (Test-Path -LiteralPath $mapsDir -PathType Container)) {
-    throw "Map directory not found: $mapsDir"
+if (-not (Test-Path -LiteralPath $gameDir -PathType Container)) {
+    throw "Game directory not found: $gameDir"
 }
 
-$maps = @(Get-ChildItem -LiteralPath $mapsDir -Filter '*.bsp' -File | Sort-Object BaseName)
-if ($maps.Count -eq 0) {
-    throw "No .bsp maps found in: $mapsDir"
+$mapNames = @()
+if (Test-Path -LiteralPath $mapsDir -PathType Container) {
+    $mapNames += @(Get-ChildItem -LiteralPath $mapsDir -Filter '*.bsp' -File |
+        ForEach-Object { $_.BaseName.ToLowerInvariant() })
 }
 
-if (-not (Test-Path -LiteralPath $sourceDir -PathType Container)) {
+$archives = @(Get-ChildItem -LiteralPath $gameDir -File |
+    Where-Object { $_.Extension -ieq '.pk3' -or $_.Extension -ieq '.zip' })
+if ($archives.Count -gt 0) {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+    foreach ($archive in $archives) {
+        $zip = [System.IO.Compression.ZipFile]::OpenRead($archive.FullName)
+        try {
+            foreach ($entry in $zip.Entries) {
+                $mapMatch = [System.Text.RegularExpressions.Regex]::Match(
+                    $entry.FullName,
+                    '(^|[/\\])maps[/\\]([^/\\]+)\.bsp$',
+                    [System.Text.RegularExpressions.RegexOptions]::IgnoreCase
+                )
+                if ($mapMatch.Success) {
+                    $mapNames += $mapMatch.Groups[2].Value.ToLowerInvariant()
+                }
+            }
+        }
+        finally {
+            $zip.Dispose()
+        }
+    }
+}
+
+$mapNames = @($mapNames | Sort-Object -Unique)
+if ($mapNames.Count -eq 0) {
+    Write-Warning "No maps found as loose .bsp files or in .pk3/.zip archives under: $gameDir"
+}
+
+if ($mapNames.Count -gt 0 -and -not (Test-Path -LiteralPath $sourceDir -PathType Container)) {
     if ($DryRun) {
         Write-Output "DRY-RUN: create directory $sourceDir"
     }
@@ -38,8 +70,7 @@ if (-not (Test-Path -LiteralPath $sourceDir -PathType Container)) {
 $createdCount = 0
 $existingCount = 0
 
-foreach ($map in $maps) {
-    $mapName = $map.BaseName.ToLowerInvariant()
+foreach ($mapName in $mapNames) {
     $sourcePath = Join-Path $sourceDir "$mapName.cfg"
 
     if (Test-Path -LiteralPath $sourcePath -PathType Leaf) {
@@ -83,4 +114,4 @@ else {
 
 $mode = if ($DryRun) { 'DRY-RUN' } else { 'Complete' }
 Write-Output ("{0}: maps found {1}; configs created {2}; configs already present {3}; configs installed {4}" -f `
-    $mode, $maps.Count, $createdCount, $existingCount, $sourceConfigs.Count)
+    $mode, $mapNames.Count, $createdCount, $existingCount, $sourceConfigs.Count)
