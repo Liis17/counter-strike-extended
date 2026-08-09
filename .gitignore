@@ -1,0 +1,17 @@
+# Runtime: built engine + licensed Steam assets (valve/cstrike). Never commit copyrighted game data.
+/runtime/
+
+# Build outputs
+/build/
+*.obj
+*.pdb
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Editor/OS junk
+.vs/
+.vscode/
+*.user
+Thumbs.db
