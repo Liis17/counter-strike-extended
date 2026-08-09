@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>HUD Layout Editor — cs16-client</title>
+<style>
+	:root {
+		color-scheme: dark;
+		--bg: #1b1d21;
+		--panel: #24272c;
+		--panel2: #2c3037;
+		--border: #3a3f47;
+		--text: #d8dadd;
+		--muted: #8a8f98;
+		--accent: #ff8c00;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		font-family: "Segoe UI", Tahoma, sans-serif;
+		background: var(--bg);
+		color: var(--text);
+		height: 100vh;
+		display: flex;
+		flex-direction: column;
+	}
+	header {
+		display: flex;
+		align-items: center;
+		gap: 16px;
+		padding: 8px 12px;
+		background: var(--panel);
+		border-bottom: 1px solid var(--border);
+		flex-wrap: wrap;
+	}
+	header h1 { font-size: 15px; margin: 0 12px 0 0; white-space: nowrap; }
+	.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+	.toolbar label { font-size: 12px; color: var(--muted); display: flex; gap: 4px; align-items: center; }
+	input, select, button {
+		background: var(--panel2);
+		color: var(--text);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 4px 6px;
+		font-size: 12px;
+	}
+	input[type="number"] { width: 64px; }
+	input[type="color"] { width: 32px; padding: 2px; }
+	button { cursor: pointer; }
+	button:hover { border-color: var(--accent); }
+	button.primary { background: var(--accent); color: #1b1d21; font-weight: 600; border-color: var(--accent); }
+	#fsapiWarning { color: #ff6b6b; font-size: 12px; }
+	#main { flex: 1; display: flex; min-height: 0; }
+	aside {
+		width: 340px;
+		flex-shrink: 0;
+		background: var(--panel);
+		border-right: 1px solid var(--border);
+		overflow-y: auto;
+		padding: 10px;
+	}
+	aside h2 { font-size: 12px; text-transform: uppercase; color: var(--muted); margin: 14px 0 6px; }
+	aside h2:first-child { margin-top: 0; }
+	.elem-row, .decor-row {
+		background: var(--panel2);
+		border: 1px solid var(--border);
+		border-radius: 4px;
+		padding: 6px;
+		margin-bottom: 6px;
+	}
+	.elem-row .row-head, .decor-row .row-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 4px;
+	}
+	.elem-row .row-head b { font-size: 12px; }
+	.decor-row .row-head b { font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+	.field-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; align-items: center; }
+	.field-grid label { font-size: 10px; color: var(--muted); display: flex; flex-direction: column; gap: 2px; }
+	.field-grid select { width: 100%; }
+	.add-buttons { display: flex; gap: 6px; margin-bottom: 8px; }
+	.add-buttons button { flex: 1; }
+	.del-btn { color: #ff6b6b; border-color: #5a2b2b; }
+	#stageWrap { flex: 1; overflow: auto; display: flex; align-items: center; justify-content: center; background: repeating-conic-gradient(#20222600 0% 25%, #26282d00 0% 50%) ; }
+	#stageSizer { position: relative; flex-shrink: 0; }
+	#stage {
+		position: absolute;
+		top: 0;
+		left: 0;
+		background: #14151a;
+		transform-origin: top left;
+		outline: 1px solid var(--border);
+	}
+	.marker {
+		position: absolute;
+		transform: translate(-2px, -2px);
+		border: 1px dashed var(--accent);
+		background: rgba(255, 140, 0, 0.12);
+		color: var(--accent);
+		font-size: 11px;
+		padding: 2px 4px;
+		white-space: nowrap;
+		cursor: move;
+		user-select: none;
+	}
+	.decor-box {
+		position: absolute;
+		cursor: move;
+		user-select: none;
+		border: 1px solid rgba(255,255,255,0.35);
+	}
+	.decor-box.type-line { border: none; }
+	.decor-box .resize-handle {
+		position: absolute;
+		right: -4px;
+		bottom: -4px;
+		width: 10px;
+		height: 10px;
+		background: var(--accent);
+		cursor: nwse-resize;
+	}
+</style>
+</head>
+<body>
+<header>
+	<h1>HUD Layout Editor</h1>
+	<div class="toolbar">
+		<label>W <input id="resW" type="number" value="1920" min="320" step="1"></label>
+		<label>H <input id="resH" type="number" value="1080" min="240" step="1"></label>
+		<select id="resPreset">
+			<option value="">пресет...</option>
+			<option value="1920x1080">1920×1080</option>
+			<option value="1280x720">1280×720</option>
+			<option value="1024x768">1024×768</option>
+			<option value="800x600">800×600</option>
+			<option value="640x480">640×480</option>
+		</select>
+	</div>
+	<div class="toolbar">
+		<button id="btnNew">Новый</button>
+		<button id="btnOpen" class="primary">Открыть...</button>
+		<button id="btnSave" class="primary">Сохранить</button>
+		<span id="fsapiWarning" hidden>Нужен Chrome/Edge (File System Access API)</span>
+	</div>
+</header>
+<div id="main">
+	<aside>
+		<h2>Обязательные элементы HUD</h2>
+		<div id="elementsList"></div>
+
+		<h2>Декорации (необязательные)</h2>
+		<div class="add-buttons">
+			<button data-add="Line">+ Линия</button>
+			<button data-add="Shade">+ Затемнение</button>
+			<button data-add="Panel">+ Панель</button>
+		</div>
+		<div id="decorationsList"></div>
+	</aside>
+	<div id="stageWrap">
+		<div id="stageSizer">
+			<div id="stage"></div>
+		</div>
+	</div>
+</div>
+
+<script>
+"use strict";
+
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar"];
+const ANCHORS = ["top_left", "top_right", "bottom_left", "bottom_right", "center"];
+const DECOR_TYPES = ["Line", "Shade", "Panel"];
+
+// Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
+const DEFAULT_ELEMENTS = {
+	Health:        { x: 10,  y: 40, anchor: "bottom_left",  scale: 1 },
+	Battery:       { x: 120, y: 40, anchor: "bottom_left",  scale: 1 },
+	Ammo:          { x: 20,  y: 40, anchor: "bottom_right", scale: 2 },
+	AmmoSecondary: { x: 20,  y: 90, anchor: "bottom_right", scale: 1 },
+	Money:         { x: 20,  y: 75, anchor: "bottom_right", scale: 2 },
+	Timer:         { x: 0,   y: 35, anchor: "center",       scale: 2 },
+	Flashlight:    { x: 40,  y: 10, anchor: "top_right",    scale: 2 },
+	DeathNotice:   { x: 20,  y: 40, anchor: "top_right",    scale: 2 },
+	StatusBar:     { x: 10,  y: 40, anchor: "bottom_left",  scale: 2 },
+};
+
+let state = {
+	resW: 1920,
+	resH: 1080,
+	elements: {},
+	decorations: [],
+};
+let fileHandle = null;
+let scaleK = 1;
+
+function newConfig() {
+	state = {
+		resW: 1920,
+		resH: 1080,
+		elements: JSON.parse(JSON.stringify(DEFAULT_ELEMENTS)),
+		decorations: [
+			{ type: "Shade", x: 0,  y: 0,  anchor: "top_left", w: 1920, h: 36, r: 0,  g: 0,  b: 0,  a: 140, radius: 0 },
+			{ type: "Line",  x: 10, y: 40, anchor: "top_left", w: 300,  h: 2,  r: 255, g: 140, b: 0, a: 255, radius: 0 },
+		],
+	};
+	fileHandle = null;
+	render();
+}
+
+// --- Anchor math: mirrors CHudBase::GetLayoutPos / Decoration_ResolveTopLeft
+// in src/cs16-client/cl_dll/hud_layout.cpp exactly. ---
+function resolveAnchoredPos(anchor, lx, ly, resW, resH) {
+	switch (anchor) {
+		case "top_right":    return { x: resW - lx, y: ly };
+		case "bottom_left":  return { x: lx, y: resH - ly };
+		case "bottom_right": return { x: resW - lx, y: resH - ly };
+		case "center":       return { x: resW / 2 + lx, y: resH / 2 + ly };
+		default:             return { x: lx, y: ly }; // top_left
+	}
+}
+function inverseAnchoredPos(anchor, x, y, resW, resH) {
+	switch (anchor) {
+		case "top_right":    return { x: resW - x, y: y };
+		case "bottom_left":  return { x: x, y: resH - y };
+		case "bottom_right": return { x: resW - x, y: resH - y };
+		case "center":       return { x: x - resW / 2, y: y - resH / 2 };
+		default:             return { x: x, y: y }; // top_left
+	}
+}
+
+// --- Parser: mirrors the COM_ParseFile-based reader in hud_layout.cpp ---
+function tokenize(text) {
+	const tokens = [];
+	let i = 0;
+	const n = text.length;
+	while (i < n) {
+		while (i < n && /\s/.test(text[i])) i++;
+		if (i >= n) break;
+		if (text[i] === "/" && text[i + 1] === "/") {
+			while (i < n && text[i] !== "\n") i++;
+			continue;
+		}
+		if (text[i] === '"') {
+			i++;
+			const start = i;
+			while (i < n && text[i] !== '"') i++;
+			tokens.push(text.slice(start, i));
+			i++;
+		} else {
+			const start = i;
+			while (i < n && !/\s/.test(text[i])) i++;
+			tokens.push(text.slice(start, i));
+		}
+	}
+	return tokens;
+}
+
+function parseHudLayout(text) {
+	const tokens = tokenize(text);
+	let idx = 0;
+	const next = () => tokens[idx++];
+	const peek = () => tokens[idx];
+
+	if (next() !== "HudLayout") throw new Error('Ожидался токен "HudLayout"');
+	if (next() !== "{") throw new Error('Ожидался "{" после "HudLayout"');
+
+	const elements = JSON.parse(JSON.stringify(DEFAULT_ELEMENTS));
+	for (;;) {
+		const id = next();
+		if (id === undefined || id === "}") break;
+		const x = parseInt(next(), 10);
+		const y = parseInt(next(), 10);
+		const anchor = next();
+		let scale = 1;
+		const maybe = peek();
+		if (maybe !== undefined && maybe !== "}" && !isNaN(parseFloat(maybe)) && parseFloat(maybe) !== 0) {
+			scale = parseFloat(next());
+		}
+		elements[id] = { x, y, anchor, scale };
+	}
+
+	const decorations = [];
+	if (peek() === "HudDecorations") {
+		next();
+		if (next() !== "{") throw new Error('Ожидался "{" после "HudDecorations"');
+		for (;;) {
+			const type = next();
+			if (type === undefined || type === "}") break;
+			decorations.push({
+				type,
+				x: parseInt(next(), 10),
+				y: parseInt(next(), 10),
+				anchor: next(),
+				w: parseInt(next(), 10),
+				h: parseInt(next(), 10),
+				r: parseInt(next(), 10),
+				g: parseInt(next(), 10),
+				b: parseInt(next(), 10),
+				a: parseInt(next(), 10),
+				radius: parseInt(next(), 10),
+			});
+		}
+	}
+
+	return { elements, decorations };
+}
+
+function serializeHudLayout(st) {
+	const lines = [];
+	lines.push("// Customizable HUD layout for CS16Client.");
+	lines.push('// Format: "id" "x" "y" "anchor" ["scale"]');
+	lines.push('// Set "hud_layout_reload 1" in console to reload. Generated by tools/hud-editor.');
+	lines.push('"HudLayout"');
+	lines.push("{");
+	for (const id of ELEMENT_IDS) {
+		const e = st.elements[id] || DEFAULT_ELEMENTS[id];
+		lines.push(`\t "${id}" "${e.x}" "${e.y}" "${e.anchor}" "${e.scale}"`);
+	}
+	lines.push("}");
+	lines.push("");
+	lines.push('// "Type" "x" "y" "anchor" "w" "h" "r" "g" "b" "a" "radius"');
+	lines.push('"HudDecorations"');
+	lines.push("{");
+	for (const d of st.decorations) {
+		lines.push(`\t "${d.type}" "${d.x}" "${d.y}" "${d.anchor}" "${d.w}" "${d.h}" "${d.r}" "${d.g}" "${d.b}" "${d.a}" "${d.radius}"`);
+	}
+	lines.push("}");
+	return lines.join("\n") + "\n";
+}
+
+// --- Color helpers ---
+function rgbToHex(r, g, b) {
+	return "#" + [r, g, b].map((v) => Math.max(0, Math.min(255, v | 0)).toString(16).padStart(2, "0")).join("");
+}
+function hexToRgb(hex) {
+	const n = parseInt(hex.slice(1), 16);
+	return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+}
+
+// --- Drag/resize helper: converts screen mouse delta to stage-space delta ---
+function beginDrag(onMove, onEnd) {
+	function move(ev) {
+		onMove(ev.movementX / scaleK, ev.movementY / scaleK);
+	}
+	function up() {
+		document.removeEventListener("mousemove", move);
+		document.removeEventListener("mouseup", up);
+		if (onEnd) onEnd();
+	}
+	document.addEventListener("mousemove", move);
+	document.addEventListener("mouseup", up);
+}
+
+// --- Rendering ---
+function layoutStageScale() {
+	const wrap = document.getElementById("stageWrap");
+	const availW = wrap.clientWidth - 24;
+	const availH = wrap.clientHeight - 24;
+	scaleK = Math.min(1, availW / state.resW, availH / state.resH);
+	if (!isFinite(scaleK) || scaleK <= 0) scaleK = 1;
+
+	const sizer = document.getElementById("stageSizer");
+	sizer.style.width = Math.round(state.resW * scaleK) + "px";
+	sizer.style.height = Math.round(state.resH * scaleK) + "px";
+}
+
+function render() {
+	document.getElementById("resW").value = state.resW;
+	document.getElementById("resH").value = state.resH;
+	renderStage();
+	renderElementsList();
+	renderDecorationsList();
+}
+
+function renderStage() {
+	layoutStageScale();
+	const stage = document.getElementById("stage");
+	stage.style.width = state.resW + "px";
+	stage.style.height = state.resH + "px";
+	stage.style.transform = `scale(${scaleK})`;
+	stage.innerHTML = "";
+
+	// Decorations first (painter's algorithm matches CHud::DrawDecorations()
+	// being called before every HUD element's Draw()).
+	state.decorations.forEach((d, i) => {
+		const pos = resolveAnchoredPos(d.anchor, d.x, d.y, state.resW, state.resH);
+		const box = document.createElement("div");
+		box.className = "decor-box type-" + d.type.toLowerCase();
+		box.style.left = pos.x + "px";
+		box.style.top = pos.y + "px";
+		box.style.width = d.w + "px";
+		box.style.height = d.h + "px";
+		box.style.background = `rgba(${d.r}, ${d.g}, ${d.b}, ${d.a / 255})`;
+		if (d.type === "Panel") box.style.borderRadius = d.radius + "px";
+		box.title = d.type;
+
+		box.addEventListener("mousedown", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			beginDrag((dx, dy) => {
+				const cur = resolveAnchoredPos(d.anchor, d.x, d.y, state.resW, state.resH);
+				const np = inverseAnchoredPos(d.anchor, cur.x + dx, cur.y + dy, state.resW, state.resH);
+				d.x = Math.round(np.x);
+				d.y = Math.round(np.y);
+				renderStage();
+			}, renderDecorationsList);
+		});
+
+		const handle = document.createElement("div");
+		handle.className = "resize-handle";
+		handle.addEventListener("mousedown", (e) => {
+			e.preventDefault();
+			e.stopPropagation();
+			beginDrag((dx, dy) => {
+				d.w = Math.max(2, Math.round(d.w + dx));
+				d.h = Math.max(2, Math.round(d.h + dy));
+				renderStage();
+			}, renderDecorationsList);
+		});
+		box.appendChild(handle);
+		stage.appendChild(box);
+	});
+
+	// Required elements on top, as draggable label markers.
+	for (const id of ELEMENT_IDS) {
+		const e = state.elements[id];
+		const pos = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
+		const marker = document.createElement("div");
+		marker.className = "marker";
+		marker.textContent = id;
+		marker.style.left = pos.x + "px";
+		marker.style.top = pos.y + "px";
+
+		marker.addEventListener("mousedown", (ev) => {
+			ev.preventDefault();
+			ev.stopPropagation();
+			beginDrag((dx, dy) => {
+				const cur = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
+				const np = inverseAnchoredPos(e.anchor, cur.x + dx, cur.y + dy, state.resW, state.resH);
+				e.x = Math.round(np.x);
+				e.y = Math.round(np.y);
+				renderStage();
+			}, renderElementsList);
+		});
+		stage.appendChild(marker);
+	}
+}
+
+function anchorSelect(value, onChange) {
+	const sel = document.createElement("select");
+	for (const a of ANCHORS) {
+		const opt = document.createElement("option");
+		opt.value = a;
+		opt.textContent = a;
+		if (a === value) opt.selected = true;
+		sel.appendChild(opt);
+	}
+	sel.addEventListener("change", () => onChange(sel.value));
+	return sel;
+}
+
+function numberInput(value, step, onChange) {
+	const inp = document.createElement("input");
+	inp.type = "number";
+	inp.value = value;
+	if (step) inp.step = step;
+	inp.addEventListener("input", () => onChange(parseFloat(inp.value) || 0));
+	return inp;
+}
+
+function labeled(text, node) {
+	const lbl = document.createElement("label");
+	lbl.textContent = text;
+	lbl.appendChild(node);
+	return lbl;
+}
+
+function renderElementsList() {
+	const list = document.getElementById("elementsList");
+	list.innerHTML = "";
+	for (const id of ELEMENT_IDS) {
+		const e = state.elements[id];
+		const row = document.createElement("div");
+		row.className = "elem-row";
+
+		const head = document.createElement("div");
+		head.className = "row-head";
+		head.innerHTML = `<b>${id}</b>`;
+		row.appendChild(head);
+
+		const grid = document.createElement("div");
+		grid.className = "field-grid";
+		grid.appendChild(labeled("x", numberInput(e.x, 1, (v) => { e.x = Math.round(v); renderStage(); })));
+		grid.appendChild(labeled("y", numberInput(e.y, 1, (v) => { e.y = Math.round(v); renderStage(); })));
+		grid.appendChild(labeled("scale", numberInput(e.scale, 0.1, (v) => { e.scale = v; })));
+		grid.appendChild(labeled("anchor", anchorSelect(e.anchor, (v) => { e.anchor = v; renderStage(); })));
+		row.appendChild(grid);
+
+		list.appendChild(row);
+	}
+}
+
+function renderDecorationsList() {
+	const list = document.getElementById("decorationsList");
+	list.innerHTML = "";
+	state.decorations.forEach((d, i) => {
+		const row = document.createElement("div");
+		row.className = "decor-row";
+
+		const head = document.createElement("div");
+		head.className = "row-head";
+		const title = document.createElement("b");
+		title.textContent = d.type;
+		head.appendChild(title);
+		const del = document.createElement("button");
+		del.className = "del-btn";
+		del.textContent = "×";
+		del.addEventListener("click", () => {
+			state.decorations.splice(i, 1);
+			render();
+		});
+		head.appendChild(del);
+		row.appendChild(head);
+
+		const grid = document.createElement("div");
+		grid.className = "field-grid";
+		grid.appendChild(labeled("x", numberInput(d.x, 1, (v) => { d.x = Math.round(v); renderStage(); })));
+		grid.appendChild(labeled("y", numberInput(d.y, 1, (v) => { d.y = Math.round(v); renderStage(); })));
+		grid.appendChild(labeled("w", numberInput(d.w, 1, (v) => { d.w = Math.max(2, Math.round(v)); renderStage(); })));
+		grid.appendChild(labeled("h", numberInput(d.h, 1, (v) => { d.h = Math.max(2, Math.round(v)); renderStage(); })));
+		grid.appendChild(labeled("anchor", anchorSelect(d.anchor, (v) => { d.anchor = v; renderStage(); })));
+
+		const colorInp = document.createElement("input");
+		colorInp.type = "color";
+		colorInp.value = rgbToHex(d.r, d.g, d.b);
+		colorInp.addEventListener("input", () => {
+			const rgb = hexToRgb(colorInp.value);
+			d.r = rgb.r; d.g = rgb.g; d.b = rgb.b;
+			renderStage();
+		});
+		grid.appendChild(labeled("цвет", colorInp));
+
+		grid.appendChild(labeled("alpha", numberInput(d.a, 1, (v) => { d.a = Math.max(0, Math.min(255, Math.round(v))); renderStage(); })));
+
+		if (d.type === "Panel") {
+			grid.appendChild(labeled("radius", numberInput(d.radius, 1, (v) => { d.radius = Math.max(0, Math.round(v)); renderStage(); })));
+		}
+
+		row.appendChild(grid);
+		list.appendChild(row);
+	});
+}
+
+// --- Toolbar wiring ---
+document.getElementById("resW").addEventListener("change", (e) => { state.resW = parseInt(e.target.value, 10) || 1920; renderStage(); });
+document.getElementById("resH").addEventListener("change", (e) => { state.resH = parseInt(e.target.value, 10) || 1080; renderStage(); });
+document.getElementById("resPreset").addEventListener("change", (e) => {
+	if (!e.target.value) return;
+	const [w, h] = e.target.value.split("x").map(Number);
+	state.resW = w; state.resH = h;
+	e.target.value = "";
+	renderStage();
+	document.getElementById("resW").value = w;
+	document.getElementById("resH").value = h;
+});
+
+document.querySelectorAll("[data-add]").forEach((btn) => {
+	btn.addEventListener("click", () => {
+		const type = btn.getAttribute("data-add");
+		const base = { x: 20, y: 20, anchor: "top_left", w: 200, h: type === "Line" ? 2 : 60, r: 255, g: 255, b: 255, a: type === "Shade" ? 120 : 200, radius: type === "Panel" ? 10 : 0 };
+		if (type === "Panel") { base.r = 20; base.g = 20; base.b = 20; }
+		if (type === "Shade") { base.r = 0; base.g = 0; base.b = 0; }
+		if (type === "Line") { base.r = 255; base.g = 140; base.b = 0; }
+		state.decorations.push(Object.assign({ type }, base));
+		render();
+	});
+});
+
+document.getElementById("btnNew").addEventListener("click", () => {
+	if (confirm("Сбросить текущую конфигурацию к значениям по умолчанию?")) newConfig();
+});
+
+const hasFsApi = "showOpenFilePicker" in window;
+if (!hasFsApi) document.getElementById("fsapiWarning").hidden = false;
+
+document.getElementById("btnOpen").addEventListener("click", async () => {
+	if (!hasFsApi) { alert("File System Access API недоступен в этом браузере. Открой в Chrome/Edge."); return; }
+	try {
+		const [handle] = await window.showOpenFilePicker({
+			types: [{ description: "HudLayout.txt", accept: { "text/plain": [".txt"] } }],
+		});
+		fileHandle = handle;
+		const file = await handle.getFile();
+		const text = await file.text();
+		const parsed = parseHudLayout(text);
+		state.elements = parsed.elements;
+		state.decorations = parsed.decorations;
+		render();
+	} catch (err) {
+		if (err.name !== "AbortError") alert("Не удалось открыть файл: " + err.message);
+	}
+});
+
+document.getElementById("btnSave").addEventListener("click", async () => {
+	if (!hasFsApi) { alert("File System Access API недоступен в этом браузере. Открой в Chrome/Edge."); return; }
+	try {
+		if (!fileHandle) {
+			fileHandle = await window.showSaveFilePicker({
+				suggestedName: "HudLayout.txt",
+				types: [{ description: "HudLayout.txt", accept: { "text/plain": [".txt"] } }],
+			});
+		}
+		const writable = await fileHandle.createWritable();
+		await writable.write(serializeHudLayout(state));
+		await writable.close();
+	} catch (err) {
+		if (err.name !== "AbortError") alert("Не удалось сохранить файл: " + err.message);
+	}
+});
+
+window.addEventListener("resize", renderStage);
+
+newConfig();
+</script>
+</body>
+</html>

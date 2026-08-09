@@ -16,7 +16,7 @@
 | Файл | Компонент | Описание |
 |------|-----------|----------|
 | [[Client/cs16-client]] | cs16-client | Реверс-инженеренный клиент CS 1.6, submodule |
-| [[Client/HUD-layout]] | HUD-layout | Кастомизация позиций элементов HUD через `scripts/HudLayout.txt` |
+| [[Client/HUD-layout]] | HUD-layout | Кастомизация позиций/декораций HUD через `scripts/HudLayout.txt`, редактируется визуально через `tools/hud-editor` |
 
 ### CSE (собственный код проекта)
 | Файл | Компонент | Описание |
@@ -29,7 +29,7 @@
 ### Tooling
 | Файл | Компонент | Описание |
 |------|-----------|----------|
-| [[Tooling/Tools]] | tools/ | Вспомогательные скрипты (скриншот окна игры, install локализации) |
+| [[Tooling/Tools]] | tools/ | Вспомогательные скрипты (скриншот окна игры, install локализации) и веб-редактор HUD-конфига |
 | [[Tooling/mcp-game]] | tools/mcp-game | MCP-сервер `game` для opencode: build/deploy/run игры через tools |
 
 ## Правила обновления базы знаний
