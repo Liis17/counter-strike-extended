@@ -3,6 +3,9 @@
 
 # Build outputs
 /build/
+
+# Downloaded third-party dev packages (e.g. SDL2-devel)
+/src/deps/
 *.obj
 *.pdb
 *.exe

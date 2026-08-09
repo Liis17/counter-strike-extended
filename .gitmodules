@@ -1,6 +1,6 @@
 [submodule "src/xash3d-fwgs"]
 	path = src/xash3d-fwgs
-	url = https://github.com/FWGS/xash3d-fwgs.git
+	url = https://github.com/Liis17/xash3d-fwgs.git
 [submodule "src/cs16-client"]
 	path = src/cs16-client
-	url = https://github.com/Velaron/cs16-client.git
+	url = https://github.com/Liis17/cs16-client.git
