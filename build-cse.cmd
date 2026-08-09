@@ -12,16 +12,13 @@ set "CLIENT_INSTALL=%ROOT%\build\cs16-client"
 set "RUNTIME_DIR=%ROOT%\runtime"
 set "PRESET=win32-release-x86"
 
-echo === [1/5] Apply CSE menu patches ===
-powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\apply_menu_patch.ps1" || goto :fail
-
-echo === [2/5] Build engine (waf) ===
+echo === [1/4] Build engine (waf) ===
 pushd "%ENGINE_SRC%" || goto :fail
 call waf.bat build || (popd & goto :fail)
 call waf.bat install --destdir="%ENGINE_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [3/5] Build client (cmake) ===
+echo === [2/4] Build client (cmake) ===
 pushd "%CLIENT_SRC%" || goto :fail
 if not exist "build\CMakeCache.txt" (
     cmake --preset %PRESET% || (popd & goto :fail)
@@ -30,7 +27,7 @@ cmake --build build || (popd & goto :fail)
 cmake --install build --prefix "%CLIENT_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [4/5] Deploy to runtime ===
+echo === [3/4] Deploy to runtime ===
 if not exist "%RUNTIME_DIR%" mkdir "%RUNTIME_DIR%"
 
 rem Engine: build/engine -> runtime/   (incl. .pdb)
@@ -41,7 +38,7 @@ rem Client: build/cs16-client/cstrike -> runtime/cstrike/   (skip .lib)
 robocopy "%CLIENT_INSTALL%\cstrike" "%RUNTIME_DIR%\cstrike" /E /NFL /NDL /NP /NJH /NJS /XF *.lib >nul
 if errorlevel 8 goto :fail
 
-echo === [5/5] Install localization ===
+echo === [4/4] Install localization ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_localization.ps1" || goto :fail
 
 echo.

@@ -1,12 +1,7 @@
 # menu — упрощённое главное меню
 
 Parent: [[Index]]
-Связанные: [[CSE/cse-structure]], [[Client/cs16-client]], [[Tooling/Tools]], [[Архитектура]]
-
-## Назначение
-
-`src/cse/menu/` — патчи главного меню игры. Хранятся как обычные `git diff`
-и применяются к submodule перед сборкой (см. [[CSE/cse-structure]] — своё только в `src/cse/`).
+Связанные: [[Client/cs16-client]], [[CSE/cse-structure]], [[Архитектура]]
 
 ## Где живёт меню (важно)
 
@@ -14,7 +9,7 @@ Parent: [[Index]]
 при её отсутствии — из корня установки (`engine/common/lib_common.c`,
 `COM_GenerateClientLibraryPath`). В нашей сборке gamedir — `cstrike`, поэтому
 работает `runtime/cstrike/cl_dlls/menu.dll`, который собирает **cs16-client** из
-своего submodule `src/cs16-client/3rdparty/mainui_cpp` (Velaron/mainui_cpp).
+своего submodule `3rdparty/mainui_cpp`.
 
 `src/xash3d-fwgs/3rdparty/mainui` (FWGS/mainui_cpp) собирает `runtime/menu.dll` — он
 перекрывается клиентским и на экран не попадает. Правки меню вносить в
@@ -22,7 +17,23 @@ Parent: [[Index]]
 
 `runtime/menu_tui.dll` — артефакт старой сборки с TUI-меню, не используется.
 
-## Состав меню после патча
+## Форк и ветка
+
+| Что | Значение |
+|-----|----------|
+| Submodule | `src/cs16-client/3rdparty/mainui_cpp` |
+| origin | `https://github.com/Liis17/mainui_cpp` (форк `Velaron/mainui_cpp`) |
+| upstream | `https://github.com/Velaron/mainui_cpp` (remote настроен локально) |
+| Ветка с правками | `cs16-client` — от неё же форкается апстрим, master форка не трогаем |
+
+Это исключение из правила «весь свой код в `src/cse/`» ([[CSE/cse-structure]]): правка —
+C++ внутри mainui_cpp, вынести её из submodule нельзя, поэтому она живёт в форке,
+как и правки самого клиента.
+
+Обновление с апстрима: `git fetch upstream && git rebase upstream/cs16-client`
+внутри submodule, затем bump указателя в `src/cs16-client` и в мета-репозитории.
+
+## Состав меню
 
 Класс `CMenuMain` (`menus/Main.cpp`) обслуживает и главное меню, и in-game меню по ESC.
 
@@ -46,23 +57,7 @@ Parent: [[Index]]
 доступны PlayerSetup (имя/модель) и проверка имени (`CMenuMultiplayer::Show`),
 в `UI_Options_Menu` их нет.
 
-## Применение патча
-
-```
-tools\apply_menu_patch.ps1 [-DryRun] [-Root <path>]
-```
-
-Идемпотентно: перед применением проверяет `git apply --reverse --check` — если патч
-уже в дереве, шаг пропускается. Вызывается автоматически шагом `[1/5]` в `build-cse.cmd`.
-
-Если апстрим mainui_cpp обновился и патч перестал накладываться — скрипт падает с
-сообщением; патч нужно перегенерировать:
-
-```
-git -C src/cs16-client/3rdparty/mainui_cpp diff -- menus/Main.cpp > src/cse/menu/main-menu-simplify.patch
-```
-
 ## Ограничения
 
 Подписи кнопок берутся из строк клиента (`Configuration`, `Play CS`, `Quit`) и на
-момент патча не локализованы — это отдельный домен, см. [[Localization/Локализация]].
+момент правки не локализованы — это отдельный домен, см. [[Localization/Локализация]].
