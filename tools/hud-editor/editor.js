@@ -50,7 +50,7 @@ const DEFAULT_ELEMENTS = {
 	Ammo:          { x: 20,  y: 40, anchor: "bottom_right", scale: 2 },
 	AmmoSecondary: { x: 20,  y: 90, anchor: "bottom_right", scale: 1 },
 	Money:         { x: 20,  y: 75, anchor: "bottom_right", scale: 2 },
-	Timer:         { x: 0,   y: 35, anchor: "top_center",   scale: 2 },
+	Timer:         { x: 0,   y: 35, anchor: "center",       scale: 2 },
 	Flashlight:    { x: 40,  y: 10, anchor: "top_right",    scale: 2 },
 	DeathNotice:   { x: 20,  y: 40, anchor: "top_right",    scale: 2 },
 	StatusBar:     { x: 10,  y: 40, anchor: "bottom_left",  scale: 2 },

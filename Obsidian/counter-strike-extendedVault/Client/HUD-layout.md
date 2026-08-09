@@ -86,7 +86,7 @@ additive-прозрачных глифов. Исправлено переход�
     "Battery"       "120"  "40"  "bottom_left"   "1.5"
     "Ammo"          "20"   "40"  "bottom_right"  "1.5"
     "Money"         "20"   "75"  "bottom_right"  "1.3"
-    "Timer"         "0"    "35"  "top_center"    "1.3"
+    "Timer"         "0"    "35"  "center"        "1.3"
 }
 
 "HudDecorations"
