@@ -205,7 +205,25 @@
 "use strict";
 
 const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar"];
-const ANCHORS = ["top_left", "top_right", "bottom_left", "bottom_right", "center"];
+const ANCHORS = [
+	"top_left",    "top_center",    "top_right",
+	"center_left", "center",        "center_right",
+	"bottom_left", "bottom_center", "bottom_right",
+];
+// Aliases accepted by Layout_ParseAnchor in hud_layout.cpp, normalized on load
+// so the editor's <select> always holds a canonical name.
+const ANCHOR_ALIASES = {
+	topleft: "top_left", topcenter: "top_center", center_top: "top_center",
+	topright: "top_right", centerleft: "center_left", left_center: "center_left",
+	centerright: "center_right", right_center: "center_right",
+	bottomleft: "bottom_left", bottomcenter: "bottom_center",
+	center_bottom: "bottom_center", bottomright: "bottom_right",
+};
+function normalizeAnchor(name) {
+	const key = String(name || "").toLowerCase();
+	if (ANCHORS.includes(key)) return key;
+	return ANCHOR_ALIASES[key] || "top_left";
+}
 const DECOR_TYPES = ["Line", "Shade", "Panel"];
 const DEFAULT_RESOLUTION = { w: 2560, h: 1440 };
 
@@ -264,24 +282,23 @@ function newConfig() {
 }
 
 // --- Anchor math: mirrors CHudBase::GetLayoutPos / Decoration_ResolveTopLeft
-// in src/cs16-client/cl_dll/hud_layout.cpp exactly. ---
+// in src/cs16-client/cl_dll/hud_layout.cpp exactly. Both axes resolve
+// independently, same as ResolveAnchoredPos()'s two switches. ---
+function anchorAxes(anchor) {
+	const [vert, horiz = "center"] = anchor === "center" ? ["center", "center"] : anchor.split("_");
+	return { vert, horiz };
+}
 function resolveAnchoredPos(anchor, lx, ly, resW, resH) {
-	switch (anchor) {
-		case "top_right":    return { x: resW - lx, y: ly };
-		case "bottom_left":  return { x: lx, y: resH - ly };
-		case "bottom_right": return { x: resW - lx, y: resH - ly };
-		case "center":       return { x: resW / 2 + lx, y: resH / 2 + ly };
-		default:             return { x: lx, y: ly }; // top_left
-	}
+	const { vert, horiz } = anchorAxes(anchor);
+	const x = horiz === "right" ? resW - lx : horiz === "center" ? resW / 2 + lx : lx;
+	const y = vert === "bottom" ? resH - ly : vert === "center" ? resH / 2 + ly : ly;
+	return { x, y };
 }
 function inverseAnchoredPos(anchor, x, y, resW, resH) {
-	switch (anchor) {
-		case "top_right":    return { x: resW - x, y: y };
-		case "bottom_left":  return { x: x, y: resH - y };
-		case "bottom_right": return { x: resW - x, y: resH - y };
-		case "center":       return { x: x - resW / 2, y: y - resH / 2 };
-		default:             return { x: x, y: y }; // top_left
-	}
+	const { vert, horiz } = anchorAxes(anchor);
+	const lx = horiz === "right" ? resW - x : horiz === "center" ? x - resW / 2 : x;
+	const ly = vert === "bottom" ? resH - y : vert === "center" ? y - resH / 2 : y;
+	return { x: lx, y: ly };
 }
 
 // --- Parser: mirrors the COM_ParseFile-based reader in hud_layout.cpp ---
@@ -333,7 +350,7 @@ function parseHudLayout(text) {
 		if (maybe !== undefined && maybe !== "}" && !isNaN(parseFloat(maybe)) && parseFloat(maybe) !== 0) {
 			scale = parseFloat(next());
 		}
-		elements[id] = { x, y, anchor, scale };
+		elements[id] = { x, y, anchor: normalizeAnchor(anchor), scale };
 	}
 
 	const decorations = [];
@@ -347,7 +364,7 @@ function parseHudLayout(text) {
 				type,
 				x: parseInt(next(), 10),
 				y: parseInt(next(), 10),
-				anchor: next(),
+				anchor: normalizeAnchor(next()),
 				w: parseInt(next(), 10),
 				h: parseInt(next(), 10),
 				r: parseInt(next(), 10),
