@@ -30,6 +30,10 @@ Parent: [[Index]]
 C++ внутри mainui_cpp, вынести её из submodule нельзя, поэтому она живёт в форке,
 как и правки самого клиента.
 
+В `.gitmodules` клиента задан только `url`, коммит закреплён по SHA — после
+`git submodule update --recursive` дерево оказывается в detached HEAD, а не на
+ветке `cs16-client`. Перед любой правкой: `git checkout cs16-client`.
+
 Обновление с апстрима: `git fetch upstream && git rebase upstream/cs16-client`
 внутри submodule, затем bump указателя в `src/cs16-client` и в мета-репозитории.
 
