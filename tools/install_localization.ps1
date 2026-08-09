@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Копирует файлы локализации из src/cse/localization/ в runtime/.
 
@@ -16,10 +16,14 @@
 [CmdletBinding()]
 param(
   [switch]$DryRun,
-  [string]$Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
+  [string]$Root
 )
 
 $ErrorActionPreference = 'Stop'
+
+# $PSScriptRoot недоступен в значениях param() по умолчанию (PS 5.1 + CmdletBinding)
+if (-not $Root) { $Root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path }
+
 $src = Join-Path $Root 'src\cse\localization'
 $dst = Join-Path $Root 'runtime'
 
