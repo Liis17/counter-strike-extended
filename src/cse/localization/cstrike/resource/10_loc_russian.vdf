@@ -1,0 +1,46 @@
+"lang"
+{
+	"Language"	"russian"
+	"Tokens"
+	{
+		"#CS_RP_MainMenu"				"Главное меню"
+		"#CS_RP_MainMenu_Idle"			"Главное меню (ожидание)"
+
+		"#CS_RP_PlayingKnown"			"Играет на карте: {%game:map_name%}"
+		"#CS_Status_PlayingKnown"		"Играет Counter-Strike на {%game:map_name%} | %game:server_count%/%game:server_limit% игроков"
+		"#CS_RP_PlayingUnknown"			"Пользовательская карта: {%game:map_name%}"
+		"#CS_Status_PlayingUnknown"		"Играет Counter-Strike на пользовательской карте {%game:map_name%} | %game:server_count%/%game:server_limit% игроков"
+
+		"#CS_RP_Deathmatch"				"Дезматч: {%game:map_name%}"
+		"#CS_Status_Deathmatch"			"Играет в дезматч на {%game:map_name%} | %game:server_count%/%game:server_limit% игроков"
+
+		"#CS_RP_Paused" " (Пауза)"
+		"#CS_RP_Unpaused" " "
+
+		"#de_dust"			"de_dust"
+		"#de_dust2"			"de_dust2"
+		"#de_aztec"			"de_aztec"
+		"#de_inferno"		"de_inferno"
+		"#de_nuke"			"de_nuke"
+		"#de_train"			"de_train"
+		"#de_cbble"			"de_cbble"
+		"#de_chateau"		"de_chateau"
+		"#de_piranesi"		"de_piranesi"
+		"#de_storm"			"de_storm"
+		"#de_vertigo"		"de_vertigo"
+		"#de_airstrip"		"de_airstrip"
+		"#de_torn"			"de_torn"
+		"#de_survivor"		"de_survivor"
+		"#cs_assault"		"cs_assault"
+		"#cs_backalley"		"cs_backalley"
+		"#cs_estate"		"cs_estate"
+		"#cs_havana"		"cs_havana"
+		"#cs_militia"		"cs_militia"
+		"#cs_office"		"cs_office"
+		"#cs_747"			"cs_747"
+		"#cs_siege"			"cs_siege"
+		"#cs_bdog"			"cs_bdog"
+		"#as_oilrig"		"as_oilrig"
+		"#as_tundra"		"as_tundra"
+	}
+}
