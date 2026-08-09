@@ -13,6 +13,16 @@ submodule) — Half-Life-совместимый движок + реверс-ин
 | `Obsidian/counter-strike-extendedVault/Engine/xash3d-fwgs.md` | Заметка о submodule движка |
 | `Obsidian/counter-strike-extendedVault/Client/cs16-client.md` | Заметка о submodule клиента |
 | `Obsidian/counter-strike-extendedVault/Tooling/Tools.md` | Заметка про `tools/screenshot_window.ps1` |
+| `Obsidian/counter-strike-extendedVault/CSE/cse-structure.md` | Правило «все моды/изменения — в `src/cse/`» |
+| `Obsidian/counter-strike-extendedVault/Localization/Локализация.md` | Русские переводы (gameui, valve, mainui, cstrike, Discord RP) |
+
+## Правило собственного кода — `src/cse/`
+
+**Все моды, переводы, ассеты, конфиги и любой кастомный код проекта —
+хранить ТОЛЬКО в `src/cse/`.** Не в submodule (`src/xash3d-fwgs`,
+`src/cs16-client`), не прямо в `runtime/` (gitignored), не в корень репозитория.
+Развёртывание в `runtime/` — через идемпотентные install-скрипты в `tools/`
+(см. `tools/install_localization.ps1` для локализации).
 
 ## Правила обновления Obsidian
 
