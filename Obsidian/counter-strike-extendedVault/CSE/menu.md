@@ -71,7 +71,30 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 доступны PlayerSetup (имя/модель) и проверка имени (`CMenuMultiplayer::Show`),
 в `UI_Options_Menu` их нет.
 
-## Ограничения
+## Локализация кнопок и `render_picbutton_text`
 
-Подписи кнопок берутся из строк клиента (`Configuration`, `Play CS`, `Quit`) и на
-момент правки не локализованы — это отдельный домен, см. [[Localization/Локализация]].
+`CMenuPicButton` рендерится двумя способами (`PicButton.cpp:259`):
+
+1. **BMP-атлас** `gfx/shell/btns_main.bmp` — если файл найден в VFS (а он есть в
+   `cstrike/extras.pk3`, 864 КБ). Текст кнопок **запечён в растровый атлас** как
+   английские надписи, локализация игнорируется.
+2. **Текстовым рендерером** (Trebuchet MS через `CWinAPIFont`) — если атлас
+   отсутствует **или** выставлен флаг `render_picbutton_text` в `gameinfo.txt`.
+   В этом режиме подпись берётся из локализованной строки (`L("GameUI_Options")` и
+   т.д.), и кириллица отображается корректно.
+
+Чтобы кнопки главных меню показывались на русском, в `src/cse/cstrike/gameinfo.txt`
+выставлен флаг:
+
+```
+render_picbutton_text		1
+```
+
+Это заставляет `uiStatic.renderPicbuttonText = true` (`BaseMenu.cpp:1192`) и
+переключает `PicButton::Draw` на текстовый рендер. Установка —
+`tools/install_gameinfo.ps1` (идемпотентно копирует `src/cse/*/gameinfo.txt` →
+`runtime/*/gameinfo.txt`).
+
+Без этого флага кнопки всегда английские, даже при `ui_language "russian"` и
+полностью переведённых `gameui_russian.txt` / `mainui_russian.txt` — словарь
+`L()` отдаёт русские значения, но они не используются, т.к. `hPic != 0`.

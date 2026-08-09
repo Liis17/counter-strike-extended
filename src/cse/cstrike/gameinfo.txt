@@ -1,0 +1,16 @@
+gamedir		"cstrike"
+title		"Counter-Strike"
+trainmap	"tr_1"
+version		1.6
+size		184000000
+url_info		"www.counter-strike.net"
+gamemode		"multiplayer_only"
+mp_entity		"info_player_start"
+gamedll		"dlls\mp.dll"
+gamedll_linux		"dlls/cs.so"
+gamedll_osx		"dlls/cs.dylib"
+secure		"1"
+nomodels		"1"
+max_edicts	1800
+internal_vgui_support		0
+render_picbutton_text		1

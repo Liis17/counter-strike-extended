@@ -27,6 +27,8 @@ src/cse/
 ├── localization/                   # переводы (см. [[Локализация]])
 │   ├── valve/resource/             # → runtime/valve/resource/
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
+├── cstrike/
+│   └── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
 └── rich_presence/                  # Steam Rich Presence helper (см. [[rich_presence]])
     ├── src/main.cpp                # cse_steamrp.exe — LoadLibrary steam_api.dll + SetRichPresence
     ├── CMakeLists.txt              # сборка x86 (MSVC)
@@ -45,6 +47,7 @@ src/cse/
 | Скрипт | Что копирует |
 |--------|--------------|
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
+| `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
 
 Скрипты принимают `-DryRun` для предварительного просмотра и `-Root` для
@@ -60,3 +63,6 @@ src/cse/
 - Упрощение главного меню (см. [[CSE/menu]]) — исключение из правила: C++ внутри
   mainui_cpp нельзя вынести в `src/cse/`, поэтому правка живёт в форке
   `Liis17/mainui_cpp` (ветка `cs16-client`), как и правки самого клиента.
+- Добавлен `cstrike/gameinfo.txt` с `render_picbutton_text 1` — форсирует текстовый
+  рендер кнопок главного меню (вместо BMP-атласа `btns_main.bmp` из `extras.pk3`),
+  без чего локализация кнопок не работает (см. [[CSE/menu]]).
