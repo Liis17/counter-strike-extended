@@ -17,6 +17,8 @@ Parent: [[Index]]
 | `screenshot_window.ps1 -ProcessName <name> -OutFile <path>` | Находит окно процесса, выводит на передний план, снимает скриншот через `GetWindowRect`/`CopyFromScreen`, сохраняет PNG |
 | `install_localization.ps1 [-DryRun] [-Root <path>]` | Копирует `src/cse/localization/**` в `runtime/`, создавая нужные поддиректории |
 | `hud-editor/index.html` — «Открыть.../Сохранить» | Читает/пишет `HudLayout.txt` напрямую через File System Access API. Холст с выбором фактического разрешения экрана, ориентировочными габаритами 9 HUD-элементов (включая right-aligned origin и поддерживаемый scale) и декорациями `Line`/`Shade`/`Panel` (drag + resize + цвет + alpha + radius). Выбранное разрешение сохраняется в комментарии, парсер/сериализатор — зеркало `CHud::LoadLayout()`/формата из `hud_layout.cpp` |
+| `getElementPreview(id, element)` | Вычисляет footprint HUD-блока и его runtime-origin для предпросмотра |
+| `beginElementDrag(node, element)` | Перемещает HUD-блок через тот же anchor/inverse-anchor контракт, что и игра |
 
 ## Зависимости
 - Использует: [[Engine/xash3d-fwgs]] (снимает окно запущенного `xash3d.exe`)
