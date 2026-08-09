@@ -41,14 +41,24 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 
 Класс `CMenuMain` (`menus/Main.cpp`) обслуживает и главное меню, и in-game меню по ESC.
 
+Порядок сверху вниз:
+
 | Кнопка | Действие | Видимость |
 |--------|----------|-----------|
-| `console` | открыть консоль | только при `developer` |
 | `disconnect` | отключиться от сервера | только в игре и при `maxClients >= 2` |
 | `resumeGame` | вернуться в игру | только в игре |
-| `configuration` | `UI_Options_Menu` | всегда |
 | `multiPlayer` | `UI_MultiPlayer_Menu` (Internet/LAN/игрок/управление) | всегда |
+| `configuration` | `UI_Options_Menu` | всегда |
+| `console` | открыть консоль | только при `developer` |
 | `quit` | диалог выхода | всегда |
+
+Подсказки справа от кнопок (status text) убраны: во все `SetNameAndStatus` передаётся
+`NULL`. Убирать вместо этого флаг `QMF_NOTIFY` нельзя — тогда тот же текст начнёт
+рисоваться внизу экрана при наведении (`controls/Framework.cpp`).
+
+`console` занимает слот в стеке только когда виден, иначе между `configuration` и
+`quit` осталась бы дыра. `Think()` пересчитывает раскладку при переключении
+`developer` в рантайме.
 
 Удалены: ~~newGame~~, ~~hazardCourse~~, ~~saveRestore~~, ~~customGame~~, ~~readme~~,
 ~~previews~~ (удалены: 2026-08-09) вместе с колбэками `HazardCourseCb`/`HazardCourseDialogCb`,
