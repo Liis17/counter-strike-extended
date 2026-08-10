@@ -23,11 +23,11 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 
 | Файл | Что |
 |------|-----|
-| `src/cs16-client/cl_dll/hud.h` | `enum HudAnchor` (9 значений, сетка 3×3), `enum HudDecorationType`, `struct HudDecoration`, поля `CHudBase::m_szLayoutId/m_iLayoutX/m_iLayoutY/m_eLayoutAnchor/m_bLayoutOverridden/m_flLayoutScale`, методы `GetLayoutPos()`, `GetLayoutScale()`, `CHud::LoadLayout()`, `CHud::DrawDecorations()`, `CHud::m_LayoutDecorations`, `CHud::hud_layout_reload` |
-| `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика, две независимые оси), `g_LayoutAnchorNames[]` + `Layout_ParseAnchor()` (таблица имён и алиасов), `CHudBase::GetLayoutPos()`, `Decoration_ResolveTopLeft()`, парсер `CHud::LoadLayout()` (оба блока), `CHud::DrawDecorations()` |
+| `src/cs16-client/cl_dll/hud.h` | `enum HudAnchor` (9 значений, сетка 3×3), `enum HudDecorationType`, `struct HudDecoration`, `struct HudLayoutSlot`, поля `CHudBase::m_szLayoutId/m_iLayoutX/m_iLayoutY/m_eLayoutAnchor/m_bLayoutOverridden/m_flLayoutScale`, методы `GetLayoutPos()`, `GetLayoutScale()`, `CHud::LoadLayout()`, `CHud::GetLayoutSlot()`, `CHud::DrawDecorations()`, `CHud::m_LayoutDecorations`, `CHud::m_LayoutSlots`, `CHud::hud_layout_reload` |
+| `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика, две независимые оси), `g_LayoutAnchorNames[]` + `Layout_ParseAnchor()` (таблица имён и алиасов), `g_LayoutSlotNames[]` + `Layout_IsSlotName()`, `CHudBase::GetLayoutPos()`, `CHud::GetLayoutSlot()`, `Decoration_ResolveTopLeft()`, парсер `CHud::LoadLayout()` (оба блока), `CHud::DrawDecorations()` |
 | `src/cs16-client/cl_dll/hud.cpp` | Регистрация cvar `hud_layout_reload`, вызов `LoadLayout()` в конце `CHud::Init()` |
 | `src/cs16-client/cl_dll/hud_redraw.cpp` | Проверка `hud_layout_reload` в `CHud::Think()`; вызов `DrawDecorations()` в начале `CHud::Redraw()`, перед циклом отрисовки HUD-элементов |
-| `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()` (ручной textured quad через `pTriAPI` — `SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»), параметр `scale` у `DrawHudNumber*` |
+| `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()` и `SPR_DrawHolesScaled()` — общий `SPR_DrawScaledMode()`, ручной textured quad через `pTriAPI` (`SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»); различаются только режимом (`kRenderTransAdd` / `kRenderTransAlpha`). Параметр `scale` у `DrawHudNumber*` |
 | `src/cs16-client/extras/HudLayout.txt` | Образец файла с комментариями |
 | `src/cse/cstrike/scripts/HudLayout.txt` | Текущая проектная настройка, устанавливаемая в runtime |
 | `tools/install_hud_layout.ps1` | Идемпотентная установка файла в `runtime/cstrike/scripts/` |
@@ -63,6 +63,10 @@ additive-прозрачных глифов. Исправлено переход�
 
 | ID | Файл Draw | Что задаёт layout | Scale |
 |----|-----------|-------------------|-------|
+Отсутствие записи в файле — значимое состояние: элемент рисуется по своему дефолту. Для части
+элементов дефолт вычисляется в рантайме и константой не выражается (столбец «Дефолт»), поэтому
+редактор по умолчанию их не пишет — см. [[Tooling/hud-editor]].
+
 | `Health` | `cl_dll/health.cpp` | позиция иконки cross + числа HP | да — растяг cross + цифр |
 | `Battery` | `cl_dll/battery.cpp` | позиция иконки брони + числа | да |
 | `Ammo` | `cl_dll/ammo.cpp` | правый край блока патронов + базовая Y | да — цифры, bar, ammo-иконка |
@@ -73,11 +77,43 @@ additive-прозрачных глифов. Исправлено переход�
 | `DeathNotice` | `cl_dll/death.cpp` | правый край + Y верхней строки killfeed | нет (текст через консольный шрифт) |
 | `StatusBar` | `cl_dll/statusbar.cpp` | базовый отступ слева + отступ снизу | нет (текст через консольный шрифт) |
 | `TeamBar` | `cl_dll/hud/teambar.cpp` | **центр** блока счёта по X + верх ленты по Y (единственный центрированный элемент) | да — слоты, зазоры и цифры счёта |
+| `Radar` | `cl_dll/hud/radar.cpp` | левый верхний угол коробки радара; точки и текст локации следуют за ней | да — спрайт, радиус и маркеры |
+| `WeaponMenu` | `cl_dll/ammo.cpp` (`DrawWList`) | левый верхний угол блока выбора оружия. **Слот**, не элемент | да — bucket'ы, картинки оружия, рамка выбора, ammo bar, зазоры |
+| `StatusIcons` | `cl_dll/status_icons.cpp` | **низ** колонки иконок (стек растёт вверх) | нет |
+| `Scenario` | `cl_dll/hud/scenario.cpp` | позиция иконки сценария (бомба/заложники) | нет |
+| `AmmoHistory` | `cl_dll/ammohistory.cpp` | **правый нижний угол** истории подбора (стек растёт вверх). **Слот**, не элемент | нет |
+| `ProgressBar` | `cl_dll/hud/timer.cpp` (`CHudProgressBar`) | левый верхний угол полосы; с заголовком — угол текста, полоса строкой ниже | нет |
+| `SayText` | `cl_dll/saytext.cpp` | левый верхний угол первой строки чата | нет (консольный шрифт) |
+| `Train` | `cl_dll/train.cpp` | позиция панели управления вагонеткой | нет |
+
+### Дефолты, которые нельзя записать в файл
+
+| ID | Почему |
+|----|--------|
+| `WeaponMenu` | `m_Radar.m_hRadar.rect.right + 10` — зависит от спрайта радара и разрешения |
+| `Scenario` | `gHUD.m_Timer.m_right` — фактический правый край таймера, известен только после его отрисовки в этом кадре |
+| `ProgressBar` | `ScreenWidth/4`, `ScreenHeight*2/3` — доли экрана, которых нет в сетке якорей |
+| `SayText` | `Y_START` пересчитывается на каждое сообщение из `line_height` и режима наблюдателя |
+| `Train` | `ScreenWidth/3` — доля экрана |
+
+Остальные элементы дефолт выражают якорем точно: `Radar` → `0 0 top_left`,
+`StatusIcons` → `5 0 center_left`, `AmmoHistory` → `0 0 bottom_right`.
+
+## Слоты (`HudLayoutSlot`)
+
+`m_szLayoutId` — поле `CHudBase`, поэтому виджет, не являющийся зарегистрированным элементом, его
+не имеет. Таких два: меню выбора оружия рисует `CHudAmmo::DrawWList()` (id этого элемента уже занят
+значением `"Ammo"`), а история подбора — `HistoryResource gHR`, вообще не наследник `CHudBase`.
+
+Записи, чей id входит в белый список `g_LayoutSlotNames[]` (`hud_layout.cpp`), попадают в
+`CHud::m_LayoutSlots` и читаются через
+`CHud::GetLayoutSlot( name, x, y, defaultX, defaultY, scale = NULL )`. Id вне белого списка
+по-прежнему даёт `Con_DPrintf` — иначе опечатка в имени элемента молча превращалась бы в слот,
+который никто не читает. Параметр `scale` — необязательный указатель: у немасштабируемых слотов
+он не передаётся.
 
 ## Не поддерживается (отложено)
 
-- **Radar** — точки рисуются через `iMaxRadius` (центр радара = half-width от (0,0)),
-  требует декомпозиции на `center_pos + half_width`, не сделано в этой итерации.
 - **SayText / StatusBar / DeathNotice scale** — эти элементы рисуются через консольный шрифт
   движка (`pfnDrawConsoleString`), у которого нет API масштабирования. Потребуется переход на
   quad-рендеринг шрифта, что выходит за рамки текущей итерации.
@@ -181,7 +217,16 @@ anchor-математикой, что и HUD-элементы (`ResolveAnchoredP
 - HP и броня исторически на одной `y` и разнесены по `x` вручную. При свободном позиционировании
   возможно наложение — ответственность пользователя через `HudLayout.txt`.
 - Scale применяется только к элементам, у которых он реализован (Health, Battery, Ammo, Money,
-  Timer). SayText/StatusBar/DeathNotice используют консольный шрифт движка без API масштабирования.
+  Timer, TeamBar, Radar, WeaponMenu). SayText/StatusBar/DeathNotice используют консольный шрифт
+  движка без API масштабирования.
+- `Radar` живёт в двух системах координат: `FillRGBA` — движковый `pfnFillRGBA`, принимает
+  HUD-координаты (пространство `ScreenWidth`), а `Draw2DQuad` — реальные пиксели, поэтому
+  `DrawColoredTexture()` домножает на `gHUD.m_flScale`. Смещение из layout прибавляется **до**
+  этого умножения (`BlipX()`/`BlipY()` в `radar.cpp` — единственное место конвертации). Ничего
+  производного от layout не кэшируется в `VidInit()`: `hud_layout_reload` перезапускает
+  `LoadLayout()` без `VidInit()`.
+- Превью стековых элементов (`StatusIcons`, `AmmoHistory`, `TeamBar`, `WeaponMenu`, `SayText`)
+  показывает представительный случай: реальная высота зависит от числа активных записей.
 - Очень маленький scale (например 0.1) может дать артефакты из-за целочисленного округления.
 
 ## Связанные cvar'ы
