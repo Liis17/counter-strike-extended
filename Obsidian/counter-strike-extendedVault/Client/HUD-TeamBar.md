@@ -217,7 +217,7 @@ pinfo->m_nSteamID = strtoull( Info_ValueForKey( player->userinfo, "cse_sid" ), N
 | Вариант | Почему нет |
 |---------|-----------|
 | Тянуть аватар напрямую по HTTPS из движка (`net_http` + mbedTLS в форке уже есть) | Steam CDN отдаёт **JPG**, в `imagelib` JPG-декодера нет → всё равно нужен конвертер → проще хелпером |
-| Кастомное user message с сервера | Серверный `mp.dll` проприетарный (`yapb.dll` его проксирует), правки невозможны без перехода на ReGameDLL_CS |
+| Кастомное user message с сервера | Текущий `mp.dll` собирается из ReGameDLL_CS и регистрирует сообщения в `LinkUserMessages`; новый контракт потребует изменения серверной DLL и клиентского `HOOK_MESSAGE`. YaPB действительно проксирует регистрацию, но сам по себе не доказывает произвольный plugin path — см. [[CSE/map-actions]] |
 | Линковать `steam_api` прямо в `cl_dll` | Ломает принцип «Steam — только во внешнем хелпере» из [[CSE/rich_presence]] (GPL-конфликт + разрядность) |
 | Расширять `cl_enginefunc_t` новыми PIC_*-функциями | Не нужно: `gRenderAPI` уже даёт загрузку/отрисовку текстур, а `m_nSteamID` уже есть в структуре |
 | Генерировать `.spr` на лету из RGBA | `SPR_Load` требует валидный IDSP (`Mod_LoadSpriteModel`), лишний дисковый ввод-вывод, лимит `MAX_CLIENT_SPRITES` |
