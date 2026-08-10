@@ -24,7 +24,8 @@ src/cse/
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt
 │   └── scripts/                    # → runtime/cstrike/scripts/
 │       ├── HudLayout.txt           # кастомный HUD-layout
-│       └── CseProgression.txt      # XP и пороги уровней
+│       ├── CseProgression.txt      # XP и пороги уровней
+│       └── CseSkinRecipes.txt      # рецепты перекрасов моделей
 ├── yapb/                           # конфиги YaPB для отдельных карт
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # настройки YaPB для конкретной карты
@@ -54,6 +55,15 @@ tools\install_hud_layout.ps1
 ```powershell
 tools\install_progression.ps1
 ```
+
+Сгенерировать производные модели скинов из лицензированных моделей в `runtime/`:
+
+```powershell
+tools\install_skins.ps1
+```
+
+Рецепты хранятся в `cstrike/scripts/CseSkinRecipes.txt`; в git попадают только рецепты и генератор,
+а созданные `.mdl` остаются в gitignored `runtime/`.
 
 Создать и скопировать конфиги YaPB для всех карт из `runtime/`:
 

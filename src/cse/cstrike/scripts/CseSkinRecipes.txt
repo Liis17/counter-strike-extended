@@ -1,0 +1,12 @@
+"CseSkinRecipes"
+{
+    // source model                         transform                              generated model
+    "models/v_ak47.mdl"                    "hue=0;tint=1.15,0.28,0.28"             "models/cse/v_ak47_red.mdl"
+    "models/p_ak47.mdl"                    "hue=0;tint=1.15,0.28,0.28"             "models/cse/p_ak47_red.mdl"
+    "models/v_ak47.mdl"                    "hue=28;tint=1.08,0.78,0.22"             "models/cse/v_ak47_gold.mdl"
+    "models/p_ak47.mdl"                    "hue=28;tint=1.08,0.78,0.22"             "models/cse/p_ak47_gold.mdl"
+    "models/v_awp.mdl"                     "hue=0;tint=1.15,0.28,0.28"             "models/cse/v_awp_red.mdl"
+    "models/p_awp.mdl"                     "hue=0;tint=1.15,0.28,0.28"             "models/cse/p_awp_red.mdl"
+    "models/v_awp.mdl"                     "hue=28;tint=1.08,0.78,0.22"             "models/cse/v_awp_gold.mdl"
+    "models/p_awp.mdl"                     "hue=28;tint=1.08,0.78,0.22"             "models/cse/p_awp_gold.mdl"
+}
