@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu"];
 
 // Elements a fresh config writes out. An element belongs here only if its
 // in-game default is a plain constant, so that writing the record changes
@@ -61,6 +61,12 @@ const ELEMENT_PREVIEWS = {
 	// layout point is its top-left corner, and the location name is drawn
 	// 10px below the box, outside this footprint.
 	Radar:         { width: 128, height: 128, fontSize: 16, scalable: true, sample: "◎" },
+	// Six slot columns of 20px plus 5px gaps, widened by the active column,
+	// which is as wide as a weapon picture (the 640-res "selection" sprite is
+	// 170x45). Height covers the slot row plus a full column of five weapons.
+	// Like TeamBar, the preview is one representative case: the real box grows
+	// with the number of weapons actually carried.
+	WeaponMenu:    { width: 300, height: 280, fontSize: 14, scalable: true, sample: "1 2 3 4 5" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -76,6 +82,9 @@ const DEFAULT_ELEMENTS = {
 	StatusBar:     { x: 10,  y: 40, anchor: "bottom_left",  scale: 2 },
 	TeamBar:       { x: 0,   y: 40, anchor: "top_center",   scale: 1 },
 	Radar:         { x: 0,   y: 0,  anchor: "top_left",     scale: 1 },
+	// Not written by default: the game places the menu next to the radar
+	// sprite, which no constant reproduces. These values only seed the fields.
+	WeaponMenu:    { x: 138, y: 10, anchor: "top_left",     scale: 1 },
 };
 
 // An element's `override` flag decides whether it gets a record in the file at
