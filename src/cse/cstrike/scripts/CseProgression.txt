@@ -1,0 +1,27 @@
+"CseXP"
+{
+    "kill"           "100"
+    "headshot"       "50"
+    "death"          "0"
+    "bot_multiplier" "0.3"
+    "round_win"      "150"
+    "round_loss"     "50"
+    "match_win"      "500"
+    "match_loss"     "150"
+}
+
+"CseLevels"
+{
+    "2" "1000"
+    "3" "2500"
+    "4" "4500"
+    "5" "7000"
+}
+
+"CseSkins"
+{
+    "ak47" "red"  "3" "models/cse/v_ak47_red.mdl"  "models/cse/p_ak47_red.mdl"
+    "ak47" "gold" "5" "models/cse/v_ak47_gold.mdl" "models/cse/p_ak47_gold.mdl"
+    "awp"  "red"  "4" "models/cse/v_awp_red.mdl"   "models/cse/p_awp_red.mdl"
+    "awp"  "gold" "5" "models/cse/v_awp_gold.mdl"  "models/cse/p_awp_gold.mdl"
+}

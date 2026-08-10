@@ -26,6 +26,7 @@
 | [[Localization/Локализация]] | src/cse/localization/ | Русские переводы (GameUI, valve, mainui, CS, токены Steam RP) |
 | [[CSE/rich_presence]] | src/cse/rich_presence/ | Steam Rich Presence helper (`cse_steamrp.exe`) — внешний wrapper xash3d |
 | [[CSE/menu]] | mainui_cpp (форк) | Упрощённое главное меню (Online / Options / Quit) в `Liis17/mainui_cpp` |
+| [[CSE/progression]] | Player progression | Локальный профиль, статистика, XP и уровни в клиенте |
 | [[CSE/map-actions]] | Действия на картах | Исследование штатных кнопок/триггеров, серверного расширения и кастомного HUD-события |
 
 ### Tooling

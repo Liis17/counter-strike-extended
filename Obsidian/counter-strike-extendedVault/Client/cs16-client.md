@@ -28,3 +28,6 @@ CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) докумен�
   таймер и др.) через внешний файл `scripts/HudLayout.txt`. Реализована в `cl_dll/hud_layout.cpp`,
   точки расширения в `cl_dll/hud.h` (`CHudBase::m_szLayoutId`, `GetLayoutPos()`), интеграция в
   `cl_dll/hud.cpp` (`CHud::LoadLayout()`, cvar `hud_layout_reload`).
+- [[CSE/progression]] — клиентский локальный профиль XP и статистики в `cl_dll/cse_profile.cpp` и
+  разбор `scripts/CseProgression.txt` в `cl_dll/cse_progression.cpp`. События подключены к
+  `DeathMsg`, `TeamScore`, `CHud::Redraw()` и `CHud::Shutdown()`.

@@ -22,7 +22,9 @@ src/cse/
 │       └── cstrike_russian.txt    # CS 1.6 (оружие, режимы, scoreboard)
 ├── cstrike/                        # ресурсы игры CS 1.6
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt
-│   └── scripts/HudLayout.txt       # → runtime/cstrike/scripts/HudLayout.txt
+│   └── scripts/                    # → runtime/cstrike/scripts/
+│       ├── HudLayout.txt           # кастомный HUD-layout
+│       └── CseProgression.txt      # XP и пороги уровней
 ├── yapb/                           # конфиги YaPB для отдельных карт
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # настройки YaPB для конкретной карты
@@ -45,6 +47,12 @@ tools\install_localization.ps1
 
 ```powershell
 tools\install_hud_layout.ps1
+```
+
+Установить конфиг прогрессии:
+
+```powershell
+tools\install_progression.ps1
 ```
 
 Создать и скопировать конфиги YaPB для всех карт из `runtime/`:
@@ -76,3 +84,7 @@ Install-скрипты идемпотентны: повторный запуск
 сюда, в `src/cse/`.** Не в submodule'и, не прямо в `runtime/` (он gitignored),
 не в корень репозитория. Это правило зафиксировано в Obsidian
 (`Obsidian/counter-strike-extendedVault/CSE/cse-structure.md`).
+
+Исключение для утверждённого плана прогрессии: C++-интеграция, которая должна
+собираться внутрь `client.dll`, живёт в форке `src/cs16-client`; её конфиги,
+скрипты установки и прочие проектные ресурсы по-прежнему хранятся здесь.
