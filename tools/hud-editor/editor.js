@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar", "SayText", "Train"];
 
 // Elements a fresh config writes out. An element belongs here only if its
 // in-game default is a plain constant, so that writing the record changes
@@ -81,6 +81,10 @@ const ELEMENT_PREVIEWS = {
 	// screen. Shows the headerless variant; with a header the bar sits one
 	// line below the layout point instead of on it.
 	ProgressBar:   { width: 1280, height: 10, fontSize: 12, scalable: false, sample: "" },
+	// Five chat lines from the layout point downwards, at the console font's
+	// line height. Long messages wrap, adding lines the preview does not show.
+	SayText:       { width: 520, height: 90, fontSize: 14, scalable: false, sample: "Player: hi" },
+	Train:         { width: 64,  height: 64, fontSize: 12, scalable: false, sample: "⇅" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -110,6 +114,12 @@ const DEFAULT_ELEMENTS = {
 	// ScreenHeight*2/3, fractions the anchor grid cannot express. These
 	// values match a 2560x1440 screen and only seed the fields.
 	ProgressBar:   { x: 640, y: 960, anchor: "top_left",    scale: 1 },
+	// Neither is written by default. SayText's default Y is recomputed per
+	// message from the line height and the spectator state; Train's X is a
+	// third of the screen, which the anchor grid cannot express. Both sets of
+	// values match a 2560x1440 screen and only seed the fields.
+	SayText:       { x: 10,  y: 250, anchor: "bottom_left", scale: 1 },
+	Train:         { x: 870, y: 100, anchor: "top_left",    scale: 1 },
 };
 
 // An element's `override` flag decides whether it gets a record in the file at
