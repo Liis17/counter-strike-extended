@@ -35,7 +35,7 @@
 |---|---|---|
 | `REGAME` | `src/cs16-client/3rdparty/ReGameDLL_CS` | `7be9d59dca1ee11d270e4631d7e3be0c67a1a82b` |
 | `XASH` | `src/xash3d-fwgs` | `51df172aedee136f0c777b08aba059a314989fa2` |
-| `CLIENT` | `src/cs16-client` | `bd52fb6bb5ae5efec4423fccf96f4a54fe59e32e` |
+| `CLIENT` (исследовательский snapshot) | `src/cs16-client` | `bd52fb6bb5ae5efec4423fccf96f4a54fe59e32e` |
 | `YAPB` | `src/cs16-client/3rdparty/yapb` | `4967a220ba3a58c461ee1cef8b6fb37c6fd93b5e` |
 | Parent | текущий корневой commit до этой итерации | `2d7d4e56b8e18640b8953c36c256d2139e916bde` |
 
@@ -44,6 +44,11 @@
 `src/cs16-client/CMakeLists.txt:56-64` подключает YaPB и ReGameDLL при `BUILD_SERVER`.
 На Windows CMake ReGameDLL собирает Xash-совместимую библиотеку с postfix `mp`, а список
 серверных исходников задан явно (`REGAME/regamedll/CMakeLists.txt:203-255,376-386,447-455`).
+
+После исследовательского commit parent `src/cs16-client` был параллельно передвинут до
+`96da2ba64d7e2749abb33ccf55dab8d1dc26e686` отдельной задачей progression. Ссылки на client
+`file:line` в этом документе относятся к зафиксированному snapshot `bd52...`; перед будущей
+реализацией их нужно повторно сверить с новым submodule SHA.
 
 ## 3. Что подтверждено в коде
 
@@ -58,7 +63,72 @@
 | `target` ищет `targetname` и вызывает `Use(pActivator, pCaller, useType, value)` | `REGAME/regamedll/dlls/subs.cpp:111-168`; API `Use` — `REGAME/regamedll/dlls/cbase.h:113,160` |
 | master-фильтр применяется до действия | `REGAME/regamedll/dlls/maprules.cpp:30-38`; поиск master — `REGAME/regamedll/dlls/util.cpp:995-1011` |
 | штатные игровые цели включают текст, очки, HP, счётчик, экипировку, команду | `game_score` — `REGAME/regamedll/dlls/maprules.cpp:53-90`; `game_text` — `109-224`; `game_player_hurt` — `456-477`; `game_counter`/`game_counter_set` — `479-538`; `game_player_equip` — `540-607`; `game_player_team` — `609-642` |
+| серверные операции игрока включают item, HP, armor, frags и money | объявления `TakeHealth`, `AddPoints`, `AddAccount`, `GiveNamedItem`/`GiveNamedItemEx` — `REGAME/regamedll/dlls/player.h:352-356,482,544-545`; реализации — `player.cpp:644-646,3544-3588,4569-4604,6528-6558,7044-7056` |
 | список действительно связан с FGD | `REGAME/regamedll/extra/Toolkit/GameDefinitionFile/regamedll-cs.fgd:909-975,1387-1438,1702-1792,2188-2280` и соответствующие `LINK_ENTITY_TO_CLASS` в `REGAME/regamedll/dlls/maprules.cpp:53-609`, `buttons.cpp:438`, `triggers.cpp:127-1840` |
+
+#### Инвентарь `LINK_ENTITY_TO_CLASS` и сверка FGD
+
+Чтобы не ограничивать исследование предполагаемыми `game_*`, выполнена проверка по всем
+`REGAME/regamedll/dlls/**/*.cpp` на SHA `7be9d59...`: 207 уникальных первых аргументов
+`LINK_ENTITY_TO_CLASS`. FGD содержит 130 объявлений `PointClass`/`SolidClass`/`BaseClass`/
+`NPCClass`. Это не обещание полного one-to-one совпадения: FGD включает базовые/tooling
+описания, а GameDLL содержит оружие, алиасы и технические экспорты.
+
+Полный сырой inventory (включая такие технические аргументы, как `beam`, `DelayedUse` и
+`mapClassName`) сохранён здесь для воспроизводимой сверки:
+
+<details>
+<summary>207 аргументов LINK_ENTITY_TO_CLASS</summary>
+
+`ambient_generic`, `ammo_338magnum`, `ammo_357sig`, `ammo_45acp`, `ammo_50ae`, `ammo_556nato`,
+`ammo_556natobox`, `ammo_57mm`, `ammo_762nato`, `ammo_9mm`, `ammo_buckshot`, `armoury_entity`,
+`beam`, `bodyque`, `bot`, `button_target`, `cycler`, `cycler_prdroid`, `cycler_sprite`,
+`cycler_weapon`, `cycler_wreckage`, `DelayedUse`, `env_beam`, `env_beverage`, `env_blood`,
+`env_bombglow`, `env_bubbles`, `env_debris`, `env_explosion`, `env_fade`, `env_fog`,
+`env_funnel`, `env_global`, `env_glow`, `env_laser`, `env_lightning`, `env_message`, `env_rain`,
+`env_render`, `env_shake`, `env_shooter`, `env_snow`, `env_sound`, `env_spark`, `env_sprite`,
+`fireanddie`, `func_bomb_target`, `func_breakable`, `func_button`, `func_buyzone`,
+`func_conveyor`, `func_door`, `func_door_rotating`, `func_escapezone`, `func_friction`,
+`func_grencatch`, `func_guntarget`, `func_healthcharger`, `func_hostage_rescue`,
+`func_illusionary`, `func_ladder`, `func_monsterclip`, `func_mortar_field`, `func_pendulum`,
+`func_plat`, `func_platrot`, `func_pushable`, `func_rain`, `func_recharge`, `func_rot_button`,
+`func_rotating`, `func_snow`, `func_tank`, `func_tankcontrols`, `func_tanklaser`,
+`func_tankmortar`, `func_tankrocket`, `func_trackautochange`, `func_trackchange`,
+`func_tracktrain`, `func_train`, `func_traincontrols`, `func_vehicle`, `func_vehiclecontrols`,
+`func_vip_safetyzone`, `func_wall`, `func_wall_toggle`, `func_water`, `func_weaponcheck`,
+`game_counter`, `game_counter_set`, `game_end`, `game_player_equip`, `game_player_hurt`,
+`game_player_team`, `game_score`, `game_team_master`, `game_team_set`, `game_text`,
+`game_zone_player`, `gib`, `gibshooter`, `grenade`, `hostage_entity`, `info_bomb_target`,
+`info_hostage_rescue`, `info_intermission`, `info_landmark`, `info_map_parameters`,
+`info_null`, `info_player_deathmatch`, `info_player_start`, `info_spawn_point`, `info_target`,
+`info_teleport_destination`, `info_vip_start`, `infodecal`, `item_airbox`, `item_airtank`,
+`item_antidote`, `item_assaultsuit`, `item_battery`, `item_healthkit`, `item_kevlar`,
+`item_longjump`, `item_security`, `item_sodacan`, `item_suit`, `item_thighpack`, `light`,
+`light_environment`, `light_spot`, `mapClassName`, `momentary_door`, `momentary_rot_button`,
+`monster_hevsuit_dead`, `monster_mortar`, `monster_scientist`, `multi_manager`, `multisource`,
+`path_corner`, `path_track`, `player`, `player_loadsaved`, `player_weaponstrip`,
+`point_clientcommand`, `point_servercommand`, `soundent`, `spark_shower`, `speaker`,
+`target_cdaudio`, `test_effect`, `trigger`, `trigger_auto`, `trigger_autosave`, `trigger_camera`,
+`trigger_cdaudio`, `trigger_changelevel`, `trigger_changetarget`, `trigger_counter`,
+`trigger_endsection`, `trigger_gravity`, `trigger_hurt`, `trigger_monsterjump`,
+`trigger_multiple`, `trigger_once`, `trigger_push`, `trigger_random`, `trigger_random_time`,
+`trigger_random_unique`, `trigger_relay`, `trigger_setorigin`, `trigger_teleport`,
+`trigger_transition`, `weapon_ak47`, `weapon_aug`, `weapon_awp`, `weapon_c4`, `weapon_deagle`,
+`weapon_elite`, `weapon_famas`, `weapon_fiveseven`, `weapon_flashbang`, `weapon_g3sg1`,
+`weapon_galil`, `weapon_glock18`, `weapon_hegrenade`, `weapon_knife`, `weapon_m249`,
+`weapon_m3`, `weapon_m4a1`, `weapon_mac10`, `weapon_mp5navy`, `weapon_p228`, `weapon_p90`,
+`weapon_scout`, `weapon_sg550`, `weapon_sg552`, `weapon_shield`, `weapon_smokegrenade`,
+`weapon_tmp`, `weapon_ump45`, `weapon_usp`, `weapon_xm1014`, `weaponbox`, `world_items`,
+`worldspawn`.
+
+</details>
+
+Автоматическая set-сверка дала следующие расхождения, которые не следует молча считать
+ошибкой: FGD-only — `env_lighting`, `env_smoker`, `info_compile_parameters`, `info_lights_rad`,
+`info_texlights`, `item_nvgs`; raw C++-only включает weapon/ammo exports, технические
+алиасы и классы без FGD-описания. Для action-рецептов выше каждый classname дополнительно
+сверен вручную по коду и FGD-строкам; FGD остаётся редакторской подсказкой, не источником
+server spawn behavior.
 
 ### B. Граница расширения
 
@@ -69,7 +139,7 @@
 | внешний `maps/<map>.ent` заменяет entity lump только если новее BSP | `XASH/engine/common/mod_bmodel.c:2298-2340` |
 | `entpatch <mapname>` — встроенный способ записать entity patch | `XASH/engine/server/sv_cmds.c:596-620,1034-1046`; запись patch — `XASH/engine/server/sv_game.c:786-812,839-871` |
 | YaPB проксирует `pfnRegUserMsg` и предоставляет `SV_CreateEntity`, разрешающий символ в GameDLL | `YAPB/src/linkage.cpp:770-783,1121-1140` |
-| это не доказывает загрузку произвольного AMXX/ReAPI/Metamod-плагина с новым classname | вывод по границе проверенных исходников; отдельный loader/plugin path не найден и не проверялся runtime |
+| YaPB содержит Metamod `Meta_Query`/`Meta_Attach`, но текущий launcher не доказывает загрузку произвольного plugin path | интерфейс YaPB — `YAPB/src/linkage.cpp:958-1019`; standalone/Metamod ветки — `YAPB/src/engine.cpp:1036-1076`; текущий запуск — `server.cmd:7,65-74`; результат: runtime loader не проверен |
 
 ### C. User message и клиентский HUD
 
@@ -79,6 +149,7 @@
 | в текущем сервере уже есть `HudText`, `HudTextPro`, `TextMsg`, `ScreenShake`, `ScreenFade` | `REGAME/regamedll/dlls/client.cpp:156-159,179-180`; размеры задаются там же |
 | клиентский hook — макрос `HOOK_MESSAGE`, а обработчики распределены по модулям | `CLIENT/cl_dll/cl_util.h:33-37`; `message.cpp:44-54,594-682`; `text_message.cpp:32-39,182-...`; HUD hooks — `hud.cpp:294-315` |
 | существующий HUD уже инициализируется в `CHud::Init`, а HUD-исходники подключаются glob-ом | `CLIENT/cl_dll/hud.cpp:409,434-436`; `CLIENT/cl_dll/CMakeLists.txt:6-10` |
+| существующий путь HUD и три реестра редактора уже описаны отдельно | `docs/plans/player-progression-system.md:34-49,373-383`; образец timer — `CLIENT/cl_dll/hud/timer.cpp:41-139`; editor — `tools/hud-editor/editor.js:3,35-65` |
 | новый серверный `.cpp` нельзя рассчитывать подхватить glob-ом ReGameDLL | `REGAME/regamedll/CMakeLists.txt:203-255` — явный `GAMEDLL_SRCS` |
 
 ### D. Сеть, лимиты и доставка
@@ -164,10 +235,10 @@
 |---|---|---|
 | Выдать/отнять деньги | Не найдено среди проверенных `game_*` сущностей | `CBasePlayer::AddAccount` существует как серверный метод (`REGAME/regamedll/dlls/player.h:482,744`; реализация `player.cpp:3544-3588`), но `maprules.cpp` его не вызывает. Нужен новый серверный код или существующая отдельная серверная команда/расширение; плагинный путь не подтверждён |
 | Ограничить действие master-условием, командой или счётчиком | Частично да | Использовать `master`, `game_team_master`, `game_counter`/`game_counter_set`; их проверка и `USE_TYPE` уже есть (`REGAME/regamedll/dlls/maprules.cpp:228-353,479-538`; `subs.cpp:122-168`). Произвольное выражение всё равно требует кода |
-| Действовать только на активатора или на всех | Да, но цепочка важна | Активатор доступен через `pActivator`; для всех есть `game_text` All Players, `ambient_generic` Everywhere, fade/shake с собственными правилами получателей |
-| Сохранить пользовательское состояние между раундами | Не закрыто статическим чтением | В штатных сущностях есть локальное состояние счётчиков и задержек, но нужный reset/персистентность конкретного дизайна требует отдельной проверки стендом; до неё не объявлять это ни гарантированным, ни невозможным |
+| Действовать только на активатора или на всех | Да, но цепочка важна | Активатор доступен через `pActivator`; для всех есть `game_text` All Players, `ambient_generic` Everywhere, fade/shake с собственными правилами получателей (`REGAME/regamedll/dlls/maprules.cpp:196-218`; `sound.cpp:75-94`; `effects.cpp:1803-1854`) |
+| Сохранить пользовательское состояние между раундами | Не закрыто статическим чтением | В штатных сущностях есть локальное состояние счётчиков и задержек (`REGAME/regamedll/dlls/maprules.cpp:479-538`; `triggers.cpp:289-363`), но нужный reset/персистентность конкретного дизайна требует отдельной проверки стендом |
 | Занять отдельный текстовый канал | Ограниченно | FGD предлагает четыре канала `game_text`; совпадение с другими HUD-текстами — конфликт контента, а не новый сетевой протокол (`regamedll-cs.fgd:1785-1792`; `util.cpp:602`) |
-| Сделать полностью новый визуальный HUD-виджет | Нет, не одной картой | Карта может вызвать существующий текстовый путь, но новый тип данных и отрисовка требуют уровня 3 |
+| Сделать полностью новый визуальный HUD-виджет | Нет, не одной картой | Карта может вызвать существующий текстовый путь, но новый тип данных и отрисовка требуют уровня 3 (`REGAME/regamedll/dlls/client.cpp:143-180`; `CLIENT/cl_dll/cl_util.h:33-37`; `CLIENT/cl_dll/hud.cpp:409`) |
 
 ## 7. Уровни 2–3 — расширение
 
