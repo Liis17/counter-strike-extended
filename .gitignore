@@ -21,3 +21,4 @@ Thumbs.db
 
 # MCP server (tools/mcp-game) node modules
 /tools/mcp-game/node_modules/
+/.playwright-mcp
