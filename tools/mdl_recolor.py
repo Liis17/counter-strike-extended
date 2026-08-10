@@ -80,9 +80,8 @@ def _model_header(data: bytes, path: Path) -> tuple[int, int]:
     if struct.unpack_from("<i", data, 0)[0] != IDST:
         raise ValueError(f"{path}: ожидался GoldSrc studio-модельный заголовок IDST")
 
-    numtextures, textureindex = struct.unpack_from(
-        "<2i", data, MODEL_NUM_TEXTURES_OFFSET
-    )
+    numtextures = struct.unpack_from("<i", data, MODEL_NUM_TEXTURES_OFFSET)[0]
+    textureindex = struct.unpack_from("<i", data, MODEL_TEXTURE_INDEX_OFFSET)[0]
     if numtextures < 0:
         raise ValueError(f"{path}: отрицательное число текстур")
     if numtextures == 0:
