@@ -1,6 +1,15 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar"];
+
+// Elements a fresh config writes out. An element belongs here only if its
+// in-game default is a plain constant, so that writing the record changes
+// nothing; the ones left out have defaults computed at runtime from sprite
+// sizes or from a neighbouring element, and start un-overridden.
+const DEFAULT_OVERRIDDEN = new Set([
+	"Health", "Battery", "Ammo", "AmmoSecondary", "Money",
+	"Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar",
+]);
 const ANCHORS = [
 	"top_left",    "top_center",    "top_right",
 	"center_left", "center",        "center_right",
@@ -48,6 +57,10 @@ const ELEMENT_PREVIEWS = {
 	// over 5 players wraps into a second row and a two-digit score widens the
 	// middle, neither of which the preview reflects.
 	TeamBar:       { width: 804, height: 64, fontSize: 20, scalable: true, align: "center", sample: "▪▪▪▪▪ 1:3 ▪▪▪▪▪" },
+	// The 640-res "radar" sprite is 128x128 (cstrike sprites/hud.txt). The
+	// layout point is its top-left corner, and the location name is drawn
+	// 10px below the box, outside this footprint.
+	Radar:         { width: 128, height: 128, fontSize: 16, scalable: true, sample: "◎" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -62,6 +75,7 @@ const DEFAULT_ELEMENTS = {
 	DeathNotice:   { x: 20,  y: 40, anchor: "top_right",    scale: 2 },
 	StatusBar:     { x: 10,  y: 40, anchor: "bottom_left",  scale: 2 },
 	TeamBar:       { x: 0,   y: 40, anchor: "top_center",   scale: 1 },
+	Radar:         { x: 0,   y: 0,  anchor: "top_left",     scale: 1 },
 };
 
 // An element's `override` flag decides whether it gets a record in the file at
@@ -70,9 +84,9 @@ const DEFAULT_ELEMENTS = {
 // (WeaponMenu measures the radar sprite, Scenario chases the Timer's right
 // edge) and cannot be expressed as a constant x/y/anchor. So the flag is not
 // stored in the file — the presence of the record *is* the flag.
-function defaultElements(override) {
+function defaultElements(isOverridden) {
 	const out = JSON.parse(JSON.stringify(DEFAULT_ELEMENTS));
-	for (const id of ELEMENT_IDS) out[id].override = override;
+	for (const id of ELEMENT_IDS) out[id].override = isOverridden(id);
 	return out;
 }
 
@@ -122,7 +136,7 @@ function newConfig() {
 	state = {
 		resW: DEFAULT_RESOLUTION.w,
 		resH: DEFAULT_RESOLUTION.h,
-		elements: defaultElements(true),
+		elements: defaultElements((id) => DEFAULT_OVERRIDDEN.has(id)),
 		decorations: [
 			makeDecoration("Shade", { x: 0, y: 0, w: DEFAULT_RESOLUTION.w, h: 36, r: 0, g: 0, b: 0, a: 140 }),
 			makeDecoration("Line", { x: 10, y: 40, w: 300, h: 2, r: 255, g: 140, b: 0, a: 255 }),
@@ -356,7 +370,7 @@ function parseHudLayout(text) {
 	// Elements missing from the file keep their default coordinates as a
 	// starting point for the fields, but stay un-overridden so saving does not
 	// silently reintroduce a record the user removed.
-	const elements = defaultElements(false);
+	const elements = defaultElements(() => false);
 	for (;;) {
 		const id = next();
 		if (id === undefined || id === "}") break;
