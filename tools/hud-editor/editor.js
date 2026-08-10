@@ -64,6 +64,18 @@ const DEFAULT_ELEMENTS = {
 	TeamBar:       { x: 0,   y: 40, anchor: "top_center",   scale: 1 },
 };
 
+// An element's `override` flag decides whether it gets a record in the file at
+// all. Absence of a record is a meaningful state: the game then keeps the
+// element's hardcoded default, which for several widgets is computed at runtime
+// (WeaponMenu measures the radar sprite, Scenario chases the Timer's right
+// edge) and cannot be expressed as a constant x/y/anchor. So the flag is not
+// stored in the file — the presence of the record *is* the flag.
+function defaultElements(override) {
+	const out = JSON.parse(JSON.stringify(DEFAULT_ELEMENTS));
+	for (const id of ELEMENT_IDS) out[id].override = override;
+	return out;
+}
+
 // Everything under `state` is persisted (groups via a comment line); the view
 // state below is session-only and never reaches HudLayout.txt.
 let state = {
@@ -110,7 +122,7 @@ function newConfig() {
 	state = {
 		resW: DEFAULT_RESOLUTION.w,
 		resH: DEFAULT_RESOLUTION.h,
-		elements: JSON.parse(JSON.stringify(DEFAULT_ELEMENTS)),
+		elements: defaultElements(true),
 		decorations: [
 			makeDecoration("Shade", { x: 0, y: 0, w: DEFAULT_RESOLUTION.w, h: 36, r: 0, g: 0, b: 0, a: 140 }),
 			makeDecoration("Line", { x: 10, y: 40, w: 300, h: 2, r: 255, g: 140, b: 0, a: 255 }),
@@ -341,7 +353,10 @@ function parseHudLayout(text) {
 	if (next() !== "HudLayout") throw new Error('Ожидался токен "HudLayout"');
 	if (next() !== "{") throw new Error('Ожидался "{" после "HudLayout"');
 
-	const elements = JSON.parse(JSON.stringify(DEFAULT_ELEMENTS));
+	// Elements missing from the file keep their default coordinates as a
+	// starting point for the fields, but stay un-overridden so saving does not
+	// silently reintroduce a record the user removed.
+	const elements = defaultElements(false);
 	for (;;) {
 		const id = next();
 		if (id === undefined || id === "}") break;
@@ -353,7 +368,7 @@ function parseHudLayout(text) {
 		if (maybe !== undefined && maybe !== "}" && !isNaN(parseFloat(maybe)) && parseFloat(maybe) !== 0) {
 			scale = parseFloat(next());
 		}
-		elements[id] = { x, y, anchor: normalizeAnchor(anchor), scale };
+		elements[id] = { x, y, anchor: normalizeAnchor(anchor), scale, override: true };
 	}
 
 	const decorations = [];
@@ -400,6 +415,7 @@ function serializeHudLayout(st) {
 	lines.push("{");
 	for (const id of ELEMENT_IDS) {
 		const e = st.elements[id] || DEFAULT_ELEMENTS[id];
+		if (!e.override) continue;
 		lines.push(`\t "${id}" "${e.x}" "${e.y}" "${e.anchor}" "${e.scale}"`);
 	}
 	lines.push("}");
@@ -716,7 +732,8 @@ function renderStage() {
 		const sel = selection.has(key);
 
 		const box = document.createElement("div");
-		box.className = "hud-preview" + (sel ? " selected" : "") + (e.locked ? " locked" : "");
+		box.className = "hud-preview" + (sel ? " selected" : "") + (e.locked ? " locked" : "") +
+			(e.override ? "" : " not-overridden");
 		box.style.left = preview.left + "px";
 		box.style.top = preview.top + "px";
 		box.style.width = preview.width + "px";
@@ -824,7 +841,8 @@ function renderElementsList() {
 		const e = state.elements[id];
 		const key = elKey(id);
 		const row = document.createElement("div");
-		row.className = "elem-row" + (selection.has(key) ? " selected" : "");
+		row.className = "elem-row" + (selection.has(key) ? " selected" : "") +
+			(e.override ? "" : " not-overridden");
 		row.dataset.key = key;
 
 		const head = document.createElement("div");
@@ -834,6 +852,13 @@ function renderElementsList() {
 		head.appendChild(title);
 		const tools = document.createElement("span");
 		tools.className = "row-tools";
+		tools.appendChild(toggleButton(e.override ? "☑" : "☐",
+			"Переопределять положение. Снято — элемент не пишется в файл, игра рисует его по своему умолчанию",
+			e.override, () => {
+				pushHistory();
+				e.override = !e.override;
+				render();
+			}));
 		const g = groupOf(key);
 		if (g) {
 			const badge = document.createElement("span");

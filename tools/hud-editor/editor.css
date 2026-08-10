@@ -74,6 +74,9 @@ aside h2:first-child { margin-top: 0; }
 	border-color: var(--select);
 	box-shadow: inset 0 0 0 1px rgba(78, 161, 255, .35);
 }
+/* Not written to the file: the game draws this element by its own default. */
+.elem-row.not-overridden .field-grid { opacity: .45; }
+.elem-row.not-overridden .row-head b { color: var(--muted); }
 .elem-row .row-head, .decor-row .row-head, .group-row .row-head {
 	display: flex;
 	justify-content: space-between;
@@ -159,6 +162,7 @@ aside h2:first-child { margin-top: 0; }
 	box-shadow: 0 0 0 1px var(--select), 0 0 10px rgba(78, 161, 255, .35);
 }
 .hud-preview.locked, .decor-box.locked { cursor: not-allowed; opacity: .55; }
+.hud-preview.not-overridden { border-style: dotted; opacity: .5; }
 .hud-preview-label {
 	position: absolute;
 	left: -1px;
