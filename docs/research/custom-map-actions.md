@@ -321,10 +321,11 @@ src/cse/maps/<name>.map
         -> runtime/cstrike/maps/<name>.bsp
 ```
 
-В этой итерации `.map`, BSP, FGD/WAD/VHLT и `tools/install_maps.ps1` не создаются. Текущий FGD
-ReGameDLL находится в `REGAME/regamedll/extra/Toolkit/GameDefinitionFile/regamedll-cs.fgd`;
-его classname-описания сверены с `LINK_ENTITY_TO_CLASS`, но параметры компилятора, WAD и VHLT
-пока не валидировались.
+Исходник стенда создан в `src/cse/maps/cse_test_actions.map`. Он использует штатные текстуры из
+`halflife.wad` и существующий `buttons/button3.wav`; отдельные WAD/WAV-ассеты проекта не добавлялись.
+BSP, FGD/VHLT и `tools/install_maps.ps1` пока не создавались. Текущий FGD ReGameDLL находится в
+`REGAME/regamedll/extra/Toolkit/GameDefinitionFile/regamedll-cs.fgd`; его classname-описания сверены
+с `LINK_ENTITY_TO_CLASS`, но параметры компилятора и VHLT пока не валидировались.
 
 Текущий build/deploy-контур собирает engine и client, копирует их в `runtime`, затем запускает
 только install-скрипты локализации, YaPB map configs и HUD layout
@@ -393,9 +394,9 @@ All Players; для персонального эффекта — прямой t
 
 ### Подготовка
 
-Стендовая карта из плана должна в будущем называться `cse_test_actions`; исходник —
-`src/cse/maps/cse_test_actions.map`, BSP — производный файл. Запуск — `server.cmd
-cse_test_actions`. Клиент B должен использовать отдельный runtime-каталог или другую машину:
+Стендовая карта называется `cse_test_actions`; её исходник создан в
+`src/cse/maps/cse_test_actions.map`, BSP остаётся производным файлом. После компиляции запуск —
+`server.cmd cse_test_actions`. Клиент B должен использовать отдельный runtime-каталог или другую машину:
 общий runtime не проверяет отсутствие файла у клиента.
 
 `server.cmd` безусловно задаёт `BOT_QUOTA=9` и передаёт `+yb_quota 9`
@@ -410,7 +411,7 @@ cse_test_actions`. Клиент B должен использовать отде
 | `func_button btn_global` | target `mm_global`, `Don't move`, wait 3 |
 | `multi_manager mm_global` | `txt1 0`, `snd1 0`, `door1 0.5`, `score1 1`, `heal1 1`; не более 16 целей |
 | `game_text txt1` | `CSE TEST OK`, All Players `1`, channel 3, holdtime 5 |
-| `ambient_generic snd1` | тестовый WAV, Play Everywhere `1`, Start Silent `16` |
+| `ambient_generic snd1` | `buttons/button3.wav`, Play Everywhere `1`, Start Silent `16` |
 | `func_door door1` | обычная Toggle-дверь |
 | `game_score score1` | points 1 |
 | `game_player_hurt heal1` | `dmg = -25`; активатору заранее оставить недостающее HP |
@@ -423,14 +424,14 @@ cse_test_actions`. Клиент B должен использовать отде
 
 | # | Проверяем | Критерий | Фактический результат |
 |---|---|---|---|
-| 1 | `game_text` для всех | текст виден A и B; без All Players — только активатору | не проверено: карта не создана |
-| 2 | Звук | оба клиента слышат звук; записать влияние расстояния и Everywhere | не проверено: карта не создана |
-| 3 | Репликация | дверь открывается у обоих без собственного user message | не проверено: карта не создана |
-| 4 | Очки и HP | A получает +1 frag и +25 HP; B видит изменение фрага | не проверено: карта не создана |
-| 5 | Оружие | AK-47 получает только нажавший | не проверено: карта не создана |
-| 6 | Триггер и delay | `trigger_multiple` даёт ту же цепочку, wait подавляет повтор | не проверено: карта не создана |
-| 7 | Неизвестный classname | лог `No spawn function ...`; точечная probe не ломает карту | не проверено: карта не создана |
-| 8 | Конец раунда | зафиксировать reset состояния и delayed `multi_manager` после рестарта | не проверено: карта не создана |
+| 1 | `game_text` для всех | текст виден A и B; без All Players — только активатору | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 2 | Звук | оба клиента слышат звук; записать влияние расстояния и Everywhere | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 3 | Репликация | дверь открывается у обоих без собственного user message | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 4 | Очки и HP | A получает +1 frag и +25 HP; B видит изменение фрага | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 5 | Оружие | AK-47 получает только нажавший | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 6 | Триггер и delay | `trigger_multiple` даёт ту же цепочку, wait подавляет повтор | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 7 | Неизвестный classname | лог `No spawn function ...`; точечная probe не ломает карту | не проверено: BSP не скомпилирован, запуск не выполнялся |
+| 8 | Конец раунда | зафиксировать reset состояния и delayed `multi_manager` после рестарта | не проверено: BSP не скомпилирован, запуск не выполнялся |
 | 9 | Доставка: карты нет | зафиксировать поведение при явных download cvars | не проверено: отдельный runtime не подготовлен |
 | 10 | Доставка: BSP устарел | зафиксировать CRC-поведение | не проверено: отдельный runtime не подготовлен |
 | 11 | Лог и ресурсы | `runtime/engine.log` без precache-ошибок; ресурсы перечислены | не проверено: запуск не выполнялся |

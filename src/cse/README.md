@@ -26,6 +26,8 @@ src/cse/
 │       ├── HudLayout.txt           # кастомный HUD-layout
 │       ├── CseProgression.txt      # XP и пороги уровней
 │       └── CseSkinRecipes.txt      # рецепты перекрасов моделей
+├── maps/                            # исходники собственных карт; BSP — производный артефакт
+│   └── cse_test_actions.map         # стенд штатных map actions
 ├── yapb/                           # конфиги YaPB для отдельных карт
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # настройки YaPB для конкретной карты
@@ -55,6 +57,9 @@ tools\install_hud_layout.ps1
 ```powershell
 tools\install_progression.ps1
 ```
+
+Исходники карт находятся в `src/cse/maps/`. Внешний Hammer/J.A.C.K.-тулчейн компилирует их в BSP;
+текущий `build-cse.cmd` карты не компилирует и не устанавливает.
 
 Сгенерировать производные модели скинов из лицензированных моделей в `runtime/`:
 
