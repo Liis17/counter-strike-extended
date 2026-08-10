@@ -25,10 +25,11 @@ CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) докумен�
 
 ## Собственные расширения репозитория
 - [[Client/HUD-layout]] — система кастомизации позиций элементов HUD (HP, броня, патроны, деньги,
-  таймер и др.) через внешний файл `scripts/HudLayout.txt`. Реализована в `cl_dll/hud_layout.cpp`,
+  таймер, XPBar и др.) через внешний файл `scripts/HudLayout.txt`. Реализована в `cl_dll/hud_layout.cpp`,
   точки расширения в `cl_dll/hud.h` (`CHudBase::m_szLayoutId`, `GetLayoutPos()`), интеграция в
   `cl_dll/hud.cpp` (`CHud::LoadLayout()`, cvar `hud_layout_reload`).
 - [[CSE/progression]] — клиентский локальный профиль XP и статистики в `cl_dll/cse_profile.cpp` и
   разбор `scripts/CseProgression.txt` в `cl_dll/cse_progression.cpp`. События подключены к
   `DeathMsg`, `TeamScore`, `CHud::Redraw()` и `CHud::Shutdown()`; `cl_dll/cse_skins.cpp` реализует
-  локальный выбор скина и подмену собственного viewmodel в `cs_wpn/cs_weapons.cpp`.
+  локальный выбор скина и подмену собственного viewmodel в `cs_wpn/cs_weapons.cpp`. `cl_dll/hud/xpbar.cpp`
+  рисует уровень и прогресс XP, а `cse_progression.cpp` отдаёт HUD пороги уровней.

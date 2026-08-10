@@ -11,6 +11,7 @@
 	 "AmmoSecondary" "12" "153" "top_right" "1"
 	 "Money" "7" "56" "bottom_right" "2"
 	 "Timer" "-122" "50" "bottom_center" "2"
+	 "XPBar" "0" "130" "bottom_center" "1"
 	 "Flashlight" "17" "275" "top_right" "2"
 	 "DeathNotice" "12" "27" "top_right" "2"
 	 "StatusBar" "227" "229" "top_right" "2"

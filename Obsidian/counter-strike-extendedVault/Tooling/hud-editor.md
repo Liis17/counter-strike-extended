@@ -41,7 +41,7 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 вручную, остаётся удалённым, а не восстанавливается из `DEFAULT_ELEMENTS` при следующем
 сохранении — эти значения теперь только заполняют поля ввода.
 
-`DEFAULT_OVERRIDDEN` — набор id, которые пишет новый конфиг (13 из 18): элемент попадает туда,
+`DEFAULT_OVERRIDDEN` — набор id, которые пишет новый конфиг (14 из 19): элемент попадает туда,
 только если его игровой дефолт — константа, и запись ничего не меняет.
 
 Выделение и группы адресуются **стабильными ключами**, а не индексами массива:
@@ -56,8 +56,8 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 | `resolveAnchoredPos` / `inverseAnchoredPos` | Зеркало `ResolveAnchoredPos()` из `hud_layout.cpp`: две независимые оси, полная сетка 3×3 якорей |
 | `normalizeAnchor(name)` | Приводит алиасы (`center_top`, `topright`, …) к каноническому имени |
 | `itemOrigin(key)` / `setItemOrigin(key, x, y)` | Точка привязки, которую резолвит игра; запись идёт через inverse-anchor + округление |
-| `itemRect(key)` | Нарисованный footprint. Отличается от origin у right-aligned элементов, `StatusBar` и центрированного `TeamBar` — поэтому перемещение идёт через origin, а привязка и выравнивание через rect |
-| `getElementPreview(id, element)` | Габариты HUD-блока и его runtime-origin для превью |
+| `itemRect(key)` | Нарисованный footprint. Отличается от origin у right-aligned элементов, `StatusBar`, `TeamBar` и `XPBar` — поэтому перемещение идёт через origin, а привязка и выравнивание через rect |
+| `getElementPreview(id, element)` | Габариты HUD-блока и его runtime-origin для превью; `TeamBar` и `XPBar` центрируются по origin |
 | `beginDrag(startEv, onMove, onEnd)` | Считает **float**-дельту от точки mousedown; вызывающий применяет `round(start + delta)` |
 | `computeSnap(keys, startRects, dx, dy)` | Одно смещение на всё выделение: края/центр холста, рёбра и центры соседей, сетка. Возвращает направляющие |
 | `startMoveDrag(ev)` | Двигает всё выделение; каждый член проходит свой anchor round-trip |
@@ -105,6 +105,8 @@ mousemove. Любой класс, повешенный на узел, был б�
 
 ## Ограничения
 - Превью содержимого элементов иллюстративное: живых значений и спрайтов оружия в браузере нет.
+- Превью элементов, растущих вверх от origin (`StatusIcons`, `AmmoHistory`, `XPBar`), задано через
+  `originY: -height`; у XPBar origin — нижний центр полосы, над ним располагаются уровень и popup.
 - Превью стековых элементов (`StatusIcons`, `AmmoHistory`, `WeaponMenu`, `SayText`, `TeamBar`) —
   представительный случай с фиксированным числом записей; реальный блок растёт вместе с их числом.
   `StatusIcons` и `AmmoHistory` растут **вверх** от точки привязки, поэтому их превью задано через

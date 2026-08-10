@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar", "SayText", "Train"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "XPBar", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar", "SayText", "Train"];
 
 // Elements a fresh config writes out. An element belongs here only if its
 // in-game default is a plain constant, so that writing the record changes
@@ -8,7 +8,7 @@ const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Tim
 // sizes or from a neighbouring element, and start un-overridden.
 const DEFAULT_OVERRIDDEN = new Set([
 	"Health", "Battery", "Ammo", "AmmoSecondary", "Money",
-	"Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar",
+	"Timer", "XPBar", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar",
 	"StatusIcons", "AmmoHistory",
 ]);
 const ANCHORS = [
@@ -37,7 +37,7 @@ const RULER_SIZE = 20;
 
 // Representative cstrike 640-HUD footprints. The point returned by the
 // runtime is the top-left for left/center elements and the right edge for
-// Ammo/Money/Flashlight/DeathNotice, and the horizontal center for TeamBar.
+// Ammo/Money/Flashlight/DeathNotice, and the horizontal center for TeamBar/XPBar.
 // StatusBar receives a bottom margin.
 // These previews use the same origin and scale semantics; their content is
 // illustrative because live values and weapon sprites are not available in a
@@ -49,6 +49,9 @@ const ELEMENT_PREVIEWS = {
 	AmmoSecondary: { width: 106, height: 50, fontSize: 20, scalable: false, align: "right", sample: "▪ 2 | 1" },
 	Money:         { width: 125, height: 25, fontSize: 20, scalable: true,  align: "right", sample: "$ 800" },
 	Timer:         { width: 114, height: 25, fontSize: 20, scalable: true,  sample: "◷ 04:52" },
+	// The layout point is the bottom-center of the bar; the footprint grows
+	// upward so the label and the award popup stay attached to it.
+	XPBar:         { width: 280, height: 58, fontSize: 14, scalable: true,  align: "center", originY: -58, sample: "Level 2  450/1000 XP  +150 XP" },
 	Flashlight:    { width: 48,  height: 32, fontSize: 20, scalable: false, align: "right", sample: "▰" },
 	DeathNotice:   { width: 240, height: 16, fontSize: 12, scalable: false, align: "right", sample: "Killer ▪ Victim" },
 	StatusBar:     { width: 220, height: 13, fontSize: 13, scalable: false, originY: -4, sample: "Player: 100 HP" },
@@ -95,6 +98,7 @@ const DEFAULT_ELEMENTS = {
 	AmmoSecondary: { x: 20,  y: 90, anchor: "bottom_right", scale: 1 },
 	Money:         { x: 20,  y: 75, anchor: "bottom_right", scale: 2 },
 	Timer:         { x: 0,   y: 35, anchor: "center",       scale: 2 },
+	XPBar:         { x: 0,   y: 130, anchor: "bottom_center", scale: 1 },
 	Flashlight:    { x: 40,  y: 10, anchor: "top_right",    scale: 2 },
 	DeathNotice:   { x: 20,  y: 40, anchor: "top_right",    scale: 2 },
 	StatusBar:     { x: 10,  y: 40, anchor: "bottom_left",  scale: 2 },
