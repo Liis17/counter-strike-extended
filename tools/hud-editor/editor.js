@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario"];
 
 // Elements a fresh config writes out. An element belongs here only if its
 // in-game default is a plain constant, so that writing the record changes
@@ -9,6 +9,7 @@ const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Tim
 const DEFAULT_OVERRIDDEN = new Set([
 	"Health", "Battery", "Ammo", "AmmoSecondary", "Money",
 	"Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar",
+	"StatusIcons",
 ]);
 const ANCHORS = [
 	"top_left",    "top_center",    "top_right",
@@ -67,6 +68,11 @@ const ELEMENT_PREVIEWS = {
 	// Like TeamBar, the preview is one representative case: the real box grows
 	// with the number of weapons actually carried.
 	WeaponMenu:    { width: 300, height: 280, fontSize: 14, scalable: true, sample: "1 2 3 4 5" },
+	// The icon column is anchored at its bottom and stacks upwards, so the
+	// preview box sits above the layout point. Height is three icons' worth;
+	// the real column is as tall as the number of active icons.
+	StatusIcons:   { width: 48, height: 120, fontSize: 12, scalable: false, originY: -120, sample: "▣" },
+	Scenario:      { width: 32, height: 32,  fontSize: 12, scalable: false, sample: "✱" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -85,6 +91,10 @@ const DEFAULT_ELEMENTS = {
 	// Not written by default: the game places the menu next to the radar
 	// sprite, which no constant reproduces. These values only seed the fields.
 	WeaponMenu:    { x: 138, y: 10, anchor: "top_left",     scale: 1 },
+	StatusIcons:   { x: 5,   y: 0,  anchor: "center_left",  scale: 1 },
+	// Not written by default: the game chains this icon to the timer's right
+	// edge, which is only known once the timer has drawn.
+	Scenario:      { x: 20,  y: 60, anchor: "bottom_center", scale: 1 },
 };
 
 // An element's `override` flag decides whether it gets a record in the file at
