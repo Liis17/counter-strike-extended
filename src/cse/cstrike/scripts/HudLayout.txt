@@ -17,6 +17,7 @@
 	 "TeamBar" "0" "40" "top_center" "1"
 	 "Radar" "0" "0" "top_left" "1"
 	 "StatusIcons" "5" "0" "center_left" "1"
+	 "AmmoHistory" "0" "0" "bottom_right" "1"
 }
 
 // "Type" "x" "y" "anchor" "w" "h" "r" "g" "b" "a" "radius"

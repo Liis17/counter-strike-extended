@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar"];
 
 // Elements a fresh config writes out. An element belongs here only if its
 // in-game default is a plain constant, so that writing the record changes
@@ -9,7 +9,7 @@ const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Tim
 const DEFAULT_OVERRIDDEN = new Set([
 	"Health", "Battery", "Ammo", "AmmoSecondary", "Money",
 	"Timer", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar",
-	"StatusIcons",
+	"StatusIcons", "AmmoHistory",
 ]);
 const ANCHORS = [
 	"top_left",    "top_center",    "top_right",
@@ -73,6 +73,14 @@ const ELEMENT_PREVIEWS = {
 	// the real column is as tall as the number of active icons.
 	StatusIcons:   { width: 48, height: 120, fontSize: 12, scalable: false, originY: -120, sample: "▣" },
 	Scenario:      { width: 32, height: 32,  fontSize: 12, scalable: false, sample: "✱" },
+	// Pickup entries stack upwards from the bottom-right corner, so the box
+	// is right-aligned and sits above the layout point. Three entries' worth;
+	// the real stack is as tall as the number of live entries.
+	AmmoHistory:   { width: 140, height: 150, fontSize: 14, scalable: false, align: "right", originY: -150, sample: "▪ 30" },
+	// Half the screen wide by design, so the preview matches a 2560-wide
+	// screen. Shows the headerless variant; with a header the bar sits one
+	// line below the layout point instead of on it.
+	ProgressBar:   { width: 1280, height: 10, fontSize: 12, scalable: false, sample: "" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -95,6 +103,13 @@ const DEFAULT_ELEMENTS = {
 	// Not written by default: the game chains this icon to the timer's right
 	// edge, which is only known once the timer has drawn.
 	Scenario:      { x: 20,  y: 60, anchor: "bottom_center", scale: 1 },
+	// bottom_right with a zero margin lands on (ScreenWidth, ScreenHeight),
+	// which is exactly the corner the entries are measured back from.
+	AmmoHistory:   { x: 0,   y: 0,  anchor: "bottom_right", scale: 1 },
+	// Not written by default: the game puts the bar at ScreenWidth/4 and
+	// ScreenHeight*2/3, fractions the anchor grid cannot express. These
+	// values match a 2560x1440 screen and only seed the fields.
+	ProgressBar:   { x: 640, y: 960, anchor: "top_left",    scale: 1 },
 };
 
 // An element's `override` flag decides whether it gets a record in the file at
