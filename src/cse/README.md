@@ -23,9 +23,12 @@ src/cse/
 │       └── cstrike_russian.txt    # CS 1.6 (оружие, режимы, scoreboard)
 ├── cstrike/                        # ресурсы игры CS 1.6
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt
+│   ├── gfx/cse/avatars/            # → runtime/cstrike/gfx/cse/avatars/
+│   │   └── bot*.tga                # аватары ботов, 64x64 TGA32
 │   └── scripts/                    # → runtime/cstrike/scripts/
 │       ├── HudLayout.txt           # кастомный HUD-layout
 │       ├── CseProgression.txt      # XP и пороги уровней
+│       ├── CseBotAvatars.txt       # список аватаров ботов
 │       └── CseSkinRecipes.txt      # рецепты перекрасов моделей
 ├── maps/                            # исходники собственных карт; BSP — производный артефакт
 │   └── cse_test_actions.map         # стенд штатных map actions
@@ -58,6 +61,18 @@ tools\install_hud_layout.ps1
 ```powershell
 tools\install_progression.ps1
 ```
+
+Установить аватары ботов (картинки + список):
+
+```powershell
+tools\install_bot_avatars.ps1
+```
+
+Сервер выдаёт каждому боту случайный номер аватара, клиент по нему берёт запись из
+`cstrike/scripts/CseBotAvatars.txt` — картинки по сети не передаются, файлы на сервере и у
+клиентов обязаны совпадать. Формат — TGA32 или PNG 64×64; JPG движок не читает. Текущие
+`bot01..bot16.tga` — временные плейсхолдеры, их можно заменить, не трогая код: достаточно
+положить файлы и поправить список.
 
 Исходники карт находятся в `src/cse/maps/`. Внешний Hammer/J.A.C.K.-тулчейн компилирует их в BSP;
 текущий `build-cse.cmd` карты не компилирует и не устанавливает.

@@ -8,6 +8,9 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 | Точка | Что |
 |-------|-----|
 | `src/cs16-client/cl_dll/hud/teambar.cpp` | `CHudTeamBar` + клиентская половина сервиса аватаров |
+| `src/cs16-client/cl_dll/cse_bot_avatars.{cpp,h}` | аватары ботов: разбор списка, загрузка текстур, `CSE_BotAvatar()` |
+| `src/xash3d-fwgs/engine/server/sv_client.c` | `SV_FakeConnect()` пишет боту случайный `cse_av` в userinfo |
+| `src/cse/cstrike/gfx/cse/avatars/`, `scripts/CseBotAvatars.txt` | картинки ботов и их список |
 | `src/cs16-client/cl_dll/hud.h`, `hud.cpp` | класс, член `CHud::m_TeamBar`, вызов `Init()` |
 | `src/xash3d-fwgs/engine/client/dll_int/cl_game.c` | `pfnGetPlayerInfo` заполняет `m_nSteamID` из userinfo-ключа `cse_sid` |
 | `src/cse/rich_presence/src/main.cpp` | Steam-сторона: SteamID64 + выкачка аватаров в TGA ([[CSE/rich_presence]]) |
@@ -27,8 +30,31 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 - клиент действительно перезаписывает `wanted.txt` в игре (в спектаторе — пустым, потому что
   в ленту попадают только игроки команд T/CT).
 
+## Аватары ботов
+
+У бота нет SteamID, поэтому слот раньше падал в буквенный плейсхолдер. Теперь картинку назначает
+сервер: `SV_FakeConnect()` кладёт в userinfo фейк-клиента `cse_av` = `COM_RandomLong( 0, 255 )`,
+движок рассылает userinfo штатным `SV_FullClientUpdate()` (вырезаются только ключи с префиксом `_`),
+клиент берёт `номер % количество записей` из `scripts/CseBotAvatars.txt` и грузит файл
+`gRenderAPI.GL_LoadTexture( путь, NULL, 0, ... )` — тем же способом, что `hud/sniperscope.cpp:57`
+и `hud/spectator_gui.cpp:101` грузят свои шипнутые TGA. Картинки по сети не идут.
+
+Загрузка живёт в `CHudTeamBar::VidInit()`, а не в `Init()`: движок сбрасывает пользовательские
+текстуры при рестарте видео и смене карты, и сохранённые с прошлой карты texnum протухли бы.
+
+Дубли не снимаются осознанно: дедуп на клиенте зависел бы от текущего состава команд и
+переставлял бы картинки живым ботам при входе/выходе соседа. Одинаковое лицо у двух ботов из
+шестнадцати читается лучше, чем лицо, меняющееся посреди раунда. При `cv_rotate_bots` YaPB
+пересоздаёт ботов — они законно получают новый номер, как и после смены карты.
+
+**Почему движок, а не YaPB.** У YaPB своя машинерия аватаров (`getRandomAvatar()`, `cv_show_avatars`,
+ключ `*sid` — `src/manager.cpp:1166`), но `BotConfig::loadAvatarsConfig()` (`src/config.cpp:591`)
+безусловно выходит на `GameFlags::Xash3D`, и обхода у этого guard'а нет. А `3rdparty/yapb` —
+submodule на upstream `yapb/yapb`, так что путь через него означал бы форк чужого репозитория.
+
 **Не проверено вживую:** финальная картинка «реальный аватар внутри слота» и рамка слота поверх
-текстуры. Требуется зайти в команду, а ввод с клавиатуры в игру из среды агента не проходит
+текстуры; для ботов — что назначенный сервером `cse_av` доезжает до клиента и превращается в
+картинку. Обе проверки требуют входа в команду. Требуется зайти в команду, а ввод с клавиатуры в игру из среды агента не проходит
 (SDL raw input). Ручная проверка: запустить `start-cse.cmd` при запущенном Steam, подключиться,
 выбрать команду — свой аватар должен появиться в слоте за ~5–10 с (секунда на выкачку хелпером
 плюс пятисекундный retry загрузки текстуры), с сохранением цветной рамки команды по краю слота.
@@ -74,6 +100,13 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 | Ники, «это я» | `g_PlayerInfoList[i].name`, `.thisplayer` | массив **не** обновляется сам — см. врезку ниже |
 | Мёртв / жив | `g_PlayerExtraInfo[i].dead` | для затемнения аватара |
 | SteamID64 | `hud_player_info_t.m_nSteamID` | поле **есть** в структуре, но движок его **не заполняет** — см. Этап 4 |
+| Аватар бота | userinfo-ключ `cse_av`, читается `gEngfuncs.PlayerInfo_ValueForKey( i, "cse_av" )` | ставит `SV_FakeConnect()` (`sv_client.c:524`) всем фейк-клиентам: `COM_RandomLong( 0, 255 )`. По сети едет только число, картинка берётся по `номер % длина списка` |
+
+⚠️ **Признак бота — наличие `cse_av`, а не ключ `*bot`.** YaPB публикует `*bot` только при
+`show_latency 1` (`3rdparty/yapb/src/manager.cpp:1163`), так что существующий
+`CSE_PlayerIsBot()` (`cl_dll/cse_profile.cpp:251`), от которого зависит `bot_multiplier` в XP,
+на дефолтных настройках сервера возвращает false для всех ботов. Здесь эта зависимость не
+используется; сам `CSE_PlayerIsBot()` не трогали.
 
 ⚠️ **`g_PlayerInfoList` обновляется не каждый кадр.** Заполняет его только
 `CHudScoreboard::GetAllPlayersInfo()` (`scoreboard.cpp:555`), а вызывается он из

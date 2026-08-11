@@ -24,6 +24,12 @@ Parent: [[Index]]
 плану; конфиг `CseProgression.txt` и install-скрипт остаются в `src/cse/` и
 `tools/`.
 
+Исключение расширено для аватаров ботов: назначает их **сервер**, а серверный код —
+это движок. Правка живёт в форке `src/xash3d-fwgs` (`SV_FakeConnect()`), потому что
+YaPB — submodule на upstream `yapb/yapb`, и путь через него потребовал бы отдельного
+форка чужого репозитория. Картинки, список и install-скрипт — по-прежнему в `src/cse/`
+и `tools/` (см. [[Client/HUD-TeamBar]]).
+
 ## Структура
 
 ```
@@ -34,8 +40,10 @@ src/cse/
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 ├── cstrike/
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
+│   ├── gfx/cse/avatars/bot*.tga        # → runtime/cstrike/gfx/cse/avatars/ (аватары ботов, см. [[Client/HUD-TeamBar]])
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 │   ├── scripts/CseProgression.txt      # → runtime/cstrike/scripts/CseProgression.txt (XP/уровни, см. [[CSE/progression]])
+│   ├── scripts/CseBotAvatars.txt       # → runtime/cstrike/scripts/CseBotAvatars.txt (список аватаров ботов)
 │   └── scripts/CseSkinRecipes.txt      # рецепты производных моделей из runtime-ассетов
 ├── yapb/
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
@@ -61,6 +69,7 @@ src/cse/
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
 | `tools/install_hud_layout.ps1` | `src/cse/cstrike/scripts/HudLayout.txt` → `runtime/cstrike/scripts/HudLayout.txt` |
 | `tools/install_progression.ps1` | `src/cse/cstrike/scripts/CseProgression.txt` → `runtime/cstrike/scripts/CseProgression.txt` |
+| `tools/install_bot_avatars.ps1` | `src/cse/cstrike/gfx/cse/avatars/*` → `runtime/cstrike/gfx/cse/avatars/*` + `CseBotAvatars.txt` → `runtime/cstrike/scripts/` |
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
@@ -79,6 +88,9 @@ src/cse/
 - Упрощение главного меню (см. [[CSE/menu]]) — исключение из правила: C++ внутри
   mainui_cpp нельзя вынести в `src/cse/`, поэтому правка живёт в форке
   `Liis17/mainui_cpp` (ветка `cs16-client`), как и правки самого клиента.
+- Добавлен домен `cstrike/gfx/cse/avatars/` — картинки, которые сервер случайно раздаёт
+  ботам через userinfo-ключ `cse_av` (см. [[Client/HUD-TeamBar]]). Первый случай, когда
+  собственный код проекта попал в форк движка, а не клиента.
 - Добавлен `cstrike/gameinfo.txt` с `render_picbutton_text 1` — форсирует текстовый
   рендер кнопок главного меню (вместо BMP-атласа `btns_main.bmp` из `extras.pk3`),
   без чего локализация кнопок не работает (см. [[CSE/menu]]).
