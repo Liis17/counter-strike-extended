@@ -1,0 +1,26 @@
+// Картинки, которые клиент рисует в слоте TeamBar вместо буквы ника у ботов.
+// Сервер шлёт боту случайный номер в userinfo-ключе cse_av, клиент берёт
+// запись с номером (index % количество записей ниже).
+//
+// Файлы обязаны лежать в runtime рядом с этим списком (tools\install_bot_avatars.ps1),
+// формат — TGA32 или PNG, 64x64. JPG движок не читает.
+
+"CseBotAvatars"
+{
+	"gfx/cse/avatars/bot01.tga"
+	"gfx/cse/avatars/bot02.tga"
+	"gfx/cse/avatars/bot03.tga"
+	"gfx/cse/avatars/bot04.tga"
+	"gfx/cse/avatars/bot05.tga"
+	"gfx/cse/avatars/bot06.tga"
+	"gfx/cse/avatars/bot07.tga"
+	"gfx/cse/avatars/bot08.tga"
+	"gfx/cse/avatars/bot09.tga"
+	"gfx/cse/avatars/bot10.tga"
+	"gfx/cse/avatars/bot11.tga"
+	"gfx/cse/avatars/bot12.tga"
+	"gfx/cse/avatars/bot13.tga"
+	"gfx/cse/avatars/bot14.tga"
+	"gfx/cse/avatars/bot15.tga"
+	"gfx/cse/avatars/bot16.tga"
+}
