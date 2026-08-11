@@ -8,14 +8,7 @@
     "round_loss"     "50"
     "match_win"      "500"
     "match_loss"     "150"
-}
-
-"CseLevels"
-{
-    "2" "1000"
-    "3" "2500"
-    "4" "4500"
-    "5" "7000"
+    "xp_per_level"   "10000"
 }
 
 "CseSkins"
