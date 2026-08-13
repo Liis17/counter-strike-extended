@@ -17,6 +17,12 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 | `src/cse/cstrike/scripts/HudLayout.txt` | запись `"TeamBar" "0" "40" "top_center" "1"` |
 | `tools/hud-editor/editor.js` | id в трёх реестрах + ветка `align: "center"` в `getElementPreview()` |
 
+## Методы
+
+| Метод | Назначение |
+|-------|-----------|
+| `TeamBar_DrawDeadMark()` | Процедурно рисует светлый диагональный крест поверх затемнённого аватара устранённого игрока. |
+
 **Проверено:**
 
 - лента рисуется в бою: слоты T слева, счёт, слоты CT справа; вторая строка при шести и более
