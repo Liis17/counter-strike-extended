@@ -16,8 +16,9 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 Тот же файл содержит второй, необязательный блок `HudDecorations` — линии-разделители,
 затемнения и панели-подложки под текст (см. [[#Декорации (необязательные элементы)]]). Оба блока
 можно редактировать визуально через `tools/hud-editor` (см. [[Tooling/hud-editor]]). Редактор показывает
-ориентировочные габариты реального HUD, включая правую точку привязки для патронов/денег и
-эффективный `scale` только для поддерживаемых элементов.
+ориентировочные габариты реального HUD, включая правую точку привязки для патронов/денег. Все
+19 HUD-блоков редактора имеют поля `anchor` и `scale`; масштаб применяется в игре к их спрайтам,
+числам, тексту и геометрии стека.
 
 ## Точки кода
 
@@ -27,7 +28,7 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 | `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика, две независимые оси), `g_LayoutAnchorNames[]` + `Layout_ParseAnchor()` (таблица имён и алиасов), `g_LayoutSlotNames[]` + `Layout_IsSlotName()`, `CHudBase::GetLayoutPos()`, `CHud::GetLayoutSlot()`, `Decoration_ResolveTopLeft()`, парсер `CHud::LoadLayout()` (оба блока), `CHud::DrawDecorations()` |
 | `src/cs16-client/cl_dll/hud.cpp` | Регистрация cvar `hud_layout_reload`, вызов `LoadLayout()` в конце `CHud::Init()` |
 | `src/cs16-client/cl_dll/hud_redraw.cpp` | Проверка `hud_layout_reload` в `CHud::Think()`; вызов `DrawDecorations()` в начале `CHud::Redraw()`, перед циклом отрисовки HUD-элементов |
-| `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()` и `SPR_DrawHolesScaled()` — общий `SPR_DrawScaledMode()`, ручной textured quad через `pTriAPI` (`SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»); различаются только режимом (`kRenderTransAdd` / `kRenderTransAlpha`). Параметр `scale` у `DrawHudNumber*` |
+| `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()`/`SPR_DrawHolesScaled()` — общий `SPR_DrawScaledMode()` с параметром кадра, ручной textured quad через `pTriAPI` (`SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»); `DrawConsoleStringScaled()` и scaled-метрики для текста |
 | `src/cs16-client/extras/HudLayout.txt` | Образец файла с комментариями |
 | `src/cse/cstrike/scripts/HudLayout.txt` | Текущая проектная настройка, устанавливаемая в runtime |
 | `tools/install_hud_layout.ps1` | Идемпотентная установка файла в `runtime/cstrike/scripts/` |
@@ -47,7 +48,10 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 4. Масштабирование спрайтов: `DrawUtils::SPR_DrawAdditiveScaled(spr, x, y, prc, destW, destH, r,g,b)`
    рисует ручной textured quad через `pTriAPI` (`SpriteTexture` + `RenderMode(kRenderTransAdd)` +
    `Begin(TRI_QUADS)`/`TexCoord2f`/`Vertex3f`/`End`), растягивая спрайт до произвольных `w,h`.
-   Числа — через `DrawHudNumber*(... scale)`.
+   Числа — через `DrawHudNumber*(... scale)`, обычный текст — через
+   `DrawConsoleStringScaled()` и `ConsoleString*Scaled()`. Для текстового режима используется
+   Xash Mobile API `pfnDrawScaledCharacter`; при его отсутствии текст остаётся обычного размера,
+   а геометрические части блока всё равно масштабируются.
 5. В рантайме: `hud_layout_reload 1` в консоли → `CHud::Think()` перечитывает файл и сбрасывает cvar.
 
 ### Известные грабли: блендинг при масштабировании спрайтов
@@ -70,22 +74,22 @@ additive-прозрачных глифов. Исправлено переход�
 | `Health` | `cl_dll/health.cpp` | позиция иконки cross + числа HP | да — растяг cross + цифр |
 | `Battery` | `cl_dll/battery.cpp` | позиция иконки брони + числа | да |
 | `Ammo` | `cl_dll/ammo.cpp` | правый край блока патронов + базовая Y | да — цифры, bar, ammo-иконка |
-| `AmmoSecondary` | `cl_dll/ammo_secondary.cpp` | правый край + Y для вторичного боезапаса | нет (пока) |
+| `AmmoSecondary` | `cl_dll/ammo_secondary.cpp` | правый край + Y для вторичного боезапаса | да — иконка, цифры, разделители и вертикальные интервалы |
 | `Money` | `cl_dll/hud/money.cpp` | правый край блока денег + Y | да — dollar, plus/minus, число |
 | `Timer` | `cl_dll/hud/timer.cpp` | позиция левого верхнего угла таймера | да — stopwatch + цифры + colon |
 | `XPBar` | `cl_dll/hud/xpbar.cpp` | **нижний центр** полосы прогрессии; блок растёт вверх | да — текст, полоса и popup |
-| `Flashlight` | `cl_dll/flashlight.cpp` | правый край + Y фонарика | нет (пока) |
-| `DeathNotice` | `cl_dll/death.cpp` | правый край + Y верхней строки killfeed | нет (текст через консольный шрифт) |
-| `StatusBar` | `cl_dll/statusbar.cpp` | базовый отступ слева + отступ снизу | нет (текст через консольный шрифт) |
+| `Flashlight` | `cl_dll/flashlight.cpp` | правый край + Y фонарика | да — корпус, луч и уровень энергии |
+| `DeathNotice` | `cl_dll/death.cpp` | правый край + Y верхней строки killfeed | да — спрайты, текст и расстояния строк |
+| `StatusBar` | `cl_dll/statusbar.cpp` | базовый отступ слева + отступ снизу | да — текст и расстояния строк |
 | `TeamBar` | `cl_dll/hud/teambar.cpp` | **центр** блока счёта по X + верх ленты по Y | да — слоты, зазоры и цифры счёта |
 | `Radar` | `cl_dll/hud/radar.cpp` | левый верхний угол коробки радара; точки и текст локации следуют за ней | да — спрайт, радиус и маркеры |
 | `WeaponMenu` | `cl_dll/ammo.cpp` (`DrawWList`) | левый верхний угол блока выбора оружия. **Слот**, не элемент | да — bucket'ы, картинки оружия, рамка выбора, ammo bar, зазоры |
-| `StatusIcons` | `cl_dll/status_icons.cpp` | **низ** колонки иконок (стек растёт вверх) | нет |
-| `Scenario` | `cl_dll/hud/scenario.cpp` | позиция иконки сценария (бомба/заложники) | нет |
-| `AmmoHistory` | `cl_dll/ammohistory.cpp` | **правый нижний угол** истории подбора (стек растёт вверх). **Слот**, не элемент | нет |
-| `ProgressBar` | `cl_dll/hud/timer.cpp` (`CHudProgressBar`) | левый верхний угол полосы; с заголовком — угол текста, полоса строкой ниже | нет |
-| `SayText` | `cl_dll/saytext.cpp` | левый верхний угол первой строки чата | нет (консольный шрифт) |
-| `Train` | `cl_dll/train.cpp` | позиция панели управления вагонеткой | нет |
+| `StatusIcons` | `cl_dll/status_icons.cpp` | **низ** колонки иконок (стек растёт вверх) | да — иконки и зазоры стека |
+| `Scenario` | `cl_dll/hud/scenario.cpp` | позиция иконки сценария (бомба/заложники) | да — иконка и цепочка с Timer по умолчанию |
+| `AmmoHistory` | `cl_dll/ammohistory.cpp` | **правый нижний угол** истории подбора (стек растёт вверх). **Слот**, не элемент | да — иконки, числа и зазоры стека |
+| `ProgressBar` | `cl_dll/hud/timer.cpp` (`CHudProgressBar`) | левый верхний угол полосы; с заголовком — угол текста, полоса строкой ниже | да — текст, ширина/высота полосы и заполнение |
+| `SayText` | `cl_dll/saytext.cpp` | левый верхний угол первой строки чата | да — текст, переносы и расстояния строк |
+| `Train` | `cl_dll/train.cpp` | позиция панели управления вагонеткой | да — спрайт панели |
 
 ### Дефолты, которые нельзя записать в файл
 
@@ -110,14 +114,16 @@ additive-прозрачных глифов. Исправлено переход�
 `CHud::m_LayoutSlots` и читаются через
 `CHud::GetLayoutSlot( name, x, y, defaultX, defaultY, scale = NULL )`. Id вне белого списка
 по-прежнему даёт `Con_DPrintf` — иначе опечатка в имени элемента молча превращалась бы в слот,
-который никто не читает. Параметр `scale` — необязательный указатель: у немасштабируемых слотов
-он не передаётся.
+который никто не читает. Параметр `scale` — необязательный указатель: `WeaponMenu` и
+`AmmoHistory` передают его и масштабируют весь блок.
 
-## Не поддерживается (отложено)
+## Масштабирование текста
 
-- **SayText / StatusBar / DeathNotice scale** — эти элементы рисуются через консольный шрифт
-  движка (`pfnDrawConsoleString`), у которого нет API масштабирования. Потребуется переход на
-  quad-рендеринг шрифта, что выходит за рамки текущей итерации.
+`SayText`, `StatusBar` и `DeathNotice` используют общий `DrawUtils::DrawConsoleStringScaled()`,
+а заголовок `ProgressBar` — `DrawHudString(..., scale)`. При доступном Xash Mobile API эти
+вызовы используют `pfnDrawScaledCharacter` и scaled-метрики для выравнивания и переноса. Если
+API недоступен, текстовый слой безопасно возвращается к обычному размеру; спрайты, прогресс-бары
+и интервалы блока всё равно используют `scale`.
 
 ## Формат `HudLayout.txt`
 
@@ -219,9 +225,10 @@ anchor-математикой, что и HUD-элементы (`ResolveAnchoredP
   блок будет расти влево от точки привязки.
 - HP и броня исторически на одной `y` и разнесены по `x` вручную. При свободном позиционировании
   возможно наложение — ответственность пользователя через `HudLayout.txt`.
-- Scale применяется только к элементам, у которых он реализован (Health, Battery, Ammo, Money,
-  Timer, XPBar, TeamBar, Radar, WeaponMenu). SayText/StatusBar/DeathNotice используют консольный шрифт
-  движка без API масштабирования.
+- Scale поддерживается всеми 19 HUD-блоками, включая оба слот-виджета (`WeaponMenu` и
+  `AmmoHistory`). Для текстовых блоков итоговый размер букв зависит от наличия
+  `pfnDrawScaledCharacter` в Mobile API движка; позиция, переносы и геометрия блока учитывают
+  масштаб всегда.
 - `Radar` живёт в двух системах координат: `FillRGBA` — движковый `pfnFillRGBA`, принимает
   HUD-координаты (пространство `ScreenWidth`), а `Draw2DQuad` — реальные пиксели, поэтому
   `DrawColoredTexture()` домножает на `gHUD.m_flScale`. Смещение из layout прибавляется **до**

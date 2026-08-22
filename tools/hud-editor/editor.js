@@ -43,51 +43,51 @@ const RULER_SIZE = 20;
 // illustrative because live values and weapon sprites are not available in a
 // standalone browser editor.
 const ELEMENT_PREVIEWS = {
-	Health:        { width: 94,  height: 25, fontSize: 20, scalable: true,  sample: "✚ 100" },
-	Battery:       { width: 84,  height: 25, fontSize: 20, scalable: true,  sample: "▣ 100" },
-	Ammo:          { width: 192, height: 32, fontSize: 20, scalable: true,  align: "right", sample: "13 | 90  ▪" },
-	AmmoSecondary: { width: 106, height: 50, fontSize: 20, scalable: false, align: "right", sample: "▪ 2 | 1" },
-	Money:         { width: 125, height: 25, fontSize: 20, scalable: true,  align: "right", sample: "$ 800" },
-	Timer:         { width: 114, height: 25, fontSize: 20, scalable: true,  sample: "◷ 04:52" },
+	Health:        { width: 94,  height: 25, fontSize: 20, sample: "✚ 100" },
+	Battery:       { width: 84,  height: 25, fontSize: 20, sample: "▣ 100" },
+	Ammo:          { width: 192, height: 32, fontSize: 20, align: "right", sample: "13 | 90  ▪" },
+	AmmoSecondary: { width: 106, height: 50, fontSize: 20, align: "right", sample: "▪ 2 | 1" },
+	Money:         { width: 125, height: 25, fontSize: 20, align: "right", sample: "$ 800" },
+	Timer:         { width: 114, height: 25, fontSize: 20, sample: "◷ 04:52" },
 	// The layout point is the bottom-center of the bar; the footprint grows
 	// upward so the label and the award popup stay attached to it.
-	XPBar:         { width: 280, height: 58, fontSize: 14, scalable: true,  align: "center", originY: -58, sample: "Level 2  450/1000 XP  +150 XP" },
-	Flashlight:    { width: 48,  height: 32, fontSize: 20, scalable: false, align: "right", sample: "▰" },
-	DeathNotice:   { width: 240, height: 16, fontSize: 12, scalable: false, align: "right", sample: "Killer ▪ Victim" },
-	StatusBar:     { width: 220, height: 13, fontSize: 13, scalable: false, originY: -4, sample: "Player: 100 HP" },
+	XPBar:         { width: 280, height: 58, fontSize: 14, align: "center", originY: -58, sample: "Level 2  450/1000 XP  +150 XP" },
+	Flashlight:    { width: 48,  height: 32, fontSize: 20, align: "right", sample: "▰" },
+	DeathNotice:   { width: 240, height: 16, fontSize: 12, align: "right", sample: "Killer ▪ Victim" },
+	StatusBar:     { width: 220, height: 13, fontSize: 13, originY: -4, sample: "Player: 100 HP" },
 	// TeamBar's layout point is the center of the score block, so the preview is
 	// center-aligned. Width is a full 5v5 row as drawn by teambar.cpp: two
 	// 336px slot blocks, two 16px gaps and a single-digit score block. A team
 	// over 5 players wraps into a second row and a two-digit score widens the
 	// middle, neither of which the preview reflects.
-	TeamBar:       { width: 804, height: 64, fontSize: 20, scalable: true, align: "center", sample: "▪▪▪▪▪ 1:3 ▪▪▪▪▪" },
+	TeamBar:       { width: 804, height: 64, fontSize: 20, align: "center", sample: "▪▪▪▪▪ 1:3 ▪▪▪▪▪" },
 	// The 640-res "radar" sprite is 128x128 (cstrike sprites/hud.txt). The
 	// layout point is its top-left corner, and the location name is drawn
 	// 10px below the box, outside this footprint.
-	Radar:         { width: 128, height: 128, fontSize: 16, scalable: true, sample: "◎" },
+	Radar:         { width: 128, height: 128, fontSize: 16, sample: "◎" },
 	// Six slot columns of 20px plus 5px gaps, widened by the active column,
 	// which is as wide as a weapon picture (the 640-res "selection" sprite is
 	// 170x45). Height covers the slot row plus a full column of five weapons.
 	// Like TeamBar, the preview is one representative case: the real box grows
 	// with the number of weapons actually carried.
-	WeaponMenu:    { width: 300, height: 280, fontSize: 14, scalable: true, sample: "1 2 3 4 5" },
+	WeaponMenu:    { width: 300, height: 280, fontSize: 14, sample: "1 2 3 4 5" },
 	// The icon column is anchored at its bottom and stacks upwards, so the
 	// preview box sits above the layout point. Height is three icons' worth;
 	// the real column is as tall as the number of active icons.
-	StatusIcons:   { width: 48, height: 120, fontSize: 12, scalable: false, originY: -120, sample: "▣" },
-	Scenario:      { width: 32, height: 32,  fontSize: 12, scalable: false, sample: "✱" },
+	StatusIcons:   { width: 48, height: 120, fontSize: 12, originY: -120, sample: "▣" },
+	Scenario:      { width: 32, height: 32,  fontSize: 12, sample: "✱" },
 	// Pickup entries stack upwards from the bottom-right corner, so the box
 	// is right-aligned and sits above the layout point. Three entries' worth;
 	// the real stack is as tall as the number of live entries.
-	AmmoHistory:   { width: 140, height: 150, fontSize: 14, scalable: false, align: "right", originY: -150, sample: "▪ 30" },
+	AmmoHistory:   { width: 140, height: 150, fontSize: 14, align: "right", originY: -150, sample: "▪ 30" },
 	// Half the screen wide by design, so the preview matches a 2560-wide
 	// screen. Shows the headerless variant; with a header the bar sits one
 	// line below the layout point instead of on it.
-	ProgressBar:   { width: 1280, height: 10, fontSize: 12, scalable: false, sample: "" },
+	ProgressBar:   { width: 1280, height: 10, fontSize: 12, sample: "" },
 	// Five chat lines from the layout point downwards, at the console font's
 	// line height. Long messages wrap, adding lines the preview does not show.
-	SayText:       { width: 520, height: 90, fontSize: 14, scalable: false, sample: "Player: hi" },
-	Train:         { width: 64,  height: 64, fontSize: 12, scalable: false, sample: "⇅" },
+	SayText:       { width: 520, height: 90, fontSize: 14, sample: "Player: hi" },
+	Train:         { width: 64,  height: 64, fontSize: 12, sample: "⇅" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -240,7 +240,7 @@ function inverseAnchoredPos(anchor, x, y, resW, resH) {
 function getElementPreview(id, e) {
 	const meta = ELEMENT_PREVIEWS[id];
 	const origin = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
-	const scale = meta.scalable ? Math.max(0.1, Number(e.scale) || 1) : 1;
+	const scale = Math.max(0.1, Number(e.scale) || 1);
 	const width = meta.width * scale;
 	const height = meta.height * scale;
 	return {
@@ -946,8 +946,7 @@ function renderElementsList() {
 		grid.appendChild(labeled("y", numberInput(e.y, 1, (v) => { e.y = Math.round(v); renderStage(); })));
 		const scaleInput = numberInput(e.scale, 0.1, (v) => { e.scale = Math.max(0.1, v); renderStage(); });
 		scaleInput.min = "0.1";
-		scaleInput.disabled = !ELEMENT_PREVIEWS[id].scalable;
-		scaleInput.title = scaleInput.disabled ? "Для этого элемента scale не поддерживается игрой" : "Масштабирует глифы элемента";
+		scaleInput.title = "Масштабирует блок элемента в игре";
 		grid.appendChild(labeled("scale", scaleInput));
 		grid.appendChild(labeled("anchor", anchorSelect(e.anchor, (v) => { pushHistory(); e.anchor = v; renderStage(); })));
 		row.appendChild(grid);

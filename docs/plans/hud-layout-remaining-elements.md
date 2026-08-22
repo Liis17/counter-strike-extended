@@ -1,15 +1,16 @@
 # План: остальные элементы HUD в редакторе и в игре
 
-Статус: этапы 0–6 реализованы. Автоматические проверки (сборка, round-trip редактора) пройдены;
-визуальная проверка в игре выполнена частично — см. «Что осталось непроверенным» в конце.
+Статус: этапы 0–6 реализованы, а поддержка `anchor`/`scale` расширена на все 19 HUD-блоков.
+Автоматические проверки (сборка клиента и синтаксис редактора) пройдены; визуальная проверка новых
+масштабов в живой игре остаётся ручным шагом.
 
 ## Зачем
 
-Сейчас система кастомного layout покрывает 10 элементов: `Health`, `Battery`, `Ammo`,
-`AmmoSecondary`, `Money`, `Timer`, `Flashlight`, `DeathNotice`, `StatusBar`, `TeamBar`
-(`src/cs16-client/cl_dll/hud_layout.cpp`, `tools/hud-editor/editor.js:3`). Остальные виджеты
-нарисованы по жёстко зашитым координатам и не двигаются ни из редактора, ни из
-`scripts/HudLayout.txt`.
+Система кастомного layout теперь описывает все 19 элементов из `ELEMENT_IDS` редактора. Зарегистрированные
+элементы используют `CHudBase::GetLayoutPos()`/`GetLayoutScale()`, а `WeaponMenu` и `AmmoHistory`
+читают тот же контракт через `CHud::GetLayoutSlot()`. Масштабирование подключено также к тексту
+через `DrawConsoleStringScaled()`/`DrawHudString(..., scale)` и к ранее не поддержанным стекам,
+полосе и спрайтовым блокам.
 
 Задача: довести покрытие до восьми оставшихся элементов и в игре, и в редакторе.
 
@@ -41,7 +42,7 @@
 `{ name, x, y, anchor, scale }`. В `LoadLayout()` ветка `if( !elem )` (`hud_layout.cpp:233`) вместо
 безусловного `Con_DPrintf` кладёт запись в таблицу, если имя входит в статический белый список
 допустимых слотов; иначе — прежняя диагностика (иначе опечатка в id молча станет слотом).
-Читатель: `bool CHud::GetLayoutSlot( const char *name, int &x, int &y, float &scale, int defX, int defY )`.
+Читатель: `bool CHud::GetLayoutSlot( const char *name, int &x, int &y, int defaultX, int defaultY, float *scale = NULL )`.
 `Purge()` слотов — рядом с `m_LayoutDecorations.Purge()` (`hud_layout.cpp:144`).
 
 ### 2. Opt-out в редакторе — обязателен, иначе ломаются вычисляемые дефолты
@@ -152,7 +153,7 @@
 |------|-----------|
 | `cl_dll/hud/radar.cpp` | `m_szLayoutId = "Radar"` в `Init()` **перед** `AddHudElem` (`radar.cpp:97`; контракт `hud.h:170`); в начале `Draw()` — `GetLayoutPos` (дефолт `0,0`) и `GetLayoutScale()`; смещение и масштаб в поля, читаемые пятью хелперами; scaled-отрисовка обоих спрайтов; `DrawPlayerLocation` следует за радаром |
 | `cl_dll/include/hud/radar.h` | Поля смещения/масштаба, объявления не меняются по сигнатурам |
-| `tools/hud-editor/editor.js` | `Radar` в трёх местах: `ELEMENT_IDS`, `ELEMENT_PREVIEWS` (128×128, `scalable: true`), `DEFAULT_ELEMENTS` (`0,0,top_left,1`) |
+| `tools/hud-editor/editor.js` | `Radar` в трёх местах: `ELEMENT_IDS`, `ELEMENT_PREVIEWS` (128×128), `DEFAULT_ELEMENTS` (`0,0,top_left,1`) |
 | `src/cse/cstrike/scripts/HudLayout.txt` | Дописать `Radar` (не трогая существующие пользовательские значения) |
 
 Проверка: `cl_radartype 0` и `1` — во втором случае спрайт не должен превратиться в чёрный квадрат
@@ -164,7 +165,7 @@
 | Файл | Изменение |
 |------|-----------|
 | `cl_dll/ammo.cpp` | В `DrawWList` — `gHUD.GetLayoutSlot("WeaponMenu", ...)` с текущим выражением как дефолтом; под scale: спрайты bucket'ов, `p->rcActive`/`rcInactive`, `m_HUD_selection`, `giBucketWidth`/`Height`, `giABWidth`/`Height`, отступы `+5`, `DrawAmmoBar` |
-| `tools/hud-editor/editor.js` | `WeaponMenu`, превью ≈300×280 (6 слотов × 25 px + расширенная активная колонка 170 px, высота 20 + 5×50), `scalable: true`, флаг `override` по умолчанию снят |
+| `tools/hud-editor/editor.js` | `WeaponMenu`, превью ≈300×280 (6 слотов × 25 px + расширенная активная колонка 170 px, высота 20 + 5×50), флаг `override` по умолчанию снят |
 
 Проверка: без записи в файле меню рисуется точно как сейчас; с записью — двигается и масштабируется,
 рамка выбора совпадает со спрайтом оружия.
@@ -221,15 +222,15 @@
 
 ## Что осталось непроверенным
 
-Автоматически проверено: сборка клиента без предупреждений на каждом этапе; в редакторе —
-round-trip файла (набор и порядок записей не меняются), удалённый вручную id остаётся удалённым,
-совпадение anchor-математики с `ResolveAnchoredPos()`, наличие каждого id во всех трёх таблицах.
+Автоматически проверено: `cmake --build build --config Release`, `node --check tools/hud-editor/editor.js`,
+отсутствие whitespace-ошибок в diff и наличие каждого id в редакторе. Ранее также проверялись
+round-trip файла, удалённый вручную id и совпадение anchor-математики с `ResolveAnchoredPos()`.
 
 В игре подтверждено, что HUD с новым `HudLayout.txt` рисуется (декорации и `StatusIcons` на месте).
 Не проверено визуально:
 
 | Что | Почему |
 |-----|--------|
-| `cl_radartype 1` со `scale != 1` | Режим блендинга в `SPR_DrawHolesScaled` выбран по аналогии с `SPR_DrawHoles`, а не взят из кода движка. При `scale = 1` ветка не задействуется |
-| Меню оружия со `scale != 1` | Требует живой сессии с набором оружия в разных слотах |
+| Все новые блоки со `scale != 1` | Требует живой сессии с активными значениями, иконками, чатом и прогресс-баром |
+| `cl_radartype 1` со `scale != 1` | Требует отдельной проверки прозрачного scaled-рендеринга радара |
 | Точки радара при `scale != 1` на `FillRGBA`-ветке | Ветка активна только без renderAPI (`g_iXash == 0`) |
