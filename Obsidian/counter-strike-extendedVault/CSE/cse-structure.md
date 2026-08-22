@@ -41,6 +41,8 @@ src/cse/
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 ├── cstrike/
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
+│   ├── server.cfg                  # → runtime/cstrike/server.cfg (mp_winlimit 6, без timelimit)
+│   ├── mapcycle.txt                # исходный пул карт для случайной ротации
 │   ├── gfx/cse/avatars/*.{png,tga}     # → runtime/cstrike/gfx/cse/avatars/ (аватары ботов, см. [[Client/HUD-TeamBar]])
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 │   ├── scripts/CseProgression.txt      # → runtime/cstrike/scripts/CseProgression.txt (XP/уровни, см. [[CSE/progression]])
@@ -72,12 +74,18 @@ src/cse/
 |--------|--------------|
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
+| `tools/install_server_config.ps1` | `server.cfg` и исходный `mapcycle.txt` → `runtime/cstrike/` |
 | `tools/install_hud_layout.ps1` | `src/cse/cstrike/scripts/HudLayout.txt` → `runtime/cstrike/scripts/HudLayout.txt` |
 | `tools/install_progression.ps1` | `src/cse/cstrike/scripts/CseProgression.txt` → `runtime/cstrike/scripts/CseProgression.txt` |
 | `tools/install_bot_avatars.ps1` | генерирует список из PNG/TGA в `src/cse/cstrike/gfx/cse/avatars/`, затем копирует картинки и `CseBotAvatars.txt` в `runtime/` |
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
+
+При запуске `server.cmd` скрипт `tools/prepare_server_maps.ps1` перемешивает текущий multiplayer-пул и записывает
+его в runtime `mapcycle.txt`; стартовая карта помещается последней в сгенерированный порядок, чтобы
+первый автоматический переход не загрузил её повторно. `tr_*` и `cse_test_actions` — не часть
+боевого пула.
 
 Скрипты принимают `-DryRun` для предварительного просмотра и `-Root` для
 переопределения корня репозитория. Сгенерированные модели не отслеживаются git: это производные

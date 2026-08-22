@@ -4,7 +4,7 @@ setlocal enableextensions
 rem ============================================================
 rem  CS Dedicated Server Launcher (Xash3D FWGS + YaPB bots)
 rem  Repo: counter-strike-extended
-rem  Usage: server.cmd [map]      (e.g. server.cmd de_inferno)
+rem  Usage: server.cmd [map]      (optional explicit start map)
 rem ============================================================
 
 rem --- Server parameters (edit here) ---
@@ -13,7 +13,7 @@ set "SERVER_DLL=dlls\yapb.dll"
 set "SERVER_IP=0.0.0.0"
 set "SERVER_PORT=27015"
 set "SERVER_MAXPLAYERS=12"
-set "SERVER_MAP=de_dust2"
+set "SERVER_MAP="
 set "SERVER_LOG=engine.log"
 set "SERVER_DEV=0"
 
@@ -45,6 +45,18 @@ if not exist "%GAME_DLL%" (
     exit /b 1
 )
 
+rem --- Install server rules and prepare a fresh random map order ---
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_server_config.ps1" -Root "%ROOT%" || goto :fail
+if "%SERVER_MAP%"=="" (
+    for /f "usebackq delims=" %%M in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\prepare_server_maps.ps1" -Root "%ROOT%"`) do set "SERVER_MAP=%%M"
+) else (
+    for /f "usebackq delims=" %%M in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\prepare_server_maps.ps1" -Root "%ROOT%" -StartMap "%SERVER_MAP%"`) do set "SERVER_MAP=%%M"
+)
+if "%SERVER_MAP%"=="" (
+    echo [ERROR] Failed to prepare a random map cycle.
+    goto :fail
+)
+
 echo Starting dedicated server:
 echo   Game:        %SERVER_GAME%
 echo   DLL:         %SERVER_DLL%
@@ -58,7 +70,7 @@ echo.
 
 rem --- Launch dedicated server ---
 pushd "%RUNTIME_DIR%" || goto :fail
-xash3d.exe -dedicated -console -dev %SERVER_DEV% ^
+.\xash3d.exe -dedicated -console -dev %SERVER_DEV% ^
     -game %SERVER_GAME% ^
     -dll %SERVER_DLL% ^
     -ip %SERVER_IP% -port %SERVER_PORT% ^
