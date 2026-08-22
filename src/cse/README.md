@@ -27,6 +27,7 @@ src/cse/
 ├── cstrike/                        # ресурсы игры CS 1.6
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt
 │   ├── server.cfg                  # → runtime/cstrike/server.cfg
+│   ├── cse_map_change.cfg          # → runtime/cstrike/cse_map_change.cfg (/skip + восстановление правил)
 │   ├── mapcycle.txt                # пул карт для случайной ротации
 │   ├── gfx/cse/avatars/            # → runtime/cstrike/gfx/cse/avatars/
 │   │   └── *.png / *.tga           # аватары ботов, 64x64
@@ -79,6 +80,10 @@ tools\install_server_config.ps1
 выбирается случайно, а затем карты идут в этом случайном порядке без повторов до конца цикла;
 `server.cmd <map>` сохраняет явный выбор стартовой карты. Тренировочные `tr_*` и тестовая карта
 `cse_test_actions` в пул не входят.
+
+В консоли dedicated-сервера команда `/skip` временно завершает текущую карту штатной логикой ReGameDLL,
+чтобы перейти к следующему элементу случайного `mapcycle`; `cse_map_change.cfg` затем восстанавливает
+правила матча до шести побед.
 
 Установить аватары ботов (картинки + список):
 

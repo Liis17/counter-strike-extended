@@ -41,7 +41,8 @@ src/cse/
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 ├── cstrike/
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
-│   ├── server.cfg                  # → runtime/cstrike/server.cfg (mp_winlimit 6, без timelimit)
+│   ├── server.cfg                  # → runtime/cstrike/server.cfg (dedicated-настройки)
+│   ├── cse_map_change.cfg          # → runtime/cstrike/cse_map_change.cfg (/skip + восстановление правил)
 │   ├── mapcycle.txt                # исходный пул карт для случайной ротации
 │   ├── gfx/cse/avatars/*.{png,tga}     # → runtime/cstrike/gfx/cse/avatars/ (аватары ботов, см. [[Client/HUD-TeamBar]])
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
@@ -74,7 +75,7 @@ src/cse/
 |--------|--------------|
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
-| `tools/install_server_config.ps1` | `server.cfg` и исходный `mapcycle.txt` → `runtime/cstrike/` |
+| `tools/install_server_config.ps1` | серверные `server.cfg`, `cse_map_change.cfg` и исходный `mapcycle.txt` → `runtime/cstrike/` |
 | `tools/install_hud_layout.ps1` | `src/cse/cstrike/scripts/HudLayout.txt` → `runtime/cstrike/scripts/HudLayout.txt` |
 | `tools/install_progression.ps1` | `src/cse/cstrike/scripts/CseProgression.txt` → `runtime/cstrike/scripts/CseProgression.txt` |
 | `tools/install_bot_avatars.ps1` | генерирует список из PNG/TGA в `src/cse/cstrike/gfx/cse/avatars/`, затем копирует картинки и `CseBotAvatars.txt` в `runtime/` |

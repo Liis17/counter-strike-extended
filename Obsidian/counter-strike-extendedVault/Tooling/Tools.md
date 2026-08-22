@@ -10,7 +10,7 @@ Parent: [[Index]]
 - `tools/install_localization.ps1` — копирует файлы локализации из `src/cse/localization/` в `runtime/` (идемпотентно, есть `-DryRun`). См. [[Localization/Локализация]]
 - `tools/install_hud_layout.ps1` — копирует `src/cse/cstrike/scripts/HudLayout.txt` в `runtime/cstrike/scripts/` (идемпотентно, есть `-DryRun`)
 - `tools/install_progression.ps1` — копирует `src/cse/cstrike/scripts/CseProgression.txt` в `runtime/cstrike/scripts/` (идемпотентно, есть `-DryRun`)
-- `tools/install_server_config.ps1` — копирует `src/cse/cstrike/server.cfg` и исходный `mapcycle.txt` в `runtime/cstrike/` (идемпотентно, есть `-DryRun`)
+- `tools/install_server_config.ps1` — копирует серверные `server.cfg`, `cse_map_change.cfg` и исходный `mapcycle.txt` в `runtime/cstrike/` (идемпотентно, есть `-DryRun`)
 - `tools/prepare_server_maps.ps1` — перемешивает пул карт для нового запуска dedicated-сервера и записывает runtime `mapcycle.txt`
 - `tools/mdl_recolor.py` — меняет только RGB-палитры GoldSrc `.mdl`, не затрагивая геометрию и анимации; поддерживает внешний `<name>T.mdl`
 - `tools/install_skins.ps1` — читает `src/cse/cstrike/scripts/CseSkinRecipes.txt`, запускает генератор и пишет производные модели в `runtime/cstrike/models/cse/` (есть `-DryRun`)
@@ -26,7 +26,7 @@ Parent: [[Index]]
 | `install_localization.ps1 [-DryRun] [-Root <path>]` | Копирует `src/cse/localization/**` в `runtime/`, создавая нужные поддиректории |
 | `install_hud_layout.ps1 [-DryRun] [-Root <path>]` | Копирует проектный HUD-layout в `runtime/cstrike/scripts/HudLayout.txt` |
 | `install_progression.ps1 [-DryRun] [-Root <path>]` | Копирует конфиг XP/уровней в `runtime/cstrike/scripts/CseProgression.txt` |
-| `install_server_config.ps1 [-DryRun] [-Root <path>]` | Копирует серверные правила и исходный пул карт в `runtime/cstrike/` |
+| `install_server_config.ps1 [-DryRun] [-Root <path>]` | Копирует серверные правила, map-change hook и исходный пул карт в `runtime/cstrike/` |
 | `prepare_server_maps.ps1 [-Root <path>] [-StartMap <map>]` | Перемешивает пул, выбирает стартовую карту и записывает порядок автопереходов |
 | `mdl_recolor.py <source> <output> [--hue-shift <degrees>] [--tint R G B]` | Копирует `.mdl`, преобразуя только его 256-цветные палитры |
 | `install_skins.ps1 [-DryRun] [-Root <path>]` | Генерирует модели по `CseSkinRecipes.txt`; требует локальные исходные `.mdl` в `runtime/cstrike/models/` |

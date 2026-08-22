@@ -15,7 +15,7 @@ else {
 
 $sourceDir = Join-Path $Root 'src\cse\cstrike'
 $targetDir = Join-Path $Root 'runtime\cstrike'
-$fileNames = @('server.cfg', 'mapcycle.txt')
+$fileNames = @('server.cfg', 'cse_map_change.cfg', 'mapcycle.txt')
 
 if (-not (Test-Path -LiteralPath $targetDir -PathType Container)) {
     throw "Game directory not found: $targetDir"
