@@ -41,11 +41,15 @@ src/cse/
 │   └── cstrike/resource/           # → runtime/cstrike/resource/
 ├── cstrike/
 │   ├── gameinfo.txt                # → runtime/cstrike/gameinfo.txt (render_picbutton_text, см. [[CSE/menu]])
-│   ├── gfx/cse/avatars/bot*.tga        # → runtime/cstrike/gfx/cse/avatars/ (аватары ботов, см. [[Client/HUD-TeamBar]])
+│   ├── gfx/cse/avatars/*.{png,tga}     # → runtime/cstrike/gfx/cse/avatars/ (аватары ботов, см. [[Client/HUD-TeamBar]])
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 │   ├── scripts/CseProgression.txt      # → runtime/cstrike/scripts/CseProgression.txt (XP/уровни, см. [[CSE/progression]])
 │   ├── scripts/CseBotAvatars.txt       # → runtime/cstrike/scripts/CseBotAvatars.txt (список аватаров ботов)
 │   └── scripts/CseSkinRecipes.txt      # рецепты производных моделей из runtime-ассетов
+├── maps/                                # исходники карт, компилируемые внешним Hammer/J.A.C.K.
+│   ├── cse_test_actions.map
+│   ├── de_dust2.map                     # декомпилированный исходник, см. [[CSE/de_dust2]]
+│   └── de_dust2_generated.wad           # встроенные текстуры исходного BSP
 ├── yapb/
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # per-map YaPB config, default yb_difficulty 0
@@ -70,7 +74,7 @@ src/cse/
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
 | `tools/install_hud_layout.ps1` | `src/cse/cstrike/scripts/HudLayout.txt` → `runtime/cstrike/scripts/HudLayout.txt` |
 | `tools/install_progression.ps1` | `src/cse/cstrike/scripts/CseProgression.txt` → `runtime/cstrike/scripts/CseProgression.txt` |
-| `tools/install_bot_avatars.ps1` | `src/cse/cstrike/gfx/cse/avatars/*` → `runtime/cstrike/gfx/cse/avatars/*` + `CseBotAvatars.txt` → `runtime/cstrike/scripts/` |
+| `tools/install_bot_avatars.ps1` | генерирует список из PNG/TGA в `src/cse/cstrike/gfx/cse/avatars/`, затем копирует картинки и `CseBotAvatars.txt` в `runtime/` |
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
@@ -95,3 +99,6 @@ src/cse/
 - Добавлен `cstrike/gameinfo.txt` с `render_picbutton_text 1` — форсирует текстовый
   рендер кнопок главного меню (вместо BMP-атласа `btns_main.bmp` из `extras.pk3`),
   без чего локализация кнопок не работает (см. [[CSE/menu]]).
+- Добавлен source-only исходник `maps/de_dust2.map`, полученный из
+  `runtime/cstrike/maps/de_dust2.bsp` через Half-Life Unified SDK Map Decompiler;
+  рядом сохранён WAD со встроенными текстурами (подробности: [[CSE/de_dust2]]).
