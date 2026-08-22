@@ -33,3 +33,9 @@ CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) докумен�
   `DeathMsg`, `TeamScore`, `CHud::Redraw()` и `CHud::Shutdown()`; `cl_dll/cse_skins.cpp` реализует
   локальный выбор скина и подмену собственного viewmodel в `cs_wpn/cs_weapons.cpp`. `cl_dll/hud/xpbar.cpp`
   рисует уровень и прогресс XP, а `cse_progression.cpp` отдаёт HUD пороги уровней.
+- Быстрое переключение оружия — `cl_dll/ammo.cpp`: `SelectWeaponImmediately()` отправляет
+  имя оружия серверу и заполняет `cmd->weaponselect`; `WeaponsResource::SelectSlot()`,
+  `CHudAmmo::UserCmd_NextWeapon()` и `UserCmd_PrevWeapon()` вызывают его сразу для цифровых
+  слотов и колеса, поэтому подтверждение через `IN_ATTACK` больше не требуется. `hud_fastswitch`
+  оставлен зарегистрированным для совместимости со старыми конфигами, но его значение намеренно
+  не отключает это поведение CSE.
