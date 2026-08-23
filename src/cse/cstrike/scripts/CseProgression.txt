@@ -13,8 +13,10 @@
 
 "CseSkins"
 {
+    "ak47" "default" "1" "models/v_ak47.mdl"          "models/p_ak47.mdl"
     "ak47" "red"  "3" "models/cse/v_ak47_red.mdl"  "models/cse/p_ak47_red.mdl"
     "ak47" "gold" "5" "models/cse/v_ak47_gold.mdl" "models/cse/p_ak47_gold.mdl"
+    "awp"  "default" "1" "models/v_awp.mdl"           "models/p_awp.mdl"
     "awp"  "red"  "4" "models/cse/v_awp_red.mdl"   "models/cse/p_awp_red.mdl"
     "awp"  "gold" "5" "models/cse/v_awp_gold.mdl"  "models/cse/p_awp_gold.mdl"
 }

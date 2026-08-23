@@ -48,6 +48,7 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 | `disconnect` | отключиться от сервера | только в игре и при `maxClients >= 2` |
 | `resumeGame` | вернуться в игру | только в игре |
 | `multiPlayer` | `UI_MultiPlayer_Menu` (Internet/LAN/игрок/управление) | всегда |
+| `personalization` | `UI_Personalization_Menu` (скины оружия и T/CT-оперативники) | всегда |
 | `configuration` | `UI_Options_Menu` | всегда |
 | `console` | открыть консоль | только при `developer` |
 | `quit` | диалог выхода | всегда |
@@ -70,6 +71,10 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 «Онлайн-игра» ведёт в подменю Multiplayer, а не сразу в браузер серверов: только там
 доступны PlayerSetup (имя/модель) и проверка имени (`CMenuMultiplayer::Show`),
 в `UI_Options_Menu` их нет.
+
+Кнопка «Персонализация» открывает отдельный экран `CMenuPersonalization`
+(`menus/Personalization.cpp`). Экран и автоматический выбор класса после стороны описаны в
+[[CSE/personalization]].
 
 ## Локализация кнопок и `render_picbutton_text`
 

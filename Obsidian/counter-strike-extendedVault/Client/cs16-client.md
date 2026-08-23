@@ -33,6 +33,9 @@ CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) докумен�
   `DeathMsg`, `TeamScore`, `CHud::Redraw()` и `CHud::Shutdown()`; `cl_dll/cse_skins.cpp` реализует
   локальный выбор скина и подмену собственного viewmodel в `cs_wpn/cs_weapons.cpp`. `cl_dll/hud/xpbar.cpp`
   рисует уровень и прогресс XP, а `cse_progression.cpp` отдаёт HUD пороги уровней.
+- [[CSE/personalization]] — `cl_dll/cse_profile.cpp` хранит выбранных T/CT-оперативников и публикует
+  профильные cvar для отдельной `menu.dll`; экран в `3rdparty/mainui_cpp` выбирает скины и модели,
+  а class-menu преобразует сохранённую модель в штатную команду `joinclass` после выбора стороны.
 - Быстрое переключение оружия — `cl_dll/ammo.cpp`: `SelectWeaponImmediately()` отправляет
   имя оружия серверу и заполняет `cmd->weaponselect`; `WeaponsResource::SelectSlot()`,
   `CHudAmmo::UserCmd_NextWeapon()` и `UserCmd_PrevWeapon()` вызывают его сразу для цифровых
