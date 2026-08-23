@@ -91,7 +91,8 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 `CMenuMapListModel::Update()` сохраняет исходный набор карт, а `SetFilter()` и
 `Rebuild()` перестраивают отображаемый набор и оставляют `< Случайная карта >` внутри
 текущего фильтра. `CMenuMapTabs` переключает группу/префикс мышью и стрелками,
-а `CMenuCreateGame::ApplyMapFilter()` применяет выбор к модели. Неизвестные префиксы
+при нехватке ширины прокручивает нижнюю строку стрелками `‹/›`, а
+`CMenuCreateGame::ApplyMapFilter()` применяет выбор к модели. Неизвестные префиксы
 попадают в группу `Другие`, а прежнее исключение карт `tr_` сохраняется.
 
 | Метод/данные | Назначение |
@@ -101,6 +102,7 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 | `s_mapGroupTabs`, `MapGroupTabIndex()`, `MapTypesForGroup()` | Данные и разрешение вкладок группы/префикса |
 | `CMenuMapTabs::SetGroup()`, `GetPrefix()` | Текущее состояние ленты вкладок |
 | `CMenuMapTabs::ActivateTab()`, `MoveFocus()`, `MouseMove()` | Переключение вкладок мышью и клавиатурой |
+| `CMenuMapTabs::EnsureTypeVisible()`, `MoveTypeScroll()` | Прокрутка длинного списка вкладок префиксов |
 | `CMenuMapListModel::Update()` | Чтение общего `maps.lst` в исходный набор карт |
 | `CMenuMapListModel::SetFilter()`, `IsMapVisible()`, `Rebuild()` | Фильтрация и перестроение отображаемой модели |
 | `CMenuCreateGame::ApplyMapFilter()` | Применение текущей группы/префикса и сброс выбранной строки |
