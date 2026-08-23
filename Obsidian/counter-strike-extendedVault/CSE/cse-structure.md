@@ -48,7 +48,7 @@ src/cse/
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 │   ├── scripts/CseProgression.txt      # → runtime/cstrike/scripts/CseProgression.txt (XP/уровни, см. [[CSE/progression]])
 │   ├── scripts/CseBotAvatars.txt       # → runtime/cstrike/scripts/CseBotAvatars.txt (список аватаров ботов)
-│   ├── sound/                          # → runtime/cstrike/sound/ (проектные звуковые замены)
+│   ├── sound/                          # → runtime/cstrike/sound/ (проектные звуковые замены; loop cue проверяет install-скрипт)
 │   └── scripts/CseSkinRecipes.txt      # рецепты производных моделей из runtime-ассетов
 ├── maps/                                # исходники карт, компилируемые внешним Hammer/J.A.C.K.
 │   ├── cse_test_actions.map

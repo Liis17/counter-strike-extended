@@ -7,7 +7,7 @@ Parent: [[Index]]
 
 ## Файлы
 - `tools/screenshot_window.ps1` — делает скриншот окна процесса по имени (по умолчанию `xash3d`), сохраняет в `runtime/window_capture.png`
-- `tools/install_cse_assets.ps1` — накладывает все файлы из `src/cse/cstrike/` на `runtime/cstrike/` с перезаписью одноимённых оригиналов (идемпотентно, есть `-DryRun`)
+- `tools/install_cse_assets.ps1` — перед копированием находит в BSP зацикленные `ambient_generic`, добавляет отсутствующий RIFF `cue` в проектные WAV и накладывает `src/cse/cstrike/` на `runtime/cstrike/` с перезаписью одноимённых оригиналов (идемпотентно, есть `-DryRun`)
 - `tools/install_localization.ps1` — копирует файлы локализации из `src/cse/localization/` в `runtime/` (идемпотентно, есть `-DryRun`). См. [[Localization/Локализация]]
 - `tools/install_hud_layout.ps1` — копирует `src/cse/cstrike/scripts/HudLayout.txt` в `runtime/cstrike/scripts/` (идемпотентно, есть `-DryRun`)
 - `tools/install_progression.ps1` — копирует `src/cse/cstrike/scripts/CseProgression.txt` в `runtime/cstrike/scripts/` (идемпотентно, есть `-DryRun`)
@@ -24,7 +24,7 @@ Parent: [[Index]]
 | Метод | Описание |
 |-------|----------|
 | `screenshot_window.ps1 -ProcessName <name> -OutFile <path>` | Находит окно процесса, выводит на передний план, снимает скриншот через `GetWindowRect`/`CopyFromScreen`, сохраняет PNG |
-| `install_cse_assets.ps1 [-DryRun] [-Root <path>]` | Копирует `src/cse/cstrike/**` в `runtime/cstrike/**`, перезаписывая одноимённые базовые ассеты и не удаляя остальные |
+| `install_cse_assets.ps1 [-DryRun] [-Root <path>]` | Проверяет looped `ambient_generic` в BSP, добавляет cue-маркер проектным WAV без него и копирует `src/cse/cstrike/**` в `runtime/cstrike/**`, перезаписывая одноимённые базовые ассеты и не удаляя остальные |
 | `install_localization.ps1 [-DryRun] [-Root <path>]` | Копирует `src/cse/localization/**` в `runtime/`, создавая нужные поддиректории |
 | `install_hud_layout.ps1 [-DryRun] [-Root <path>]` | Копирует проектный HUD-layout в `runtime/cstrike/scripts/HudLayout.txt` |
 | `install_progression.ps1 [-DryRun] [-Root <path>]` | Копирует конфиг XP/уровней в `runtime/cstrike/scripts/CseProgression.txt` |
