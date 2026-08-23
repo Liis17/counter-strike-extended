@@ -19,6 +19,7 @@
 	 "Radar" "0" "0" "top_left" "1"
 	 "StatusIcons" "5" "0" "center_left" "1"
 	 "AmmoHistory" "0" "0" "bottom_right" "1"
+	 "Scoreboard" "0" "0" "center" "1"
 }
 
 // "Type" "x" "y" "anchor" "w" "h" "r" "g" "b" "a" "radius"
@@ -27,4 +28,31 @@
 	 "Line" "0" "650" "center" "2" "100" "255" "140" "0" "0" "0"
 	 "Line" "110" "25" "bottom_center" "200" "2" "255" "140" "0" "100" "0"
 	 "Line" "-330" "25" "bottom_center" "200" "2" "255" "140" "0" "100" "0"
+}
+
+"ScoreboardStyle"
+{
+	 "width" "960"
+	 "row_height" "36"
+	 "header_height" "40"
+	 "avatar_size" "28"
+	 "padding" "14"
+	 "row_gap" "2"
+	 "section_gap" "10"
+	 "corner_radius" "8"
+	 "status_width" "84"
+	 "kills_width" "56"
+	 "deaths_width" "56"
+	 "ping_width" "72"
+
+	 "scrim_color" "0,0,0,72"
+	 "panel_color" "11,16,23,232"
+	 "row_color" "22,29,39,210"
+	 "border_color" "84,96,112,120"
+	 "ct_color" "86,164,255,96"
+	 "t_color" "229,183,78,96"
+	 "self_color" "255,255,255,34"
+	 "text_color" "238,242,247"
+	 "muted_color" "153,164,179"
+	 "dead_alpha" "112"
 }

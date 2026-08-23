@@ -13,19 +13,19 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]]
 `tools/install_hud_layout.ps1` устанавливает его в `runtime/cstrike/scripts/`; этот шаг
 также выполняется в конце `build-cse.cmd`.
 
-Тот же файл содержит второй, необязательный блок `HudDecorations` — линии-разделители,
-затемнения и панели-подложки под текст (см. [[#Декорации (необязательные элементы)]]). Оба блока
-можно редактировать визуально через `tools/hud-editor` (см. [[Tooling/hud-editor]]). Редактор показывает
-ориентировочные габариты реального HUD, включая правую точку привязки для патронов/денег. Все
-19 HUD-блоков редактора имеют поля `anchor` и `scale`; масштаб применяется в игре к их спрайтам,
-числам, тексту и геометрии стека.
+Тот же файл содержит необязательные блоки `HudDecorations` и `ScoreboardStyle`: первый задаёт
+линии/затемнения/панели, второй — geometry/colors таблицы матча (см. [[Client/HUD-Scoreboard]]).
+Оба блока можно редактировать визуально через `tools/hud-editor` (см. [[Tooling/hud-editor]]).
+Редактор показывает ориентировочные габариты реального HUD, включая правую точку привязки для
+патронов/денег. Все 20 HUD-блоков редактора имеют поля `anchor` и `scale`; масштаб применяется в
+игре к их спрайтам, числам, тексту и геометрии стека.
 
 ## Точки кода
 
 | Файл | Что |
 |------|-----|
 | `src/cs16-client/cl_dll/hud.h` | `enum HudAnchor` (9 значений, сетка 3×3), `enum HudDecorationType`, `struct HudDecoration`, `struct HudLayoutSlot`, поля `CHudBase::m_szLayoutId/m_iLayoutX/m_iLayoutY/m_eLayoutAnchor/m_bLayoutOverridden/m_flLayoutScale`, методы `GetLayoutPos()`, `GetLayoutScale()`, `CHud::LoadLayout()`, `CHud::GetLayoutSlot()`, `CHud::DrawDecorations()`, `CHud::m_LayoutDecorations`, `CHud::m_LayoutSlots`, `CHud::hud_layout_reload` |
-| `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика, две независимые оси), `g_LayoutAnchorNames[]` + `Layout_ParseAnchor()` (таблица имён и алиасов), `g_LayoutSlotNames[]` + `Layout_IsSlotName()`, `CHudBase::GetLayoutPos()`, `CHud::GetLayoutSlot()`, `Decoration_ResolveTopLeft()`, парсер `CHud::LoadLayout()` (оба блока), `CHud::DrawDecorations()` |
+| `src/cs16-client/cl_dll/hud_layout.cpp` | `ResolveAnchoredPos()` (общая anchor-математика, две независимые оси), `g_LayoutAnchorNames[]` + `Layout_ParseAnchor()` (таблица имён и алиасов), `g_LayoutSlotNames[]` + `Layout_IsSlotName()`, `CHudBase::GetLayoutPos()`, `CHud::GetLayoutSlot()`, `Decoration_ResolveTopLeft()`, независимый парсер `CHud::LoadLayout()` для `HudDecorations`/`ScoreboardStyle`, `CHud::DrawDecorations()` |
 | `src/cs16-client/cl_dll/hud.cpp` | Регистрация cvar `hud_layout_reload`, вызов `LoadLayout()` в конце `CHud::Init()` |
 | `src/cs16-client/cl_dll/hud_redraw.cpp` | Проверка `hud_layout_reload` в `CHud::Think()`; вызов `DrawDecorations()` в начале `CHud::Redraw()`, перед циклом отрисовки HUD-элементов |
 | `src/cs16-client/cl_dll/include/draw_util.h` + `draw_util.cpp` | `DrawUtils::SPR_DrawAdditiveScaled()`/`SPR_DrawHolesScaled()` — общий `SPR_DrawScaledMode()` с параметром кадра, ручной textured quad через `pTriAPI` (`SpriteTexture`+`RenderMode`+`Begin/TexCoord/Vertex/End`; **не** через `pfnSPR_DrawGeneric`, см. «Известные грабли»); `DrawConsoleStringScaled()` и scaled-метрики для текста |
@@ -82,6 +82,7 @@ additive-прозрачных глифов. Исправлено переход�
 | `DeathNotice` | `cl_dll/death.cpp` | правый край + Y верхней строки killfeed | да — спрайты, текст и расстояния строк |
 | `StatusBar` | `cl_dll/statusbar.cpp` | базовый отступ слева + отступ снизу | да — текст и расстояния строк |
 | `TeamBar` | `cl_dll/hud/teambar.cpp` | **центр** блока счёта по X + верх ленты по Y | да — слоты, зазоры и цифры счёта |
+| `Scoreboard` | `cl_dll/hud/scoreboard.cpp` | центр overlay (или переданный bounds `showscoreboard2`) | да — панель, строки, аватары и adaptive fit |
 | `Radar` | `cl_dll/hud/radar.cpp` | левый верхний угол коробки радара; точки и текст локации следуют за ней | да — спрайт, радиус и маркеры |
 | `WeaponMenu` | `cl_dll/ammo.cpp` (`DrawWList`) | левый верхний угол блока выбора оружия. **Слот**, не элемент | да — bucket'ы, картинки оружия, рамка выбора, ammo bar, зазоры |
 | `StatusIcons` | `cl_dll/status_icons.cpp` | **низ** колонки иконок (стек растёт вверх) | да — иконки и зазоры стека |
@@ -125,6 +126,16 @@ additive-прозрачных глифов. Исправлено переход�
 API недоступен, текстовый слой безопасно возвращается к обычному размеру; спрайты, прогресс-бары
 и интервалы блока всё равно используют `scale`.
 
+## ScoreboardStyle
+
+`ScoreboardStyle` — отдельный необязательный блок с geometry (`width`, `row_height`,
+`header_height`, `avatar_size`, `padding`, `row_gap`, `section_gap`, `corner_radius` и ширины
+столбцов), RGBA-цветами (`scrim_color`, `panel_color`, `row_color`, `border_color`, `ct_color`,
+`t_color`, `self_color`, `text_color`, `muted_color`) и `dead_alpha`. Defaults совпадают с CS2
+preset в [[Client/HUD-Scoreboard]]. При `hud_layout_reload 1` тема сначала сбрасывается, поэтому
+удаление ключа или целого блока не оставляет старое значение; некорректные числа clamp'ятся.
+Блок можно разместить до или после `HudDecorations`.
+
 ## Формат `HudLayout.txt`
 
 ```
@@ -144,6 +155,32 @@ API недоступен, текстовый слой безопасно воз�
     "Shade" "0"  "0"  "top_left" "1920" "36" "0"  "0"  "0"  "140" "0"
     "Line"  "10" "40" "top_left" "300"  "2"  "255" "140" "0" "255" "0"
     "Panel" "10" "50" "top_left" "220"  "70" "20" "20" "20" "200" "12"
+}
+
+"ScoreboardStyle"
+{
+    "width" "960"
+    "row_height" "36"
+    "header_height" "40"
+    "avatar_size" "28"
+    "padding" "14"
+    "row_gap" "2"
+    "section_gap" "10"
+    "corner_radius" "8"
+    "status_width" "84"
+    "kills_width" "56"
+    "deaths_width" "56"
+    "ping_width" "72"
+    "scrim_color" "0,0,0,72"
+    "panel_color" "11,16,23,232"
+    "row_color" "22,29,39,210"
+    "border_color" "84,96,112,120"
+    "ct_color" "86,164,255,96"
+    "t_color" "229,183,78,96"
+    "self_color" "255,255,255,34"
+    "text_color" "238,242,247"
+    "muted_color" "153,164,179"
+    "dead_alpha" "112"
 }
 ```
 
@@ -225,7 +262,7 @@ anchor-математикой, что и HUD-элементы (`ResolveAnchoredP
   блок будет расти влево от точки привязки.
 - HP и броня исторически на одной `y` и разнесены по `x` вручную. При свободном позиционировании
   возможно наложение — ответственность пользователя через `HudLayout.txt`.
-- Scale поддерживается всеми 19 HUD-блоками, включая оба слот-виджета (`WeaponMenu` и
+- Scale поддерживается всеми 20 HUD-блоками, включая оба слот-виджета (`WeaponMenu` и
   `AmmoHistory`). Для текстовых блоков итоговый размер букв зависит от наличия
   `pfnDrawScaledCharacter` в Mobile API движка; позиция, переносы и геометрия блока учитывают
   масштаб всегда.

@@ -28,6 +28,11 @@ CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) докумен�
   таймер, XPBar и др.) через внешний файл `scripts/HudLayout.txt`. Реализована в `cl_dll/hud_layout.cpp`,
   точки расширения в `cl_dll/hud.h` (`CHudBase::m_szLayoutId`, `GetLayoutPos()`), интеграция в
   `cl_dll/hud.cpp` (`CHud::LoadLayout()`, cvar `hud_layout_reload`).
+- [[Client/HUD-Scoreboard]] — новый CS2-подобный scoreboard в `cl_dll/hud/scoreboard.cpp`: удержание
+  Tab через штатные `+showscores/-showscores`, intermission/death/`showscoreboard2`, сортировка,
+  командный счёт, статусы и adaptive fit; тема живёт в `HudLayout.txt` как `ScoreboardStyle`.
+- [[Client/HUD-TeamBar]] — TeamBar и Scoreboard используют общий `cl_dll/cse_player_avatars.cpp`
+  (Steam cache, bot avatar и буквенный fallback), поэтому `wanted.txt` пишет только один pipeline.
 - [[CSE/progression]] — клиентский локальный профиль XP и статистики в `cl_dll/cse_profile.cpp` и
   разбор `scripts/CseProgression.txt` в `cl_dll/cse_progression.cpp`. События подключены к
   `DeathMsg`, `TeamScore`, `CHud::Redraw()` и `CHud::Shutdown()`; `cl_dll/cse_skins.cpp` реализует

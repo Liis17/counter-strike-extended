@@ -17,6 +17,13 @@
 		"#CS_RP_Paused" " (Paused)"
 		"#CS_RP_Unpaused" " "
 
+		"#CSE_SB_K" "K"
+		"#CSE_SB_D" "D"
+		"#CSE_SB_PING" "PING"
+		"#CSE_SB_BOT" "BOT"
+		"#CSE_SB_SPECTATORS" "Spectators"
+		"#CSE_SB_PLAYERS" "Players"
+
 		"#de_dust"			"de_dust"
 		"#de_dust2"			"de_dust2"
 		"#de_aztec"			"de_aztec"

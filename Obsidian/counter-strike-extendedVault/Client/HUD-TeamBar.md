@@ -7,7 +7,8 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 
 | Точка | Что |
 |-------|-----|
-| `src/cs16-client/cl_dll/hud/teambar.cpp` | `CHudTeamBar` + клиентская половина сервиса аватаров |
+| `src/cs16-client/cl_dll/hud/teambar.cpp` | `CHudTeamBar`, потребитель общего avatar pipeline |
+| `src/cs16-client/cl_dll/cse_player_avatars.{cpp,h}` | общий кэш Steam до `MAX_PLAYERS`, wanted.txt раз в 0,5 с, bot/fallback avatar для TeamBar и Scoreboard |
 | `src/cs16-client/cl_dll/cse_bot_avatars.{cpp,h}` | аватары ботов: разбор списка, загрузка текстур, `CSE_BotAvatar()` |
 | `src/xash3d-fwgs/engine/server/sv_client.c` | `SV_FakeConnect()` пишет боту случайный `cse_av` в userinfo |
 | `src/cse/cstrike/gfx/cse/avatars/`, `scripts/CseBotAvatars.txt` | картинки ботов и их список |
@@ -15,7 +16,7 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 | `src/xash3d-fwgs/engine/client/dll_int/cl_game.c` | `pfnGetPlayerInfo` заполняет `m_nSteamID` из userinfo-ключа `cse_sid` |
 | `src/cse/rich_presence/src/main.cpp` | Steam-сторона: SteamID64 + выкачка аватаров в TGA ([[CSE/rich_presence]]) |
 | `src/cse/cstrike/scripts/HudLayout.txt` | запись `"TeamBar" "0" "40" "top_center" "1"` |
-| `tools/hud-editor/editor.js` | id в трёх реестрах + ветка `align: "center"` в `getElementPreview()` |
+| `tools/hud-editor/editor.js` | id в реестрах + ветка `align: "center"` в `getElementPreview()` для TeamBar/Scoreboard |
 
 ## Методы
 
@@ -32,10 +33,19 @@ Parent: [[Index]] | Domain: [[Client/cs16-client]] | Связано: [[Client/HU
 - хелпер по `wanted.txt` кладёт корректный TGA (`type 2, 64×64, 32 bpp, attributes 0x28` —
   ровно то, что читает `img_tga.c`);
 - публикация своего id доехала: после чистого выхода в `runtime/cstrike/config.cfg` появляется
-  `setinfo "cse_sid" "765611…"`, то есть `TeamBar_PublishSelf()` прочитал файл хелпера уже
+  `setinfo "cse_sid" "765611…"`, то есть общий `CSE_PublishSelf()` прочитал файл хелпера уже
   в игре (`Think()` работает только при подключении) и движок сохранил ключ в userinfo;
 - клиент действительно перезаписывает `wanted.txt` в игре (в спектаторе — пустым, потому что
   в ленту попадают только игроки команд T/CT).
+
+### Общий avatar pipeline
+
+После появления [[Client/HUD-Scoreboard]] загрузка вынесена из `teambar.cpp` в
+`cse_player_avatars.cpp`. TeamBar и Scoreboard используют один массив текстур и один writer
+`cache/avatars/wanted.txt`; TeamBar больше не создаёт конкурирующий список SteamID. Обновление
+списка вызывается из `CHudTeamBar::Think()` раз в 0,5 секунды и включает всех подключённых
+Steam-игроков, а не только видимые слоты ленты. При отсутствии Steam-картинки порядок fallback:
+bot avatar → первая буква имени.
 
 ## Аватары ботов
 
@@ -108,7 +118,7 @@ submodule на upstream `yapb/yapb`, так что путь через него 
 
 | Данные | Источник | Примечание |
 |--------|----------|-----------|
-| Счёт команд | `g_TeamInfo[]` (`cl_dll/hud/scoreboard.cpp:33`), заполняется `MsgFunc_TeamScore` | `name` = `"TERRORIST"` / `"CT"`, `frags` = выигранные раунды |
+| Счёт команд | `g_TeamInfo[]` (`cl_dll/hud/scoreboard.cpp`), заполняется `MsgFunc_TeamScore` | `name` = `"TERRORIST"` / `"CT"`, `frags` = выигранные раунды |
 | Состав команд | `g_PlayerExtraInfo[i].teamnumber` (`TEAM_TERRORIST` / `TEAM_CT`) | индексы 1..`MAX_PLAYERS` (=64 в `hud.h:57`), сервер проекта — 12 слотов |
 | Ники, «это я» | `g_PlayerInfoList[i].name`, `.thisplayer` | массив **не** обновляется сам — см. врезку ниже |
 | Мёртв / жив | `g_PlayerExtraInfo[i].dead` | для усиленного затемнения аватара и светлого креста поверх него |
@@ -122,7 +132,7 @@ submodule на upstream `yapb/yapb`, так что путь через него 
 используется; сам `CSE_PlayerIsBot()` не трогали.
 
 ⚠️ **`g_PlayerInfoList` обновляется не каждый кадр.** Заполняет его только
-`CHudScoreboard::GetAllPlayersInfo()` (`scoreboard.cpp:555`), а вызывается он из
+`CHudScoreboard::GetAllPlayersInfo()` (`scoreboard.cpp`), а вызывается он из
 `DrawScoreboard()` (`:192` — то есть лишь пока держат `Tab`), из `MsgFunc_TeamInfo` (`:633`),
 из `DeathMsg` (`death.cpp:198`) и из спектаторского кода. Для TeamBar этого мало: ленту видно
 всегда. Метод публичный (`hud.h:442`) → в `CHudTeamBar::Think()` вызывать
@@ -130,13 +140,8 @@ submodule на upstream `yapb/yapb`, так что путь через него 
 `g_PlayerExtraInfo[].dead` / `.teamnumber` — message-driven (`ScoreInfo`, `TeamInfo`, `DeathMsg`),
 их обновлять не нужно.
 
-⚠️ `MsgFunc_TeamScore` (`scoreboard.cpp:691`) содержит off-by-one:
-цикл `for(i = 0; i < m_iNumTeams; i++)`, затем проверка `if(i > m_iNumTeams)`, при этом
-индекс 0 везде в остальном коде не используется (нумерация с 1). Перед тем как строить
-рендер поверх `g_TeamInfo`, значения надо проверить живым дампом в консоль (Этап 0).
-Если данные нестабильны — хирургический фикс: два `int` (`g_iScoreT`, `g_iScoreCT`),
-записываемые прямо в существующем `MsgFunc_TeamScore`. Своим `HOOK_MESSAGE` перехватить
-`TeamScore` второй раз **нельзя** — движок держит один обработчик на имя сообщения.
+`MsgFunc_TeamScore` обновляет `g_TeamInfo[]` напрямую; renderer читает тот же раундовый счёт,
+поэтому отдельные score-поля и второй `HOOK_MESSAGE` не нужны.
 
 ## Геометрия и модель позиционирования
 

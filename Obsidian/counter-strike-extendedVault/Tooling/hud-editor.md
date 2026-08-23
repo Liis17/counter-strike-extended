@@ -3,7 +3,8 @@
 Parent: [[Index]] | Domain: [[Tooling/Tools]] | Формат: [[Client/HUD-layout]]
 
 ## Назначение
-Веб-редактор `scripts/HudLayout.txt` — обоих блоков (`HudLayout` и `HudDecorations`). Без сборки и
+Веб-редактор `scripts/HudLayout.txt` — блоков `HudLayout`, `HudDecorations` и опциональной темы
+`ScoreboardStyle`. Без сборки и
 npm-зависимостей: три статических файла, открываемых любым статическим сервером.
 
 ## Запуск
@@ -22,7 +23,7 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 
 ## Модель данных
 
-`state` — то, что попадает в файл: `resW/resH`, `elements`, `decorations`, `groups`.
+`state` — то, что попадает в файл: `resW/resH`, `elements`, `decorations`, `scoreboardStyle`, `groups`.
 `view` — сессионные настройки (зум, сетка, привязка, линейки, подложка), в файл не пишутся.
 Флаги `locked`/`hidden` живут на самих элементах, но сериализатор их не выводит — тоже сессионные.
 
@@ -41,10 +42,13 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 вручную, остаётся удалённым, а не восстанавливается из `DEFAULT_ELEMENTS` при следующем
 сохранении — эти значения теперь только заполняют поля ввода.
 
-`DEFAULT_OVERRIDDEN` — набор id, которые пишет новый конфиг (14 из 19): элемент попадает туда,
+`DEFAULT_OVERRIDDEN` — набор id, которые пишет новый конфиг (15 из 20): элемент попадает туда,
 только если его игровой дефолт — константа, и запись ничего не меняет.
 
-Для каждого из 19 HUD-элементов панель показывает `x`, `y`, `anchor` и `scale`. Scale имеет
+Для каждого из 20 HUD-элементов панель показывает `x`, `y`, `anchor` и `scale`. Scoreboard получает
+реалистичное 5×5 preview со строками, аватарами, заголовками и цветами темы. Отдельная панель
+редактирует geometry, RGBA и `dead_alpha`, умеет сбрасывать CS2 preset и участвует в undo/redo.
+Scale имеет
 минимум `0.1`, сохраняется как пятый токен записи и применяется игровым кодом к этому блоку;
 для текста рантайм использует scaled-рендеринг Xash Mobile API, когда он доступен. Ограничение
 `override` относится к записи координат/якоря и вычисляемым игровым дефолтам, а не к списку
@@ -56,6 +60,13 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 или члена группы на чужой бокс. При сохранении `dec:<uid>` переводится в `dec:<индекс в файле>`
 и обратно при загрузке.
 
+### Тема Scoreboard
+
+Переключатель `theme override` управляет наличием блока `ScoreboardStyle` в сохранённом файле.
+Geometry-поля и девять RGBA-цветов редактируются в отдельной панели; reset возвращает встроенный
+CS2 preset. Изменения темы входят в обычные snapshots, поэтому Ctrl+Z/Ctrl+Shift+Z, New, Open и
+Save не теряют их. Если исходный файл не содержал тему, Open → Save не добавляет её сам.
+
 ## Ключевые функции
 | Функция | Описание |
 |---------|----------|
@@ -63,7 +74,7 @@ File System Access API. Нужен Chrome/Edge: чтение/запись фай
 | `normalizeAnchor(name)` | Приводит алиасы (`center_top`, `topright`, …) к каноническому имени |
 | `itemOrigin(key)` / `setItemOrigin(key, x, y)` | Точка привязки, которую резолвит игра; запись идёт через inverse-anchor + округление |
 | `itemRect(key)` | Нарисованный footprint. Отличается от origin у right-aligned элементов, `StatusBar`, `TeamBar` и `XPBar` — поэтому перемещение идёт через origin, а привязка и выравнивание через rect |
-| `getElementPreview(id, element)` | Габариты HUD-блока и его runtime-origin для превью; `TeamBar` и `XPBar` центрируются по origin |
+| `getElementPreview(id, element)` | Габариты HUD-блока и его runtime-origin для превью; `TeamBar`, `XPBar` и `Scoreboard` центрируются по origin, scoreboard fit уменьшается на маленьком холсте |
 | `beginDrag(startEv, onMove, onEnd)` | Считает **float**-дельту от точки mousedown; вызывающий применяет `round(start + delta)` |
 | `computeSnap(keys, startRects, dx, dy)` | Одно смещение на всё выделение: края/центр холста, рёбра и центры соседей, сетка. Возвращает направляющие |
 | `startMoveDrag(ev)` | Двигает всё выделение; каждый член проходит свой anchor round-trip |

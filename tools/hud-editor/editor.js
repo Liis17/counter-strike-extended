@@ -1,6 +1,6 @@
 "use strict";
 
-const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "XPBar", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar", "SayText", "Train"];
+const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Timer", "XPBar", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar", "WeaponMenu", "StatusIcons", "Scenario", "AmmoHistory", "ProgressBar", "SayText", "Train", "Scoreboard"];
 
 // Elements a fresh config writes out. An element belongs here only if its
 // in-game default is a plain constant, so that writing the record changes
@@ -9,7 +9,7 @@ const ELEMENT_IDS = ["Health", "Battery", "Ammo", "AmmoSecondary", "Money", "Tim
 const DEFAULT_OVERRIDDEN = new Set([
 	"Health", "Battery", "Ammo", "AmmoSecondary", "Money",
 	"Timer", "XPBar", "Flashlight", "DeathNotice", "StatusBar", "TeamBar", "Radar",
-	"StatusIcons", "AmmoHistory",
+	"StatusIcons", "AmmoHistory", "Scoreboard",
 ]);
 const ANCHORS = [
 	"top_left",    "top_center",    "top_right",
@@ -34,6 +34,40 @@ const DEFAULT_RESOLUTION = { w: 2560, h: 1440 };
 const SNAP_THRESHOLD_PX = 6; // in screen pixels, converted to stage units via scaleK
 const HISTORY_LIMIT = 100;
 const RULER_SIZE = 20;
+
+const SCOREBOARD_STYLE_DEFAULTS = {
+	width: 960, row_height: 36, header_height: 40, avatar_size: 28,
+	padding: 14, row_gap: 2, section_gap: 10, corner_radius: 8,
+	status_width: 84, kills_width: 56, deaths_width: 56, ping_width: 72,
+	scrim_color: { r: 0, g: 0, b: 0, a: 72 },
+	panel_color: { r: 11, g: 16, b: 23, a: 232 },
+	row_color: { r: 22, g: 29, b: 39, a: 210 },
+	border_color: { r: 84, g: 96, b: 112, a: 120 },
+	ct_color: { r: 86, g: 164, b: 255, a: 96 },
+	t_color: { r: 229, g: 183, b: 78, a: 96 },
+	self_color: { r: 255, g: 255, b: 255, a: 34 },
+	text_color: { r: 238, g: 242, b: 247, a: 255 },
+	muted_color: { r: 153, g: 164, b: 179, a: 255 },
+	dead_alpha: 112,
+};
+const SCOREBOARD_GEOMETRY_FIELDS = [
+	["width", "width", 320, 4096], ["row_height", "row height", 8, 256],
+	["header_height", "header height", 8, 256], ["avatar_size", "avatar size", 4, 256],
+	["padding", "padding", 0, 256], ["row_gap", "row gap", 0, 64],
+	["section_gap", "section gap", 0, 256], ["corner_radius", "corner radius", 0, 128],
+	["status_width", "status width", 24, 512], ["kills_width", "K width", 24, 256],
+	["deaths_width", "D width", 24, 256], ["ping_width", "PING width", 24, 256],
+];
+const SCOREBOARD_COLOR_FIELDS = [
+	["scrim_color", "scrim"], ["panel_color", "panel"], ["row_color", "row"],
+	["border_color", "border"], ["ct_color", "CT"], ["t_color", "T"],
+	["self_color", "self"], ["text_color", "text"], ["muted_color", "muted"],
+];
+function defaultScoreboardStyle(override = false) {
+	const out = JSON.parse(JSON.stringify(SCOREBOARD_STYLE_DEFAULTS));
+	out.override = override;
+	return out;
+}
 
 // Representative cstrike 640-HUD footprints. The point returned by the
 // runtime is the top-left for left/center elements and the right edge for
@@ -88,6 +122,7 @@ const ELEMENT_PREVIEWS = {
 	// line height. Long messages wrap, adding lines the preview does not show.
 	SayText:       { width: 520, height: 90, fontSize: 14, sample: "Player: hi" },
 	Train:         { width: 64,  height: 64, fontSize: 12, sample: "⇅" },
+	Scoreboard:    { width: 960, height: 480, fontSize: 14, align: "center", sample: "" },
 };
 
 // Matches the shipped runtime/cstrike/scripts/HudLayout.txt defaults.
@@ -124,6 +159,7 @@ const DEFAULT_ELEMENTS = {
 	// values match a 2560x1440 screen and only seed the fields.
 	SayText:       { x: 10,  y: 250, anchor: "bottom_left", scale: 1 },
 	Train:         { x: 870, y: 100, anchor: "top_left",    scale: 1 },
+	Scoreboard:    { x: 0,   y: 0,   anchor: "center",        scale: 1 },
 };
 
 // An element's `override` flag decides whether it gets a record in the file at
@@ -145,6 +181,7 @@ let state = {
 	resH: DEFAULT_RESOLUTION.h,
 	elements: {},
 	decorations: [],
+	scoreboardStyle: defaultScoreboardStyle(true),
 	groups: [],
 };
 let fileHandle = null;
@@ -189,6 +226,7 @@ function newConfig() {
 			makeDecoration("Shade", { x: 0, y: 0, w: DEFAULT_RESOLUTION.w, h: 36, r: 0, g: 0, b: 0, a: 140 }),
 			makeDecoration("Line", { x: 10, y: 40, w: 300, h: 2, r: 255, g: 140, b: 0, a: 255 }),
 		],
+		scoreboardStyle: defaultScoreboardStyle(true),
 		groups: [],
 	};
 	fileHandle = null;
@@ -237,8 +275,32 @@ function inverseAnchoredPos(anchor, x, y, resW, resH) {
 // itemOrigin is the anchor point the game resolves; itemRect is the drawn
 // footprint. They differ for right-aligned elements and for StatusBar, so
 // moves go through the origin while snapping and aligning use the rect.
+function scoreboardPreviewHeight(style) {
+	const rows = 5;
+	const oneTeam = style.header_height + rows * style.row_height + (rows - 1) * style.row_gap;
+	return style.padding * 2 + oneTeam * 2 + style.section_gap + style.row_height;
+}
+function scoreboardPreviewFit(style) {
+	const width = Number(style.width) || 960;
+	const height = scoreboardPreviewHeight(style);
+	return Math.min(1, Math.max(0.1, (state.resW - 24) / width), Math.max(0.1, (state.resH - 24) / height));
+}
+function getElementMeta(id) {
+	if (id !== "Scoreboard") return ELEMENT_PREVIEWS[id];
+	const style = state.scoreboardStyle || SCOREBOARD_STYLE_DEFAULTS;
+	const fit = scoreboardPreviewFit(style);
+	const height = scoreboardPreviewHeight(style) * fit;
+	return {
+		width: (Number(style.width) || 960) * fit,
+		height,
+		fontSize: Math.max(8, Number(style.row_height) * 0.36 * fit),
+		align: "center",
+		originY: -height / 2,
+		sample: "",
+	};
+}
 function getElementPreview(id, e) {
-	const meta = ELEMENT_PREVIEWS[id];
+	const meta = getElementMeta(id);
 	const origin = resolveAnchoredPos(e.anchor, e.x, e.y, state.resW, state.resH);
 	const scale = Math.max(0.1, Number(e.scale) || 1);
 	const width = meta.width * scale;
@@ -309,7 +371,8 @@ function movableSelection() {
 function snapshot() {
 	return JSON.stringify({
 		resW: state.resW, resH: state.resH,
-		elements: state.elements, decorations: state.decorations, groups: state.groups,
+		elements: state.elements, decorations: state.decorations,
+		scoreboardStyle: state.scoreboardStyle, groups: state.groups,
 	});
 }
 // Focusing a field snapshots the pre-edit state, so identical consecutive
@@ -327,6 +390,12 @@ function restore(json) {
 	state.resH = s.resH;
 	state.elements = s.elements;
 	state.decorations = s.decorations;
+	state.scoreboardStyle = Object.assign(defaultScoreboardStyle(false), s.scoreboardStyle || {});
+	for (const key of Object.keys(SCOREBOARD_STYLE_DEFAULTS)) {
+		if (SCOREBOARD_STYLE_DEFAULTS[key] && typeof SCOREBOARD_STYLE_DEFAULTS[key] === "object") {
+			state.scoreboardStyle[key] = Object.assign({}, SCOREBOARD_STYLE_DEFAULTS[key], state.scoreboardStyle[key] || {});
+		}
+	}
 	state.groups = s.groups;
 	decorUidSeq = state.decorations.reduce((m, d) => Math.max(m, d.uid + 1), 1);
 	selection = new Set([...selection].filter((k) => itemByKey(k)));
@@ -405,6 +474,37 @@ function groupsFromComment(text, decorations) {
 		.filter((g) => g.members.length > 1);
 }
 
+function clampInt(value, low, high, fallback) {
+	const raw = String(value == null ? "" : value).trim();
+	if (!/^[+-]?\d+$/.test(raw)) return fallback;
+	const n = Number(raw);
+	return Number.isFinite(n) ? Math.max(low, Math.min(high, n)) : fallback;
+}
+function parseStyleColor(value, fallback) {
+	const raw = String(value == null ? "" : value).split(",").map((v) => v.trim());
+	if (raw.length !== 3 && raw.length !== 4) return Object.assign({}, fallback);
+	if (raw.some((v) => !/^[+-]?\d+$/.test(v))) return Object.assign({}, fallback);
+	const parts = raw.map((v) => Number(v));
+	return { r: clampInt(parts[0], 0, 255, fallback.r), g: clampInt(parts[1], 0, 255, fallback.g),
+		b: clampInt(parts[2], 0, 255, fallback.b), a: clampInt(parts.length === 4 ? parts[3] : 255, 0, 255, fallback.a) };
+}
+function parseScoreboardStyle(tokens, next) {
+	if (next() !== "{") throw new Error('Ожидался "{" после "ScoreboardStyle"');
+	const style = defaultScoreboardStyle(true);
+	for (;;) {
+		const key = next();
+		if (key === undefined || key === "}") break;
+		const value = next();
+		if (value === undefined) throw new Error(`Нет значения ScoreboardStyle для ${key}`);
+		const geometry = SCOREBOARD_GEOMETRY_FIELDS.find((f) => f[0] === key);
+		if (geometry) style[key] = clampInt(value, geometry[2], geometry[3], SCOREBOARD_STYLE_DEFAULTS[key]);
+		else if (key === "dead_alpha") style.dead_alpha = clampInt(value, 0, 255, SCOREBOARD_STYLE_DEFAULTS.dead_alpha);
+		else if (SCOREBOARD_COLOR_FIELDS.some((f) => f[0] === key)) style[key] = parseStyleColor(value, SCOREBOARD_STYLE_DEFAULTS[key]);
+		// Unknown keys are intentionally consumed and ignored for forward compatibility.
+	}
+	return style;
+}
+
 function parseHudLayout(text) {
 	const resolutionMatch = text.match(/^\s*\/\/\s*Editor preview resolution:\s*(\d+)\s*x\s*(\d+)/im);
 	const tokens = tokenize(text);
@@ -434,6 +534,11 @@ function parseHudLayout(text) {
 	}
 
 	const decorations = [];
+	let scoreboardStyle = defaultScoreboardStyle(false);
+	if (peek() === "ScoreboardStyle") {
+		next();
+		scoreboardStyle = parseScoreboardStyle(tokens, next);
+	}
 	if (peek() === "HudDecorations") {
 		next();
 		if (next() !== "{") throw new Error('Ожидался "{" после "HudDecorations"');
@@ -456,8 +561,12 @@ function parseHudLayout(text) {
 			});
 		}
 	}
+	if (peek() === "ScoreboardStyle") {
+		next();
+		scoreboardStyle = parseScoreboardStyle(tokens, next);
+	}
 
-	const parsed = { elements, decorations, groups: groupsFromComment(text, decorations) };
+	const parsed = { elements, decorations, scoreboardStyle, groups: groupsFromComment(text, decorations) };
 	if (resolutionMatch) {
 		parsed.resW = parseInt(resolutionMatch[1], 10);
 		parsed.resH = parseInt(resolutionMatch[2], 10);
@@ -489,6 +598,19 @@ function serializeHudLayout(st) {
 		lines.push(`\t "${d.type}" "${d.x}" "${d.y}" "${d.anchor}" "${d.w}" "${d.h}" "${d.r}" "${d.g}" "${d.b}" "${d.a}" "${d.radius}"`);
 	}
 	lines.push("}");
+	const style = st.scoreboardStyle;
+	if (style && style.override) {
+		lines.push("");
+		lines.push('"ScoreboardStyle"');
+		lines.push("{");
+		for (const [key] of SCOREBOARD_GEOMETRY_FIELDS) lines.push(`\t "${key}" "${style[key]}"`);
+		for (const [key] of SCOREBOARD_COLOR_FIELDS) {
+			const c = style[key];
+			lines.push(`\t "${key}" "${c.r},${c.g},${c.b},${c.a}"`);
+		}
+		lines.push(`\t "dead_alpha" "${style.dead_alpha}"`);
+		lines.push("}");
+	}
 	return lines.join("\n") + "\n";
 }
 
@@ -723,6 +845,80 @@ function renderRulers() {
 	}
 }
 
+function cssStyleColor(color, alphaScale = 1) {
+	return `rgba(${color.r}, ${color.g}, ${color.b}, ${(color.a * alphaScale / 255).toFixed(3)})`;
+}
+function renderScoreboardPreview(box, preview, element) {
+	const style = state.scoreboardStyle || defaultScoreboardStyle(false);
+	box.classList.add("scoreboard-preview-box");
+	box.style.background = cssStyleColor(style.scrim_color);
+	box.style.borderColor = cssStyleColor(style.border_color);
+	const label = document.createElement("span");
+	label.className = "hud-preview-label";
+	label.textContent = "Scoreboard";
+	box.appendChild(label);
+
+	const s = Math.max(0.1, Number(element.scale) || 1) * scoreboardPreviewFit(style);
+	const panel = document.createElement("div");
+	panel.className = "sb-preview-panel";
+	panel.style.background = cssStyleColor(style.panel_color);
+	panel.style.borderColor = cssStyleColor(style.border_color);
+	panel.style.borderRadius = `${style.corner_radius * s}px`;
+	panel.style.padding = `${style.padding * s}px`;
+	const teams = [
+		{ name: "CT", color: style.ct_color, score: 4, names: ["Sova", "niko", "m0NESY", "cloud", "Astra"] },
+		{ name: "T", color: style.t_color, score: 3, names: ["spirits", "b1t", "donk", "flame", "Echo"] },
+	];
+	for (const [teamIndex, team] of teams.entries()) {
+		if (teamIndex) panel.style.gap = `${style.section_gap * s}px`;
+		const section = document.createElement("div");
+		section.className = "sb-preview-section";
+		const head = document.createElement("div");
+		head.className = "sb-preview-header";
+		head.style.background = cssStyleColor(team.color);
+		head.style.color = cssStyleColor(style.text_color);
+		head.style.height = `${style.header_height * s}px`;
+		head.innerHTML = `<b>${team.name}</b><span>5 players · ${team.score}</span><i>K&nbsp;&nbsp;&nbsp;D&nbsp;&nbsp;&nbsp;PING</i>`;
+		head.querySelector("span").style.color = cssStyleColor(style.muted_color);
+		head.querySelector("i").style.color = cssStyleColor(style.text_color);
+		section.appendChild(head);
+		team.names.forEach((name, index) => {
+			const row = document.createElement("div");
+			row.className = "sb-preview-row" + (index === 1 && teamIndex === 0 ? " self" : "") + (index === 4 ? " dead" : "");
+			row.style.background = cssStyleColor(style.row_color);
+			row.style.color = cssStyleColor(style.text_color);
+			if (index === 1 && teamIndex === 0) row.style.boxShadow = `inset 0 0 0 999px ${cssStyleColor(style.self_color)}`;
+			if (index === 4) row.style.opacity = (style.dead_alpha / 255).toFixed(3);
+			row.style.height = `${style.row_height * s}px`;
+			row.style.marginTop = index ? `${style.row_gap * s}px` : "0";
+			const avatar = document.createElement("span");
+			avatar.className = "sb-preview-avatar";
+			avatar.style.width = `${style.avatar_size * s}px`;
+			avatar.style.height = `${style.avatar_size * s}px`;
+			avatar.style.background = cssStyleColor(team.color, .72);
+			avatar.style.borderColor = cssStyleColor(style.border_color);
+			avatar.style.color = cssStyleColor(style.text_color);
+			avatar.textContent = name[0];
+			const nameNode = document.createElement("b"); nameNode.textContent = name;
+			const status = document.createElement("span"); status.textContent = index === 4 ? "DEAD" : index === 0 ? "C4" : "";
+			status.style.color = cssStyleColor(style.muted_color);
+			const kills = document.createElement("span"); kills.textContent = String(16 - index * 3); kills.style.color = cssStyleColor(style.text_color);
+			const deaths = document.createElement("span"); deaths.textContent = String(index); deaths.style.color = cssStyleColor(style.text_color);
+			const ping = document.createElement("span"); ping.textContent = index === 3 ? "BOT" : String(22 + index * 8); ping.style.color = cssStyleColor(style.muted_color);
+			row.append(avatar, nameNode, status, kills, deaths, ping);
+			section.appendChild(row);
+		});
+		panel.appendChild(section);
+	}
+	const spectators = document.createElement("div");
+	spectators.className = "sb-preview-spectators";
+	spectators.style.marginTop = `${style.section_gap * s}px`;
+	spectators.style.color = cssStyleColor(style.muted_color);
+	spectators.textContent = "SPECTATORS  2   ◉ Nova   ◉ Observer";
+	panel.appendChild(spectators);
+	box.appendChild(panel);
+}
+
 function renderStage() {
 	layoutStageScale();
 	renderRulers();
@@ -789,7 +985,7 @@ function renderStage() {
 		const e = state.elements[id];
 		if (e.hidden) continue;
 		const key = elKey(id);
-		const meta = ELEMENT_PREVIEWS[id];
+		const meta = getElementMeta(id);
 		const preview = getElementPreview(id, e);
 		const sel = selection.has(key);
 
@@ -802,14 +998,18 @@ function renderStage() {
 		box.style.height = preview.height + "px";
 		box.style.setProperty("--preview-font-size", `${meta.fontSize * preview.scale}px`);
 		box.style.setProperty("--preview-line-height", `${25 * preview.scale}px`);
-		const label = document.createElement("span");
-		label.className = "hud-preview-label";
-		label.textContent = id;
-		box.appendChild(label);
-		const content = document.createElement("span");
-		content.className = "hud-preview-content";
-		content.textContent = meta.sample;
-		box.appendChild(content);
+		if (id === "Scoreboard") {
+			renderScoreboardPreview(box, preview, e);
+		} else {
+			const label = document.createElement("span");
+			label.className = "hud-preview-label";
+			label.textContent = id;
+			box.appendChild(label);
+			const content = document.createElement("span");
+			content.className = "hud-preview-content";
+			content.textContent = meta.sample;
+			box.appendChild(content);
+		}
 		box.addEventListener("mousedown", (ev) => onItemMouseDown(ev, key));
 		stage.appendChild(box);
 
@@ -1037,6 +1237,81 @@ function renderDecorationsList() {
 	});
 }
 
+function renderScoreboardStyleList() {
+	const list = document.getElementById("scoreboardStyleList");
+	if (!list) return;
+	list.innerHTML = "";
+	const style = state.scoreboardStyle || (state.scoreboardStyle = defaultScoreboardStyle(false));
+	const head = document.createElement("div");
+	head.className = "style-head";
+	const title = document.createElement("b");
+	title.textContent = "CS2 preset";
+	head.appendChild(title);
+	head.appendChild(toggleButton(style.override ? "☑" : "☐",
+		"Записывать ScoreboardStyle в HudLayout.txt", style.override, () => {
+			pushHistory(); style.override = !style.override; render();
+		}));
+	list.appendChild(head);
+	const hint = document.createElement("div");
+	hint.className = "hint";
+	hint.textContent = style.override ? "Тема сохраняется отдельным блоком." : "Блок не будет добавлен при сохранении.";
+	list.appendChild(hint);
+
+	const geometry = document.createElement("div");
+	geometry.className = "style-grid";
+	for (const [key, label, low, high] of SCOREBOARD_GEOMETRY_FIELDS) {
+		const input = numberInput(style[key], 1, (v) => {
+			style[key] = Math.max(low, Math.min(high, Math.round(v)));
+			renderStage();
+		});
+		input.min = low; input.max = high;
+		geometry.appendChild(labeled(label, input));
+	}
+	list.appendChild(geometry);
+
+	const colors = document.createElement("div");
+	colors.className = "style-grid colors";
+	for (const [key, label] of SCOREBOARD_COLOR_FIELDS) {
+		const color = style[key];
+		const colorInp = document.createElement("input");
+		colorInp.type = "color";
+		colorInp.value = rgbToHex(color.r, color.g, color.b);
+		colorInp.addEventListener("focus", pushHistory);
+		colorInp.addEventListener("input", () => {
+			const rgb = hexToRgb(colorInp.value);
+			color.r = rgb.r; color.g = rgb.g; color.b = rgb.b;
+			renderStage();
+		});
+		const alpha = numberInput(color.a, 1, (v) => {
+			color.a = Math.max(0, Math.min(255, Math.round(v)));
+			renderStage();
+		});
+		alpha.title = "alpha 0–255";
+		const wrap = document.createElement("label");
+		wrap.textContent = label;
+		const row = document.createElement("span");
+		row.className = "color-row";
+		row.append(colorInp, alpha);
+		wrap.appendChild(row);
+		colors.appendChild(wrap);
+	}
+	list.appendChild(colors);
+
+	const dead = numberInput(style.dead_alpha, 1, (v) => {
+		style.dead_alpha = Math.max(0, Math.min(255, Math.round(v)));
+		renderStage();
+	});
+	dead.min = 0; dead.max = 255;
+	list.appendChild(labeled("dead alpha", dead));
+	const reset = document.createElement("button");
+	reset.className = "style-reset";
+	reset.textContent = "Сбросить к CS2 preset";
+	reset.addEventListener("click", () => {
+		pushHistory(); state.scoreboardStyle = defaultScoreboardStyle(true); render();
+	});
+	list.appendChild(reset);
+}
+
 function renderGroupsList() {
 	const list = document.getElementById("groupsList");
 	list.innerHTML = "";
@@ -1094,6 +1369,7 @@ function renderGroupsList() {
 
 function renderLists() {
 	renderElementsList();
+	renderScoreboardStyleList();
 	renderDecorationsList();
 	renderGroupsList();
 	const alignDisabled = selection.size < 2;
@@ -1358,6 +1634,7 @@ document.getElementById("btnOpen").addEventListener("click", async () => {
 		const parsed = parseHudLayout(text);
 		state.elements = parsed.elements;
 		state.decorations = parsed.decorations;
+		state.scoreboardStyle = parsed.scoreboardStyle || defaultScoreboardStyle(false);
 		state.groups = parsed.groups;
 		if (parsed.resW && parsed.resH) {
 			state.resW = parsed.resW;

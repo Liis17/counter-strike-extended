@@ -17,6 +17,7 @@
 |------|-----------|----------|
 | [[Client/cs16-client]] | cs16-client | Реверс-инженеренный клиент CS 1.6, submodule |
 | [[Client/HUD-layout]] | HUD-layout | Кастомизация позиций/декораций HUD через `scripts/HudLayout.txt`, редактируется визуально через `tools/hud-editor` |
+| [[Client/HUD-Scoreboard]] | HUD Scoreboard | Компактная CS2-подобная таблица матча с аватарами, сортировкой, темой и adaptive fit |
 | [[Client/HUD-TeamBar]] | HUD TeamBar | Лента «слоты T / счёт / слоты CT» (`cl_dll/hud/teambar.cpp`) со Steam-аватарами через [[CSE/rich_presence]] и случайными аватарами ботов от сервера |
 
 ### CSE (собственный код проекта)
