@@ -48,6 +48,7 @@ src/cse/
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 │   ├── scripts/CseProgression.txt      # → runtime/cstrike/scripts/CseProgression.txt (XP/уровни, см. [[CSE/progression]])
 │   ├── scripts/CseBotAvatars.txt       # → runtime/cstrike/scripts/CseBotAvatars.txt (список аватаров ботов)
+│   ├── sound/                          # → runtime/cstrike/sound/ (проектные звуковые замены)
 │   └── scripts/CseSkinRecipes.txt      # рецепты производных моделей из runtime-ассетов
 ├── maps/                                # исходники карт, компилируемые внешним Hammer/J.A.C.K.
 │   ├── cse_test_actions.map
@@ -73,6 +74,7 @@ src/cse/
 
 | Скрипт | Что копирует |
 |--------|--------------|
+| `tools/install_cse_assets.ps1` | `src/cse/cstrike/**` → `runtime/cstrike/**`, с перезаписью одноимённых базовых файлов |
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
 | `tools/install_server_config.ps1` | серверные `server.cfg`, `cse_map_change.cfg` и исходный `mapcycle.txt` → `runtime/cstrike/` |

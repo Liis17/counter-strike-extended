@@ -45,6 +45,9 @@ if not exist "%GAME_DLL%" (
     exit /b 1
 )
 
+rem --- Overlay project cstrike assets over the base installation ---
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cse_assets.ps1" -Root "%ROOT%" || goto :fail
+
 rem --- Install server rules and prepare a fresh random map order ---
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_server_config.ps1" -Root "%ROOT%" || goto :fail
 if "%SERVER_MAP%"=="" (
