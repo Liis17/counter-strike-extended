@@ -19,6 +19,7 @@
 | [[Client/HUD-layout]] | HUD-layout | Кастомизация позиций/декораций HUD через `scripts/HudLayout.txt`, редактируется визуально через `tools/hud-editor` |
 | [[Client/HUD-Scoreboard]] | HUD Scoreboard | Компактная CS2-подобная таблица матча с аватарами, сортировкой, темой и adaptive fit |
 | [[Client/HUD-TeamBar]] | HUD TeamBar | Лента «слоты T / счёт / слоты CT» (`cl_dll/hud/teambar.cpp`) со Steam-аватарами через [[CSE/rich_presence]] и случайными аватарами ботов от сервера |
+| [[Client/HUD-QoL]] | HUD QoL | Дуги направления урона (`cl_dmgindicator`), прозрачность радара (`cl_radar_alpha`), длина kill feed (`hud_deathnotice_max`) |
 
 ### CSE (собственный код проекта)
 | Файл | Компонент | Описание |
