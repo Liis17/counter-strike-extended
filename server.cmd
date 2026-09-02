@@ -9,7 +9,7 @@ rem ============================================================
 
 rem --- Server parameters (edit here) ---
 set "SERVER_GAME=cstrike"
-set "SERVER_DLL=dlls\yapb.dll"
+set "SERVER_DLL=dlls\cse_mapcycle.dll"
 set "SERVER_IP=0.0.0.0"
 set "SERVER_PORT=27015"
 set "SERVER_MAXPLAYERS=12"
@@ -41,14 +41,14 @@ if not exist "%XASH_EXE%" (
 )
 if not exist "%GAME_DLL%" (
     echo [ERROR] %SERVER_DLL% not found at: %GAME_DLL%
-    echo         Build cs16-client with BUILD_SERVER=ON and deploy to runtime\.
+    echo         Run build-cse.cmd to build and deploy the CSE map rotation proxy.
     exit /b 1
 )
 
 rem --- Overlay project cstrike assets over the base installation ---
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cse_assets.ps1" -Root "%ROOT%" || goto :fail
 
-rem --- Install server rules and prepare a fresh random map order ---
+rem --- Install server rules and prepare the random map pool ---
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_server_config.ps1" -Root "%ROOT%" || goto :fail
 if "%SERVER_MAP%"=="" (
     for /f "usebackq delims=" %%M in (`powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\prepare_server_maps.ps1" -Root "%ROOT%"`) do set "SERVER_MAP=%%M"

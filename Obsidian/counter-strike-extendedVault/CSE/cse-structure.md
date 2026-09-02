@@ -1,7 +1,7 @@
 # cse — Counter-Strike Extended (собственный код проекта)
 
 Parent: [[Index]]
-Связанные: [[Локализация]], [[Архитектура]], [[Tooling/Tools]]
+Связанные: [[Локализация]], [[Архитектура]], [[Tooling/Tools]], [[Tooling/server-mapcycle]]
 
 ## Назначение
 
@@ -63,6 +63,9 @@ src/cse/
 ├── yapb/
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # per-map YaPB config, default yb_difficulty 0
+├── server/                          # серверная CSE-логика случайной ротации
+│   ├── CMakeLists.txt               # сборка x86 DLL-прокси
+│   └── mapcycle_proxy.cpp           # обёртка YaPB + pfnChangeLevel hook
 └── rich_presence/                  # Steam Rich Presence helper (см. [[rich_presence]])
     ├── src/main.cpp                # cse_steamrp.exe — LoadLibrary steam_api.dll + SetRichPresence
     ├── CMakeLists.txt              # сборка x86 (MSVC)
@@ -95,10 +98,12 @@ chunk с точкой цикла; без него движок может уда
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
+| `build-cse.cmd` | собирает `src/cse/server/` и разворачивает `cse_mapcycle.dll` рядом с `runtime/cstrike/dlls/yapb.dll` |
 
-При запуске `server.cmd` скрипт `tools/prepare_server_maps.ps1` перемешивает текущий multiplayer-пул и записывает
-его в runtime `mapcycle.txt`; стартовая карта помещается последней в сгенерированный порядок, чтобы
-первый автоматический переход не загрузил её повторно. `tr_*` и `cse_test_actions` — не часть
+При запуске `server.cmd` скрипт `tools/prepare_server_maps.ps1` выбирает стартовую карту и записывает
+стабильный пул в runtime `mapcycle.txt` и `cse_map_pool.txt`. Затем `cse_mapcycle.dll` загружается
+как прокси перед YaPB и перехватывает `pfnChangeLevel`: `/skip` и завершение матча выбирают новую
+валидную карту случайно, без повторов до исчерпания пула. `tr_*` и `cse_test_actions` — не часть
 боевого пула.
 
 Скрипты принимают `-DryRun` для предварительного просмотра и `-Root` для

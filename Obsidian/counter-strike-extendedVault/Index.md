@@ -39,6 +39,7 @@
 | [[Tooling/Tools]] | tools/ | Вспомогательные скрипты (скриншот окна игры, install локализации) и веб-редактор HUD-конфига |
 | [[Tooling/hud-editor]] | tools/hud-editor | Визуальный редактор `HudLayout.txt`: выделение/группы, привязки, выравнивание, история |
 | [[Tooling/server-cmd]] | server.cmd | Dedicated-сервер CS + боты YaPB; нюанс: `-dll` = путь относительно gamedir |
+| [[Tooling/server-mapcycle]] | src/cse/server + server.cmd | Случайная стартовая карта и новая случайная карта при `/skip`/завершении матча |
 | [[Tooling/mcp-game]] | tools/mcp-game | MCP-сервер `game` для opencode: build/deploy/run игры через tools |
 
 ## Правила обновления базы знаний
