@@ -6,6 +6,7 @@ Parent: [[Index]]
 Вспомогательные скрипты для разработки/отладки, не часть движка или клиента.
 
 ## Файлы
+- `tools/install_3rdpartymaps.ps1` — копирует содержимое `src/3rdpartymaps/` в `runtime/cstrike/` с сохранением вложенных путей (идемпотентно, есть `-DryRun`)
 - `tools/screenshot_window.ps1` — делает скриншот окна процесса по имени (по умолчанию `xash3d`), сохраняет в `runtime/window_capture.png`
 - `tools/install_cse_assets.ps1` — перед копированием находит в BSP зацикленные `ambient_generic`, добавляет отсутствующий RIFF `cue` в проектные WAV и накладывает `src/cse/cstrike/` на `runtime/cstrike/` с перезаписью одноимённых оригиналов (идемпотентно, есть `-DryRun`)
 - `tools/install_localization.ps1` — копирует файлы локализации из `src/cse/localization/` в `runtime/` (идемпотентно, есть `-DryRun`). См. [[Localization/Локализация]]
@@ -24,6 +25,7 @@ Parent: [[Index]]
 | Метод | Описание |
 |-------|----------|
 | `screenshot_window.ps1 -ProcessName <name> -OutFile <path>` | Находит окно процесса, выводит на передний план, снимает скриншот через `GetWindowRect`/`CopyFromScreen`, сохраняет PNG |
+| `install_3rdpartymaps.ps1 [-DryRun] [-Root <path>]` | Копирует все файлы из `src/3rdpartymaps/**` в `runtime/cstrike/**`, сохраняя относительные пути и перезаписывая одноимённые файлы |
 | `install_cse_assets.ps1 [-DryRun] [-Root <path>]` | Проверяет looped `ambient_generic` в BSP, добавляет cue-маркер проектным WAV без него и копирует `src/cse/cstrike/**` в `runtime/cstrike/**`, перезаписывая одноимённые базовые ассеты и не удаляя остальные |
 | `install_localization.ps1 [-DryRun] [-Root <path>]` | Копирует `src/cse/localization/**` в `runtime/`, создавая нужные поддиректории |
 | `install_hud_layout.ps1 [-DryRun] [-Root <path>]` | Копирует проектный HUD-layout в `runtime/cstrike/scripts/HudLayout.txt` |

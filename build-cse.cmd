@@ -13,13 +13,13 @@ set "RUNTIME_DIR=%ROOT%\runtime"
 set "PRESET=win32-release-x86"
 set "CLIENT_CONFIG=Release"
 
-echo === [1/11] Build engine (waf) ===
+echo === [1/12] Build engine (waf) ===
 pushd "%ENGINE_SRC%" || goto :fail
 call .\waf.bat build || (popd & goto :fail)
 call .\waf.bat install --destdir="%ENGINE_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [2/11] Build client (cmake) ===
+echo === [2/12] Build client (cmake) ===
 pushd "%CLIENT_SRC%" || goto :fail
 if not exist "build\CMakeCache.txt" (
     cmake --preset %PRESET% || (popd & goto :fail)
@@ -28,7 +28,7 @@ cmake --build build --config %CLIENT_CONFIG% || (popd & goto :fail)
 cmake --install build --config %CLIENT_CONFIG% --prefix "%CLIENT_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [3/11] Deploy to runtime ===
+echo === [3/12] Deploy to runtime ===
 if not exist "%RUNTIME_DIR%" mkdir "%RUNTIME_DIR%"
 
 rem Engine: build/engine -> runtime/   (incl. .pdb)
@@ -39,28 +39,31 @@ rem Client: build/cs16-client/cstrike -> runtime/cstrike/   (skip .lib)
 robocopy "%CLIENT_INSTALL%\cstrike" "%RUNTIME_DIR%\cstrike" /E /NFL /NDL /NP /NJH /NJS /XF *.lib >nul
 if errorlevel 8 goto :fail
 
-echo === [4/11] Install CSE cstrike assets over original files ===
+echo === [4/12] Install third-party maps ===
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_3rdpartymaps.ps1" || goto :fail
+
+echo === [5/12] Install CSE cstrike assets over original files ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cse_assets.ps1" || goto :fail
 
-echo === [5/11] Install server config and map cycle ===
+echo === [6/12] Install server config and map cycle ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_server_config.ps1" || goto :fail
 
-echo === [6/11] Install localization ===
+echo === [7/12] Install localization ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_localization.ps1" || goto :fail
 
-echo === [7/11] Install YaPB map configs ===
+echo === [8/12] Install YaPB map configs ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_yapb_map_configs.ps1" || goto :fail
 
-echo === [8/11] Install HUD layout ===
+echo === [9/12] Install HUD layout ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_hud_layout.ps1" || goto :fail
 
-echo === [9/11] Install progression config ===
+echo === [10/12] Install progression config ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_progression.ps1" || goto :fail
 
-echo === [10/11] Install bot avatars ===
+echo === [11/12] Install bot avatars ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_bot_avatars.ps1" || goto :fail
 
-echo === [11/11] Generate skin models ===
+echo === [12/12] Generate skin models ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_skins.ps1" || goto :fail
 
 echo.

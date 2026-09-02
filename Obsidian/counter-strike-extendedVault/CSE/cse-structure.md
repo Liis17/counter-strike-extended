@@ -31,6 +31,12 @@ YaPB — submodule на upstream `yapb/yapb`, и путь через него п
 форка чужого репозитория. Картинки, список и install-скрипт — по-прежнему в `src/cse/`
 и `tools/` (см. [[Client/HUD-TeamBar]]).
 
+Готовые сторонние карты и их комплектные ресурсы — отдельное исключение из
+правила выше: они хранятся в `src/3rdpartymaps/`, потому что повторяют структуру
+игровой папки `cstrike` (например, `maps/`, `models/`, `sound/` и `sprites/`).
+Это не собственные моды проекта; в `runtime/cstrike/` они устанавливаются
+скриптом `tools/install_3rdpartymaps.ps1`.
+
 ## Структура
 
 ```
@@ -78,6 +84,7 @@ chunk с точкой цикла; без него движок может уда
 
 | Скрипт | Что копирует |
 |--------|--------------|
+| `tools/install_3rdpartymaps.ps1` | `src/3rdpartymaps/**` → `runtime/cstrike/**`, сохраняя структуру стороннего набора и перезаписывая одноимённые файлы |
 | `tools/install_cse_assets.ps1` | `src/cse/cstrike/**` → `runtime/cstrike/**`, с перезаписью одноимённых базовых файлов |
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
 | `tools/install_gameinfo.ps1` | `src/cse/<gamedir>/gameinfo.txt` → `runtime/<gamedir>/gameinfo.txt` |
