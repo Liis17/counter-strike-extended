@@ -40,6 +40,7 @@ src/cse/
 │       ├── HudLayout.txt           # кастомный HUD-layout
 │       ├── CseProgression.txt      # XP и пороги уровней
 │       ├── CseBotAvatars.txt       # список аватаров ботов
+│       ├── CseMapCatalog.json       # шаблон явных CSE/official списков карт
 │       └── CseSkinRecipes.txt      # рецепты перекрасов моделей
 ├── maps/                            # исходники карт; BSP — производный артефакт
 │   ├── cse_test_actions.map         # стенд штатных map actions
@@ -65,6 +66,17 @@ src/cse/
 ```powershell
 tools\install_3rdpartymaps.ps1
 ```
+
+Сгенерировать каталог происхождения карт после установки ассетов:
+
+```powershell
+tools\generate_map_catalog.ps1
+```
+
+Скрипт сохраняет в `runtime/cstrike/scripts/CseMapCatalog.json` явные списки `official` и
+`cse` из шаблона и отсортированный список BSP из `src/3rdpartymaps/maps/` в `third_party`.
+Карты, которые игрок добавит непосредственно в runtime, в JSON не записываются и
+определяются меню как `Скачанные карты`.
 
 Скопировать локализацию в `runtime/`:
 

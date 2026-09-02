@@ -15,13 +15,13 @@ set "CLIENT_CONFIG=Release"
 set "CSE_SERVER_BUILD=%ROOT%\build\cse-server"
 set "CSE_SERVER_INSTALL=%ROOT%\build\cse-server-install"
 
-echo === [1/13] Build engine (waf) ===
+echo === [1/14] Build engine (waf) ===
 pushd "%ENGINE_SRC%" || goto :fail
 call .\waf.bat build || (popd & goto :fail)
 call .\waf.bat install --destdir="%ENGINE_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [2/13] Build client (cmake) ===
+echo === [2/14] Build client (cmake) ===
 pushd "%CLIENT_SRC%" || goto :fail
 if not exist "build\CMakeCache.txt" (
     cmake --preset %PRESET% || (popd & goto :fail)
@@ -30,7 +30,7 @@ cmake --build build --config %CLIENT_CONFIG% || (popd & goto :fail)
 cmake --install build --config %CLIENT_CONFIG% --prefix "%CLIENT_INSTALL%" || (popd & goto :fail)
 popd
 
-echo === [3/13] Build CSE server map proxy (cmake) ===
+echo === [3/14] Build CSE server map proxy (cmake) ===
 if not exist "%CSE_SERVER_BUILD%\CMakeCache.txt" (
     cmake -S "%ROOT%\src\cse\server" -B "%CSE_SERVER_BUILD%" -G "Visual Studio 17 2022" -A Win32 -DCMAKE_INSTALL_PREFIX="%CSE_SERVER_INSTALL%" || goto :fail
 ) else (
@@ -39,7 +39,7 @@ if not exist "%CSE_SERVER_BUILD%\CMakeCache.txt" (
 cmake --build "%CSE_SERVER_BUILD%" --config %CLIENT_CONFIG% || goto :fail
 cmake --install "%CSE_SERVER_BUILD%" --config %CLIENT_CONFIG% --prefix "%CSE_SERVER_INSTALL%" || goto :fail
 
-echo === [4/13] Deploy to runtime ===
+echo === [4/14] Deploy to runtime ===
 if not exist "%RUNTIME_DIR%" mkdir "%RUNTIME_DIR%"
 
 rem Engine: build/engine -> runtime/   (incl. .pdb)
@@ -54,31 +54,34 @@ rem CSE server proxy: build/cse-server-install/cstrike/dlls -> runtime/cstrike/d
 robocopy "%CSE_SERVER_INSTALL%\cstrike" "%RUNTIME_DIR%\cstrike" /E /NFL /NDL /NP /NJH /NJS /XF *.lib >nul
 if errorlevel 8 goto :fail
 
-echo === [5/13] Install third-party maps ===
+echo === [5/14] Install third-party maps ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_3rdpartymaps.ps1" || goto :fail
 
-echo === [6/13] Install CSE cstrike assets over original files ===
+echo === [6/14] Install CSE cstrike assets over original files ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cse_assets.ps1" || goto :fail
 
-echo === [7/13] Install server config and map cycle ===
+echo === [7/14] Generate map catalog ===
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\generate_map_catalog.ps1" || goto :fail
+
+echo === [8/14] Install server config and map cycle ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_server_config.ps1" || goto :fail
 
-echo === [8/13] Install localization ===
+echo === [9/14] Install localization ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_localization.ps1" || goto :fail
 
-echo === [9/13] Install YaPB map configs ===
+echo === [10/14] Install YaPB map configs ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_yapb_map_configs.ps1" || goto :fail
 
-echo === [10/13] Install HUD layout ===
+echo === [11/14] Install HUD layout ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_hud_layout.ps1" || goto :fail
 
-echo === [11/13] Install progression config ===
+echo === [12/14] Install progression config ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_progression.ps1" || goto :fail
 
-echo === [12/13] Install bot avatars ===
+echo === [13/14] Install bot avatars ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_bot_avatars.ps1" || goto :fail
 
-echo === [13/13] Generate skin models ===
+echo === [14/14] Generate skin models ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_skins.ps1" || goto :fail
 
 echo.
