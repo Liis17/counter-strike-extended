@@ -1,0 +1,8 @@
+Afeganistao
+
+Criador do mapa (mapa criado para o mod Front Line Force com o nome de flf_afghan):
+By OM (om_space@hotmail.com)
+(Killme)
+
+Adaptacao do mapa para o CS (atraves da edicao de "entities" do mapa pelo ripent):
+By Bruce (bruce845@hotmail.com)

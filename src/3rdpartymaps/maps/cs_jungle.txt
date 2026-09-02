@@ -1,0 +1,43 @@
+Deep Jungle - Hostage Rescue
+by Shiroko (shiroko@dune2k.com)
+
+Counter-Terrorists: Rescue the hostages
+imprisoned deep in the jungle in the two
+terrorists' "safehouses".
+
+Terrorists: Prevent Counter-Terrorist
+force from rescuing the hostages.
+
+Other Notes: There are four hostages
+spread out in the houses. This map may
+not run smooth on slow machines!!!
+
+Background Story: Two days ago four key
+buisnessman from around the world were 
+kidnapped by a terrorist organization in 
+order to use as a bargin card for releasing
+imprisoned terrorists, knowing that the 
+pressure and damage to the stock market
+will disturb goverments around the world.
+Our intelligence traced the location of
+the hostages to a rainforest where two
+small abandoned houses are used as their
+holding place. Intelligence also points
+out that the hostages are well guarded and
+that the terrorists have AA capabilities so
+the rescue force will have to advance on
+foot to the target. Up to ten terrorists 
+might be guarding the hostages.
+
+Special thanks to:
+-MikeZilla, for the water texture.
+-Team Fortress Team (Cause I took the
+railing texture from there).
+-3D-Mike, cause I stole his trick of
+using sprites. Or at least he is the guy
+I copied it from.
+-And DigiChaos, who made the door texture
+I ripped from Cs_Italy.
+-Anyone who beta-tested the map or
+kept commenting on it in the forums.
+You know who you are!

@@ -1,0 +1,14 @@
+// overview description file for de_afghan_r.bsp
+
+global 
+{
+	ZOOM		1.19
+	ORIGIN		120	128	48
+	ROTATED		0
+}
+
+layer 
+{
+	IMAGE	"overviews/de_afghan_r.bmp"
+	HEIGHT	-545
+}
