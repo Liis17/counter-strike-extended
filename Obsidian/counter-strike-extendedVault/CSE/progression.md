@@ -19,6 +19,9 @@ Parent: [[Index]]
 следующими срезами.
 Этап 6c реализован: общий UTC-ротатор выбирает 3 daily и 2 weekly задачи из фиксированных пулов без повторения
 семейства; прогресс хранится в профиле, вклад ботов равен `3/10`, завершение автоматически выдаёт XP один раз.
+Этап 6d реализован: добавлен versioned `CseProg`-контракт между ReGameDLL_CS и клиентом. Раунды получают
+авторитетное подтверждение на CSE-сервере, objective-события отправляются только их исполнителю, а старые серверы
+сохраняют клиентский fallback для убийств и счёта раундов.
 
 ## Где живёт код
 
@@ -29,6 +32,9 @@ Parent: [[Index]]
 | Общий каталог оружия | `src/cs16-client/game_shared/cse_weapon_catalog.{h,cpp}` | Стабильный порядок 30 слотов, алиасы имён оружия и DeathMsg |
 | Codec loadout | `src/cs16-client/game_shared/cse_loadout.{h,cpp}` | Round-trip формат `v2:` + 60 hex-символов для выбранных вариантов |
 | Daily/weekly задачи | `src/cs16-client/game_shared/cse_challenges.{h,cpp}` | Фиксированные пулы, UTC-периоды, FNV-1a-ротация, scaled progress и XP rewards |
+| Протокол прогрессии | `src/cs16-client/game_shared/cse_protocol.h` | Versioned opcodes для handshake, результата раунда и подтверждённых objectives |
+| Клиентский приёмник сервера | `src/cs16-client/cl_dll/cse_server_events.{h,cpp}` | Hook `CseProg`, reset при смене карты, перевод server events в профиль и XP |
+| Серверный мост | `src/cs16-client/3rdparty/ReGameDLL_CS/regamedll/dlls/cse_progression.{h,cpp}` | Проверка `cse_proto`, отправка user-message и sequence-нумерация |
 | Каталог косметики | `src/cse/cstrike/scripts/CseCosmetics.txt` | Единый каталог 30 видов оружия, стабильных ID, уровней, палитр, мотивов, деталей и путей `v/p/w` |
 | Проверка каталога | `tools/validate_cosmetics.py` | Проверяет структуру KeyValues, уникальность ID и полный набор из 63 вариантов |
 | Установка каталога | `tools/install_cosmetics.ps1` | Идемпотентно копирует каталог в `runtime/cstrike/scripts/` |
@@ -75,6 +81,11 @@ Parent: [[Index]]
 13. При загрузке и перед событием профиль синхронизирует daily/weekly-периоды по UTC. Внутри файла прогресс
     хранится в десятых единицах: обычное действие даёт `10`, действие против бота — `3`; при достижении цели
     слот помечается `rewarded` и его XP больше не начисляется.
+14. Клиент публикует userinfo-ключ `cse_proto=1`. Совместимый ReGameDLL отвечает сообщением `CseProg/HELLO`;
+после этого клиент временно отключает дублирующее начисление round XP из `TeamScore` и принимает один
+authoritative result по sequence. Objective-сообщение отправляется только игроку-исполнителю после успешного
+plant/defuse, rescue, VIP escape/kill или terrorist escape. При смене карты server-proto сбрасывается; обычный
+сервер снова использует legacy-события клиента.
 
 ### Защита от ложных раундов
 
@@ -180,6 +191,11 @@ Legacy-профили без `version` и `loadout` продолжают чит�
 }
 ```
 
+Server-to-client user-message `CseProg` имеет общий заголовок `byte protocol`, `byte opcode`, `short sequence`.
+`HELLO` добавляет `short featureFlags`; `ROUND_RESULT` — `byte winner` (`0` draw, `1` T, `2` CT) и `short
+roundNumber`; `OBJECTIVE` — `byte objective`. Sequence начинается заново при активации сервера, а клиент
+игнорирует повторные/устаревшие кадры. События не рассылаются клиентам без `cse_proto`.
+
 ## Методы
 
 | Метод | Назначение |
@@ -197,12 +213,17 @@ Legacy-профили без `version` и `loadout` продолжают чит�
 | `CSE_PlayerIsBot()` | Читает userinfo-ключ `*bot` для индекса игрока (внутренняя, `cse_profile.cpp`) |
 | `CSE_OnDeathMsg()` | Учитывает убийства, headshot и собственную смерть; за ботов платит по множителю |
 | `CSE_OnTeamScore()` | Учитывает победу/поражение раунда по дельте счёта |
+| `CSE_OnServerRoundResult()` | Принимает авторитетный результат раунда от совместимого ReGameDLL |
+| `CSE_OnServerObjective()` | Начисляет XP за подтверждённое objective-событие |
 | `CSE_OnIntermission()` | Учитывает итог матча один раз на фронте intermission |
 | `CSE_MapStatsCount()` / `CSE_MapStatsAt()` | Дают меню статистику по картам |
 | `CSE_MatchHistoryCount()` / `CSE_MatchHistoryAt()` | Дают меню историю завершённых и прерванных сессий |
 | `CSE_WeaponStatsAt()` | Возвращает lifetime kills/headshots по стабильному индексу оружия |
 | `CSE_SkinsInit()` / `CSE_SkinsSyncCvar()` | Регистрирует команды/cvar и публикует выбор из профиля в userinfo |
 | `CSE_SkinViewModel()` | Возвращает разрешённый производный viewmodel или stock-путь |
+| `CSE_ServerEventsInit()` / `CSE_ServerEventsReset()` | Регистрируют `CseProg` и сбрасывают состояние совместимого сервера |
+| `CSE_ServerClientReady()` / `CSE_ServerUserInfoChanged()` | Выполняют handshake с клиентом, у которого есть `cse_proto` |
+| `CSE_ServerRoundResult()` / `CSE_ServerObjective()` | Отправляют round/objective-события из ReGameDLL через sequence |
 | `cse_stats` | Печатает XP, уровень и статистику в консоль |
 | `cse_profile_reload` | Повторно читает конфиг и профиль без перезапуска клиента |
 | `cse_skin <weapon> <skin>` | Надевает доступный по уровню скин и сохраняет выбор в профиле |
@@ -212,7 +233,7 @@ Legacy-профили без `version` и `loadout` продолжают чит�
 
 ## Следующие этапы
 
-Бот-множитель подключён на клиенте через userinfo-ключ `*bot`, серверный этап для него не нужен.
-Следующие срезы расширенной прогрессии: CSE-события MVP/objective, затем серверная подмена `p/w`-моделей,
-precache в ReGameDLL и отдельный экран профиля. HUD XP, задачи и новые счётчики требуют отдельной визуальной
-проверки в игре.
+Бот-множитель подключён на клиенте через userinfo-ключ `*bot`, серверный этап для него не нужен. Следующие
+срезы расширенной прогрессии: precache и серверная подмена `p/w`-моделей, затем экран профиля и визуальная
+проверка HUD/задач/новых счётчиков в игре. MVP остаётся отдельным подтверждённым server event, потому что его
+нельзя надёжно вывести из штатного `DeathMsg` без выбора единого server-side правила.
