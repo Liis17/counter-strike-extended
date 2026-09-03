@@ -53,6 +53,7 @@ src/cse/
 │   ├── gfx/cse/avatars/*.{png,tga}     # → runtime/cstrike/gfx/cse/avatars/ (аватары ботов, см. [[Client/HUD-TeamBar]])
 │   ├── scripts/HudLayout.txt           # → runtime/cstrike/scripts/HudLayout.txt (кастомный HUD, см. [[Client/HUD-layout]])
 │   ├── scripts/CseProgression.txt      # → runtime/cstrike/scripts/CseProgression.txt (XP/уровни, см. [[CSE/progression]])
+│   ├── scripts/CseCosmetics.txt        # → runtime/cstrike/scripts/CseCosmetics.txt (каталог оружия/вариантов)
 │   ├── scripts/CseBotAvatars.txt       # → runtime/cstrike/scripts/CseBotAvatars.txt (список аватаров ботов)
 │   ├── scripts/CseMapCatalog.json       # versioned-шаблон происхождения карт (third_party генерируется)
 │   ├── sound/                          # → runtime/cstrike/sound/ (проектные звуковые замены; loop cue проверяет install-скрипт)
@@ -96,6 +97,8 @@ chunk с точкой цикла; без него движок может уда
 | `tools/install_server_config.ps1` | серверные `server.cfg`, `cse_map_change.cfg` и исходный `mapcycle.txt` → `runtime/cstrike/` |
 | `tools/install_hud_layout.ps1` | `src/cse/cstrike/scripts/HudLayout.txt` → `runtime/cstrike/scripts/HudLayout.txt` |
 | `tools/install_progression.ps1` | `src/cse/cstrike/scripts/CseProgression.txt` → `runtime/cstrike/scripts/CseProgression.txt` |
+| `tools/validate_cosmetics.py` | проверяет единый каталог `CseCosmetics.txt`, ID и 63 варианта |
+| `tools/install_cosmetics.ps1` | `src/cse/cstrike/scripts/CseCosmetics.txt` → `runtime/cstrike/scripts/CseCosmetics.txt` |
 | `tools/install_bot_avatars.ps1` | генерирует список из PNG/TGA в `src/cse/cstrike/gfx/cse/avatars/`, затем копирует картинки и `CseBotAvatars.txt` в `runtime/` |
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |

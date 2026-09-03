@@ -39,6 +39,7 @@ src/cse/
 │   └── scripts/                    # → runtime/cstrike/scripts/
 │       ├── HudLayout.txt           # кастомный HUD-layout
 │       ├── CseProgression.txt      # XP и пороги уровней
+│       ├── CseCosmetics.txt        # единый каталог оружия и 63 вариантов
 │       ├── CseBotAvatars.txt       # список аватаров ботов
 │       ├── CseMapCatalog.json       # шаблон явных CSE/official списков карт
 │       └── CseSkinRecipes.txt      # рецепты перекрасов моделей
@@ -95,6 +96,19 @@ tools\install_hud_layout.ps1
 ```powershell
 tools\install_progression.ps1
 ```
+
+Проверить и установить каталог косметики:
+
+```powershell
+py -3 tools\validate_cosmetics.py
+tools\install_cosmetics.ps1
+```
+
+`CseCosmetics.txt` — единый каталог для клиентского профиля, меню и будущей
+серверной синхронизации: 30 категорий оружия, стабильные `catalog_index` и
+`variant_id`, уровни открытия и пути `v/p/w`-моделей. Скрипт установки копирует
+только конфигурацию; производные модели будут создаваться отдельным этапом из
+лицензированных stock-моделей.
 
 Установить правила выделенного сервера и исходный пул карт:
 

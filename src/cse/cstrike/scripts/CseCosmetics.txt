@@ -1,0 +1,372 @@
+"CseCosmetics"
+{
+    "version" "1"
+    "catalog_size" "30"
+
+    "weapons"
+    {
+        "p228"
+        {
+            "catalog_index" "0"
+            "engine_id" "1"
+            "category" "pistol"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "checkpoint" { "variant_id" "1" "name" "CSE_Skin_P228_Checkpoint" "unlock_level" "15" "palette" "#34383A/#9C8B69/#C2A13F" "motif" "hazard" "detail" "grip_heel_slide_tabs" "v" "models/cse/v_p228_checkpoint.mdl" "p" "models/cse/p_p228_checkpoint.mdl" "w" "models/cse/w_p228_checkpoint.mdl" }
+                "coldtrace" { "variant_id" "2" "name" "CSE_Skin_P228_ColdTrace" "unlock_level" "60" "palette" "#344957/#A7B1B3/#1B2024" "motif" "contour" "detail" "side_rail_rear_sight" "v" "models/cse/v_p228_coldtrace.mdl" "p" "models/cse/p_p228_coldtrace.mdl" "w" "models/cse/w_p228_coldtrace.mdl" }
+            }
+        }
+        "scout"
+        {
+            "catalog_index" "1"
+            "engine_id" "3"
+            "category" "sniper"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "pathfinder" { "variant_id" "1" "name" "CSE_Skin_Scout_Pathfinder" "unlock_level" "20" "palette" "#4C573E/#77684B/#191C18" "motif" "topography" "detail" "scope_shade_bolt_sleeve" "v" "models/cse/v_scout_pathfinder.mdl" "p" "models/cse/p_scout_pathfinder.mdl" "w" "models/cse/w_scout_pathfinder.mdl" }
+                "highground" { "variant_id" "2" "name" "CSE_Skin_Scout_Highground" "unlock_level" "70" "palette" "#72776F/#4E5D50/#B06C36" "motif" "contour" "detail" "cheek_pad_foreend_stop" "v" "models/cse/v_scout_highground.mdl" "p" "models/cse/p_scout_highground.mdl" "w" "models/cse/w_scout_highground.mdl" }
+            }
+        }
+        "hegrenade"
+        {
+            "catalog_index" "2"
+            "engine_id" "4"
+            "category" "grenade"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "fragcontour" { "variant_id" "1" "name" "CSE_Skin_HE_FragContour" "unlock_level" "40" "palette" "#596049/#C0A43D/#1D201D" "motif" "segmentation" "detail" "safety_band_pin_guard" "v" "models/cse/v_hegrenade_fragcontour.mdl" "p" "models/cse/p_hegrenade_fragcontour.mdl" "w" "models/cse/w_hegrenade_fragcontour.mdl" }
+            }
+        }
+        "xm1014"
+        {
+            "catalog_index" "3"
+            "engine_id" "5"
+            "category" "shotgun"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "breacher" { "variant_id" "1" "name" "CSE_Skin_XM1014_Breacher" "unlock_level" "19" "palette" "#1C2021/#C2A541/#5B5E59" "motif" "door_marks" "detail" "vented_barrel_shroud" "v" "models/cse/v_xm1014_breacher.mdl" "p" "models/cse/p_xm1014_breacher.mdl" "w" "models/cse/w_xm1014_breacher.mdl" }
+                "riotline" { "variant_id" "2" "name" "CSE_Skin_XM1014_Riotline" "unlock_level" "68" "palette" "#293A48/#7F898C/#D4D6D1" "motif" "segmented_plate" "detail" "shell_carrier_muzzle_brace" "v" "models/cse/v_xm1014_riotline.mdl" "p" "models/cse/p_xm1014_riotline.mdl" "w" "models/cse/w_xm1014_riotline.mdl" }
+            }
+        }
+        "c4"
+        {
+            "catalog_index" "4"
+            "engine_id" "6"
+            "category" "objective"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "failsafe" { "variant_id" "1" "name" "CSE_Skin_C4_Failsafe" "unlock_level" "46" "palette" "#202426/#53604A/#9D3D36" "motif" "wire_routing" "detail" "cable_clips_display_hood" "v" "models/cse/v_c4_failsafe.mdl" "p" "models/cse/p_c4_failsafe.mdl" "w" "models/cse/w_c4_failsafe.mdl" "w_planted" "models/cse/w_c4_planted_failsafe.mdl" }
+            }
+        }
+        "mac10"
+        {
+            "catalog_index" "5"
+            "engine_id" "7"
+            "category" "smg"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "courier" { "variant_id" "1" "name" "CSE_Skin_MAC10_Courier" "unlock_level" "26" "palette" "#5B6060/#9E8C68/#9A443A" "motif" "route_marks" "detail" "wire_stock_shoulder_pad" "v" "models/cse/v_mac10_courier.mdl" "p" "models/cse/p_mac10_courier.mdl" "w" "models/cse/w_mac10_courier.mdl" }
+                "sublevel" { "variant_id" "2" "name" "CSE_Skin_MAC10_Sublevel" "unlock_level" "76" "palette" "#25282A/#777671/#B46736" "motif" "industrial_routes" "detail" "barrel_cage_magwell_collar" "v" "models/cse/v_mac10_sublevel.mdl" "p" "models/cse/p_mac10_sublevel.mdl" "w" "models/cse/w_mac10_sublevel.mdl" }
+            }
+        }
+        "aug"
+        {
+            "catalog_index" "6"
+            "engine_id" "8"
+            "category" "rifle"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "alpine" { "variant_id" "1" "name" "CSE_Skin_AUG_Alpine" "unlock_level" "30" "palette" "#D3D5CE/#6D7772/#4F6049" "motif" "mountain_shard" "detail" "optic_hood_foregrip_collar" "v" "models/cse/v_aug_alpine.mdl" "p" "models/cse/p_aug_alpine.mdl" "w" "models/cse/w_aug_alpine.mdl" }
+                "gridlock" { "variant_id" "2" "name" "CSE_Skin_AUG_Gridlock" "unlock_level" "80" "palette" "#303B3C/#447071/#9D8B67" "motif" "coordinate_grid" "detail" "stock_panel_receiver_bridge" "v" "models/cse/v_aug_gridlock.mdl" "p" "models/cse/p_aug_gridlock.mdl" "w" "models/cse/w_aug_gridlock.mdl" }
+            }
+        }
+        "smokegrenade"
+        {
+            "catalog_index" "7"
+            "engine_id" "9"
+            "category" "grenade"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "grayveil" { "variant_id" "1" "name" "CSE_Skin_Smoke_Grayveil" "unlock_level" "44" "palette" "#596568/#53604F/#D1D0C2" "motif" "airflow" "detail" "vent_collar_base_ring" "v" "models/cse/v_smokegrenade_grayveil.mdl" "p" "models/cse/p_smokegrenade_grayveil.mdl" "w" "models/cse/w_smokegrenade_grayveil.mdl" }
+            }
+        }
+        "elite"
+        {
+            "catalog_index" "8"
+            "engine_id" "10"
+            "category" "pistol"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "crosswind" { "variant_id" "1" "name" "CSE_Skin_Elite_Crosswind" "unlock_level" "17" "palette" "#555E45/#A69168/#222723" "motif" "mirrored_diagonal" "detail" "twin_muzzle_collars" "v" "models/cse/v_elite_crosswind.mdl" "p" "models/cse/p_elite_crosswind.mdl" "w" "models/cse/w_elite_crosswind.mdl" }
+                "twofronts" { "variant_id" "2" "name" "CSE_Skin_Elite_TwoFronts" "unlock_level" "64" "palette" "#394652/#665747/#A6A9A3" "motif" "split_palette" "detail" "paired_grip_base_plates" "v" "models/cse/v_elite_twofronts.mdl" "p" "models/cse/p_elite_twofronts.mdl" "w" "models/cse/w_elite_twofronts.mdl" }
+            }
+        }
+        "fiveseven"
+        {
+            "catalog_index" "9"
+            "engine_id" "11"
+            "category" "pistol"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "sentinel" { "variant_id" "1" "name" "CSE_Skin_FiveSeven_Sentinel" "unlock_level" "16" "palette" "#343B3F/#1D2224/#4F7C83" "motif" "hex_panel" "detail" "sight_guards_dust_cover_lip" "v" "models/cse/v_fiveseven_sentinel.mdl" "p" "models/cse/p_fiveseven_sentinel.mdl" "w" "models/cse/w_fiveseven_sentinel.mdl" }
+                "ceramic" { "variant_id" "2" "name" "CSE_Skin_FiveSeven_Ceramic" "unlock_level" "62" "palette" "#D2D0C4/#737C82/#405B6C" "motif" "ceramic_panel" "detail" "raised_slide_armor_ribs" "v" "models/cse/v_fiveseven_ceramic.mdl" "p" "models/cse/p_fiveseven_ceramic.mdl" "w" "models/cse/w_fiveseven_ceramic.mdl" }
+            }
+        }
+        "ump45"
+        {
+            "catalog_index" "10"
+            "engine_id" "12"
+            "category" "smg"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "patrol" { "variant_id" "1" "name" "CSE_Skin_UMP45_Patrol" "unlock_level" "22" "palette" "#4B5542/#171A19/#9D8B68" "motif" "broad_bands" "detail" "receiver_rail_cover" "v" "models/cse/v_ump45_patrol.mdl" "p" "models/cse/p_ump45_patrol.mdl" "w" "models/cse/w_ump45_patrol.mdl" }
+                "breakwater" { "variant_id" "2" "name" "CSE_Skin_UMP45_Breakwater" "unlock_level" "72" "palette" "#2F4350/#7B8585/#9B5938" "motif" "maritime_blocks" "detail" "muzzle_guard_folding_stock_pad" "v" "models/cse/v_ump45_breakwater.mdl" "p" "models/cse/p_ump45_breakwater.mdl" "w" "models/cse/w_ump45_breakwater.mdl" }
+            }
+        }
+        "sg550"
+        {
+            "catalog_index" "11"
+            "engine_id" "13"
+            "category" "sniper"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "borderline" { "variant_id" "1" "name" "CSE_Skin_SG550_Borderline" "unlock_level" "34" "palette" "#48543E/#675D46/#171B18" "motif" "contour" "detail" "scope_shade_handguard_rib" "v" "models/cse/v_sg550_borderline.mdl" "p" "models/cse/p_sg550_borderline.mdl" "w" "models/cse/w_sg550_borderline.mdl" }
+                "overwatch" { "variant_id" "2" "name" "CSE_Skin_SG550_Overwatch" "unlock_level" "84" "palette" "#495861/#BDC2BE/#8C4440" "motif" "range_marks" "detail" "scope_cage_cheek_riser" "v" "models/cse/v_sg550_overwatch.mdl" "p" "models/cse/p_sg550_overwatch.mdl" "w" "models/cse/w_sg550_overwatch.mdl" }
+            }
+        }
+        "galil"
+        {
+            "catalog_index" "12"
+            "engine_id" "14"
+            "category" "rifle"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "reserve" { "variant_id" "1" "name" "CSE_Skin_Galil_Reserve" "unlock_level" "12" "palette" "#555A56/#5B6449/#9C8B6B" "motif" "armory" "detail" "canvas_handguard_stock_buttpad" "v" "models/cse/v_galil_reserve.mdl" "p" "models/cse/p_galil_reserve.mdl" "w" "models/cse/w_galil_reserve.mdl" }
+                "dustfront" { "variant_id" "2" "name" "CSE_Skin_Galil_Dustfront" "unlock_level" "58" "palette" "#AF9467/#62503D/#343738" "motif" "weathered_dust" "detail" "gas_tube_shield_stock_pad" "v" "models/cse/v_galil_dustfront.mdl" "p" "models/cse/p_galil_dustfront.mdl" "w" "models/cse/w_galil_dustfront.mdl" }
+            }
+        }
+        "famas"
+        {
+            "catalog_index" "13"
+            "engine_id" "15"
+            "category" "rifle"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "urbancordon" { "variant_id" "1" "name" "CSE_Skin_Famas_UrbanCordon" "unlock_level" "11" "palette" "#5F6565/#2B2F31/#455F6F" "motif" "urban_shards" "detail" "carry_handle_side_plates" "v" "models/cse/v_famas_urbancordon.mdl" "p" "models/cse/p_famas_urbancordon.mdl" "w" "models/cse/w_famas_urbancordon.mdl" }
+                "signalline" { "variant_id" "2" "name" "CSE_Skin_Famas_SignalLine" "unlock_level" "56" "palette" "#333B3C/#77735D/#B46B34" "motif" "signal_line" "detail" "foreend_vent_inserts_sight_hood" "v" "models/cse/v_famas_signalline.mdl" "p" "models/cse/p_famas_signalline.mdl" "w" "models/cse/w_famas_signalline.mdl" }
+            }
+        }
+        "usp"
+        {
+            "catalog_index" "14"
+            "engine_id" "16"
+            "category" "pistol"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "watchman" { "variant_id" "1" "name" "CSE_Skin_USP_Watchman" "unlock_level" "6" "palette" "#202830/#65727A/#A0A6A4" "motif" "unit_stripe" "detail" "suppressor_collar" "v" "models/cse/v_usp_watchman.mdl" "p" "models/cse/p_usp_watchman.mdl" "w" "models/cse/w_usp_watchman.mdl" }
+                "quietsector" { "variant_id" "2" "name" "CSE_Skin_USP_QuietSector" "unlock_level" "52" "palette" "#171D1D/#3E5549/#788E7C" "motif" "coordinate_grid" "detail" "suppressor_sleeve_sight_guards" "v" "models/cse/v_usp_quietsector.mdl" "p" "models/cse/p_usp_quietsector.mdl" "w" "models/cse/w_usp_quietsector.mdl" }
+            }
+        }
+        "glock18"
+        {
+            "catalog_index" "15"
+            "engine_id" "17"
+            "category" "pistol"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "service" { "variant_id" "1" "name" "CSE_Skin_Glock18_Service" "unlock_level" "2" "palette" "#25292B/#656B68/#596248" "motif" "inventory_marks" "detail" "lanyard_heel_sight_guards" "v" "models/cse/v_glock18_service.mdl" "p" "models/cse/p_glock18_service.mdl" "w" "models/cse/w_glock18_service.mdl" }
+                "switchback" { "variant_id" "2" "name" "CSE_Skin_Glock18_Switchback" "unlock_level" "50" "palette" "#303638/#9A8564/#B26035" "motif" "diagonal_bands" "detail" "serration_plates_trigger_guard" "v" "models/cse/v_glock18_switchback.mdl" "p" "models/cse/p_glock18_switchback.mdl" "w" "models/cse/w_glock18_switchback.mdl" }
+            }
+        }
+        "awp"
+        {
+            "catalog_index" "16"
+            "engine_id" "18"
+            "category" "sniper"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "taiga" { "variant_id" "1" "name" "CSE_Skin_AWP_Taiga" "unlock_level" "4" "palette" "#44513B/#76664B/#151A17" "motif" "branch_camo" "detail" "scope_sunshade" "v" "models/cse/v_awp_taiga.mdl" "p" "models/cse/p_awp_taiga.mdl" "w" "models/cse/w_awp_taiga.mdl" }
+                "sandline" { "variant_id" "2" "name" "CSE_Skin_AWP_Sandline" "unlock_level" "5" "palette" "#C0A572/#70614C/#2A2924" "motif" "topographic_contour" "detail" "cheek_riser_barrel_collar" "v" "models/cse/v_awp_sandline.mdl" "p" "models/cse/p_awp_sandline.mdl" "w" "models/cse/w_awp_sandline.mdl" }
+                "hoarfrost" { "variant_id" "3" "name" "CSE_Skin_AWP_Hoarfrost" "unlock_level" "67" "palette" "#CBD8DC/#7690A0/#20282E" "motif" "crystalline_frost" "detail" "scope_caps_barrel_wrap" "v" "models/cse/v_awp_hoarfrost.mdl" "p" "models/cse/p_awp_hoarfrost.mdl" "w" "models/cse/w_awp_hoarfrost.mdl" }
+                "longnight" { "variant_id" "4" "name" "CSE_Skin_AWP_LongNight" "unlock_level" "97" "palette" "#111A2A/#37465A/#9AA1A3" "motif" "star_coordinate_grid" "detail" "long_scope_hood_stock_rear_housing" "v" "models/cse/v_awp_longnight.mdl" "p" "models/cse/p_awp_longnight.mdl" "w" "models/cse/w_awp_longnight.mdl" }
+            }
+        }
+        "mp5"
+        {
+            "catalog_index" "17"
+            "engine_id" "19"
+            "category" "smg"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "pointman" { "variant_id" "1" "name" "CSE_Skin_MP5_Pointman" "unlock_level" "10" "palette" "#171B1C/#4F5948/#BFC0B6" "motif" "breach_numbering" "detail" "barrel_clamp_grip_ribs" "v" "models/cse/v_mp5_pointman.mdl" "p" "models/cse/p_mp5_pointman.mdl" "w" "models/cse/w_mp5_pointman.mdl" }
+                "metro" { "variant_id" "2" "name" "CSE_Skin_MP5_Metro" "unlock_level" "54" "palette" "#2D3D4B/#7C7C75/#9A3E3A" "motif" "route_map" "detail" "handguard_ribs_stock_cheek_pad" "v" "models/cse/v_mp5_metro.mdl" "p" "models/cse/p_mp5_metro.mdl" "w" "models/cse/w_mp5_metro.mdl" }
+            }
+        }
+        "m249"
+        {
+            "catalog_index" "18"
+            "engine_id" "20"
+            "category" "machinegun"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "supply" { "variant_id" "1" "name" "CSE_Skin_M249_Supply" "unlock_level" "38" "palette" "#536045/#A3916A/#1E211E" "motif" "crate_stencils" "detail" "box_mag_guard_carry_handle_pad" "v" "models/cse/v_m249_supply.mdl" "p" "models/cse/p_m249_supply.mdl" "w" "models/cse/w_m249_supply.mdl" }
+                "bulwark" { "variant_id" "2" "name" "CSE_Skin_M249_Bulwark" "unlock_level" "88" "palette" "#384249/#253342/#8B724B" "motif" "armored_panels" "detail" "barrel_heat_cage_stock_rest" "v" "models/cse/v_m249_bulwark.mdl" "p" "models/cse/p_m249_bulwark.mdl" "w" "models/cse/w_m249_bulwark.mdl" }
+            }
+        }
+        "m3"
+        {
+            "catalog_index" "19"
+            "engine_id" "21"
+            "category" "shotgun"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "trench" { "variant_id" "1" "name" "CSE_Skin_M3_Trench" "unlock_level" "18" "palette" "#4B4031/#596044/#1B1B19" "motif" "field_tape" "detail" "perforated_heat_shield" "v" "models/cse/v_m3_trench.mdl" "p" "models/cse/p_m3_trench.mdl" "w" "models/cse/w_m3_trench.mdl" }
+                "warden" { "variant_id" "2" "name" "CSE_Skin_M3_Warden" "unlock_level" "66" "palette" "#2D2924/#555D5E/#8B744B" "motif" "warehouse_stencil" "detail" "receiver_side_saddle_stock_cap" "v" "models/cse/v_m3_warden.mdl" "p" "models/cse/p_m3_warden.mdl" "w" "models/cse/w_m3_warden.mdl" }
+            }
+        }
+        "m4a1"
+        {
+            "catalog_index" "20"
+            "engine_id" "22"
+            "category" "rifle"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "ranger" { "variant_id" "1" "name" "CSE_Skin_M4A1_Ranger" "unlock_level" "7" "palette" "#56614A/#B09A70/#1A1D1C" "motif" "field_blocks" "detail" "foreend_rail_covers" "v" "models/cse/v_m4a1_ranger.mdl" "p" "models/cse/p_m4a1_ranger.mdl" "w" "models/cse/w_m4a1_ranger.mdl" }
+                "harbor" { "variant_id" "2" "name" "CSE_Skin_M4A1_Harbor" "unlock_level" "13" "palette" "#344553/#727D80/#C56A32" "motif" "maritime_stencil" "detail" "sling_block_side_rail" "v" "models/cse/v_m4a1_harbor.mdl" "p" "models/cse/p_m4a1_harbor.mdl" "w" "models/cse/w_m4a1_harbor.mdl" }
+                "whitenoise" { "variant_id" "3" "name" "CSE_Skin_M4A1_WhiteNoise" "unlock_level" "61" "palette" "#D9DBD6/#78838A/#4B6776" "motif" "micro_digital" "detail" "suppressor_heat_collar_cheek_rest" "v" "models/cse/v_m4a1_whitenoise.mdl" "p" "models/cse/p_m4a1_whitenoise.mdl" "w" "models/cse/w_m4a1_whitenoise.mdl" }
+                "nightwatch" { "variant_id" "4" "name" "CSE_Skin_M4A1_Nightwatch" "unlock_level" "94" "palette" "#101518/#364448/#245A5A" "motif" "low_visibility_facets" "detail" "vented_suppressor_shroud_receiver_riser" "v" "models/cse/v_m4a1_nightwatch.mdl" "p" "models/cse/p_m4a1_nightwatch.mdl" "w" "models/cse/w_m4a1_nightwatch.mdl" }
+            }
+        }
+        "tmp"
+        {
+            "catalog_index" "21"
+            "engine_id" "23"
+            "category" "smg"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "operative" { "variant_id" "1" "name" "CSE_Skin_TMP_Operative" "unlock_level" "28" "palette" "#292D30/#60666A/#4D6673" "motif" "low_visibility_blocks" "detail" "receiver_side_rail" "v" "models/cse/v_tmp_operative.mdl" "p" "models/cse/p_tmp_operative.mdl" "w" "models/cse/w_tmp_operative.mdl" }
+                "static" { "variant_id" "2" "name" "CSE_Skin_TMP_Static" "unlock_level" "78" "palette" "#30343A/#C4C5BF/#695C78" "motif" "radio_interference" "detail" "vented_suppressor_sleeve" "v" "models/cse/v_tmp_static.mdl" "p" "models/cse/p_tmp_static.mdl" "w" "models/cse/w_tmp_static.mdl" }
+            }
+        }
+        "g3sg1"
+        {
+            "catalog_index" "22"
+            "engine_id" "24"
+            "category" "sniper"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "marksman" { "variant_id" "1" "name" "CSE_Skin_G3SG1_Marksman" "unlock_level" "36" "palette" "#4B5540/#20231F/#76644B" "motif" "range_card" "detail" "scope_hood_foregrip_stop" "v" "models/cse/v_g3sg1_marksman.mdl" "p" "models/cse/p_g3sg1_marksman.mdl" "w" "models/cse/w_g3sg1_marksman.mdl" }
+                "ironplate" { "variant_id" "2" "name" "CSE_Skin_G3SG1_Ironplate" "unlock_level" "86" "palette" "#34393B/#80533E/#77715D" "motif" "riveted_panel" "detail" "receiver_armor_plate_cheek_rest" "v" "models/cse/v_g3sg1_ironplate.mdl" "p" "models/cse/p_g3sg1_ironplate.mdl" "w" "models/cse/w_g3sg1_ironplate.mdl" }
+            }
+        }
+        "flashbang"
+        {
+            "catalog_index" "23"
+            "engine_id" "25"
+            "category" "grenade"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "whitezone" { "variant_id" "1" "name" "CSE_Skin_Flash_WhiteZone" "unlock_level" "42" "palette" "#D3D3C8/#737A7B/#557183" "motif" "concentric_warning" "detail" "cap_cage_pin_tab" "v" "models/cse/v_flashbang_whitezone.mdl" "p" "models/cse/p_flashbang_whitezone.mdl" "w" "models/cse/w_flashbang_whitezone.mdl" }
+            }
+        }
+        "deagle"
+        {
+            "catalog_index" "24"
+            "engine_id" "26"
+            "category" "pistol"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "marshal" { "variant_id" "1" "name" "CSE_Skin_Deagle_Marshal" "unlock_level" "8" "palette" "#171B1E/#70787A/#624837" "motif" "line_engraving" "detail" "raised_grip_panels" "v" "models/cse/v_deagle_marshal.mdl" "p" "models/cse/p_deagle_marshal.mdl" "w" "models/cse/w_deagle_marshal.mdl" }
+                "copperhead" { "variant_id" "2" "name" "CSE_Skin_Deagle_Copperhead" "unlock_level" "14" "palette" "#262B2C/#9C613C/#596148" "motif" "scale" "detail" "vented_barrel_rib" "v" "models/cse/v_deagle_copperhead.mdl" "p" "models/cse/p_deagle_copperhead.mdl" "w" "models/cse/w_deagle_copperhead.mdl" }
+                "desertsignal" { "variant_id" "3" "name" "CSE_Skin_Deagle_DesertSignal" "unlock_level" "73" "palette" "#B89B69/#242526/#9B3F32" "motif" "chevrons" "detail" "underbarrel_balance_block" "v" "models/cse/v_deagle_desertsignal.mdl" "p" "models/cse/p_deagle_desertsignal.mdl" "w" "models/cse/w_deagle_desertsignal.mdl" }
+                "lastword" { "variant_id" "4" "name" "CSE_Skin_Deagle_LastWord" "unlock_level" "100" "palette" "#17212A/#B8BEC0/#642E32" "motif" "minimal_etch" "detail" "muzzle_compensator_grip_heel" "v" "models/cse/v_deagle_lastword.mdl" "p" "models/cse/p_deagle_lastword.mdl" "w" "models/cse/w_deagle_lastword.mdl" }
+            }
+        }
+        "sg552"
+        {
+            "catalog_index" "25"
+            "engine_id" "27"
+            "category" "rifle"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "contractor" { "variant_id" "1" "name" "CSE_Skin_SG552_Contractor" "unlock_level" "32" "palette" "#A08C69/#535D45/#1B1D1B" "motif" "unit_blocks" "detail" "optic_guard_grip_collar" "v" "models/cse/v_sg552_contractor.mdl" "p" "models/cse/p_sg552_contractor.mdl" "w" "models/cse/w_sg552_contractor.mdl" }
+                "blacksite" { "variant_id" "2" "name" "CSE_Skin_SG552_Blacksite" "unlock_level" "82" "palette" "#18201F/#334C42/#8E3E37" "motif" "classified_stamps" "detail" "handguard_rail_stock_brace" "v" "models/cse/v_sg552_blacksite.mdl" "p" "models/cse/p_sg552_blacksite.mdl" "w" "models/cse/w_sg552_blacksite.mdl" }
+            }
+        }
+        "ak47"
+        {
+            "catalog_index" "26"
+            "engine_id" "28"
+            "category" "rifle"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "steppe" { "variant_id" "1" "name" "CSE_Skin_AK47_Steppe" "unlock_level" "3" "palette" "#6E7046/#B49A6A/#202421" "motif" "topographic_bands" "detail" "ventilated_handguard_ribs" "v" "models/cse/v_ak47_steppe.mdl" "p" "models/cse/p_ak47_steppe.mdl" "w" "models/cse/w_ak47_steppe.mdl" }
+                "ember" { "variant_id" "2" "name" "CSE_Skin_AK47_Ember" "unlock_level" "5" "palette" "#2A2E30/#8B3D30/#A58652" "motif" "oxide_heat_zones" "detail" "stamped_receiver_muzzle_collar" "v" "models/cse/v_ak47_ember.mdl" "p" "models/cse/p_ak47_ember.mdl" "w" "models/cse/w_ak47_ember.mdl" }
+                "northline" { "variant_id" "3" "name" "CSE_Skin_AK47_Northline" "unlock_level" "55" "palette" "#D8DDD8/#5C6B74/#20282D" "motif" "snow_shard" "detail" "cheek_pad_wrapped_foregrip" "v" "models/cse/v_ak47_northline.mdl" "p" "models/cse/p_ak47_northline.mdl" "w" "models/cse/w_ak47_northline.mdl" }
+                "blackforge" { "variant_id" "4" "name" "CSE_Skin_AK47_Blackforge" "unlock_level" "91" "palette" "#111417/#596166/#6F4A32" "motif" "engraved_facets" "detail" "skeletonized_upper_guard" "v" "models/cse/v_ak47_blackforge.mdl" "p" "models/cse/p_ak47_blackforge.mdl" "w" "models/cse/w_ak47_blackforge.mdl" }
+            }
+        }
+        "knife"
+        {
+            "catalog_index" "27"
+            "engine_id" "29"
+            "category" "knife"
+            "shield_compatible" "1"
+            "variants"
+            {
+                "fieldcraft" { "variant_id" "1" "name" "CSE_Skin_Knife_Fieldcraft" "unlock_level" "9" "palette" "#353B3B/#596347/#9A8462" "motif" "field_wear" "detail" "guard_ring_wrapped_pommel" "v" "models/cse/v_knife_fieldcraft.mdl" "p" "models/cse/p_knife_fieldcraft.mdl" "w" "models/cse/w_knife_fieldcraft.mdl" }
+                "breachpoint" { "variant_id" "2" "name" "CSE_Skin_Knife_Breachpoint" "unlock_level" "90" "palette" "#171A1D/#554044/#8F3535" "motif" "chevrons" "detail" "serrated_spine_glass_breaker" "v" "models/cse/v_knife_breachpoint.mdl" "p" "models/cse/p_knife_breachpoint.mdl" "w" "models/cse/w_knife_breachpoint.mdl" }
+            }
+        }
+        "p90"
+        {
+            "catalog_index" "28"
+            "engine_id" "30"
+            "category" "smg"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "response" { "variant_id" "1" "name" "CSE_Skin_P90_Response" "unlock_level" "24" "palette" "#263844/#1B1F22/#777E81" "motif" "identification_bars" "detail" "upper_rail_shield" "v" "models/cse/v_p90_response.mdl" "p" "models/cse/p_p90_response.mdl" "w" "models/cse/w_p90_response.mdl" }
+                "intercept" { "variant_id" "2" "name" "CSE_Skin_P90_Intercept" "unlock_level" "74" "palette" "#4C5A61/#968361/#9B4439" "motif" "directional_arrows" "detail" "magazine_housing_ribs_muzzle_collar" "v" "models/cse/v_p90_intercept.mdl" "p" "models/cse/p_p90_intercept.mdl" "w" "models/cse/w_p90_intercept.mdl" }
+            }
+        }
+        "shield"
+        {
+            "catalog_index" "29"
+            "engine_id" "99"
+            "category" "shield"
+            "shield_compatible" "0"
+            "variants"
+            {
+                "bastion" { "variant_id" "1" "name" "CSE_Skin_Shield_Bastion" "unlock_level" "48" "palette" "#314754/#737E82/#D0D2CC" "motif" "segmented_ballistic_plate" "detail" "reinforced_perimeter_viewport_guard" "v" "models/cse/v_shield_bastion.mdl" "p" "models/cse/p_shield_bastion.mdl" "w" "models/cse/w_shield_bastion.mdl" }
+            }
+        }
+    }
+}
