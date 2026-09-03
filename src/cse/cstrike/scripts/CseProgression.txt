@@ -8,6 +8,18 @@
     "round_loss"     "50"
     "match_win"      "500"
     "match_loss"     "150"
+    "round_draw"     "50"
+    "match_draw"     "300"
+    "mvp"             "250"
+    "streak_3"        "100"
+    "streak_5"        "250"
+    "streak_7"        "500"
+    "bomb_plant"      "100"
+    "bomb_defuse"     "300"
+    "hostage_rescue"  "100"
+    "vip_escape"      "300"
+    "vip_kill"        "300"
+    "terrorist_escape" "150"
     "xp_per_level"   "10000"
 }
 

@@ -78,10 +78,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_hud_la
 echo === [12/14] Install progression config ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_progression.ps1" || goto :fail
 
-echo === [13/14] Install bot avatars ===
+echo === [13/15] Validate and install cosmetics catalog ===
+py -3 "%ROOT%\tools\validate_cosmetics.py" || goto :fail
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cosmetics.ps1" || goto :fail
+
+echo === [14/15] Install bot avatars ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_bot_avatars.ps1" || goto :fail
 
-echo === [14/14] Generate skin models ===
+echo === [15/15] Generate skin models ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_skins.ps1" || goto :fail
 
 echo.
