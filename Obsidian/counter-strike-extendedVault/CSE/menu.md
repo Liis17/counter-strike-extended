@@ -49,6 +49,7 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 | `resumeGame` | вернуться в игру | только в игре |
 | `multiPlayer` | `UI_MultiPlayer_Menu` (Internet/LAN/игрок/управление) | всегда |
 | `personalization` | `UI_Personalization_Menu` (скины оружия и T/CT-оперативники) | всегда |
+| `profile` | `UI_Profile_Menu` (XP, задачи, история матчей и статистика карт) | всегда |
 | `configuration` | `UI_Options_Menu` | всегда |
 | `console` | открыть консоль | только при `developer` |
 | `quit` | диалог выхода | всегда |
@@ -75,6 +76,10 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 Кнопка «Персонализация» открывает отдельный экран `CMenuPersonalization`
 (`menus/Personalization.cpp`). Экран и автоматический выбор класса после стороны описаны в
 [[CSE/personalization]].
+
+Кнопка «Профиль» открывает отдельный экран `CMenuProfile` (`menus/Profile.cpp`). Он не линкуется
+с `client.dll`: summary и задачи получает через `cse_*` cvar, а историю и статистику карт читает
+из файла профиля. Подробности — [[CSE/profile]].
 
 ## Выбор карт в Create Game
 

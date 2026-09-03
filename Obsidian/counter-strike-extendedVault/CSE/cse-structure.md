@@ -99,6 +99,8 @@ chunk с точкой цикла; без него движок может уда
 | `tools/install_progression.ps1` | `src/cse/cstrike/scripts/CseProgression.txt` → `runtime/cstrike/scripts/CseProgression.txt` |
 | `tools/validate_cosmetics.py` | проверяет единый каталог `CseCosmetics.txt`, ID и 63 варианта |
 | `tools/install_cosmetics.ps1` | `src/cse/cstrike/scripts/CseCosmetics.txt` → `runtime/cstrike/scripts/CseCosmetics.txt` |
+| `tools/generate_cosmetics.py` | декомпилирует stock-модели, применяет палитру/detail mesh и собирает 208 моделей |
+| `tools/install_cosmetic_models.ps1` | запускает генератор полного каталога через `mdldec` и внешний `studiomdl` |
 | `tools/install_bot_avatars.ps1` | генерирует список из PNG/TGA в `src/cse/cstrike/gfx/cse/avatars/`, затем копирует картинки и `CseBotAvatars.txt` в `runtime/` |
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |

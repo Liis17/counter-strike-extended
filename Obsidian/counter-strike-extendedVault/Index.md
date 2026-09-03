@@ -29,6 +29,7 @@
 | [[CSE/rich_presence]] | src/cse/rich_presence/ | Steam Rich Presence helper (`cse_steamrp.exe`) — внешний wrapper xash3d |
 | [[CSE/menu]] | mainui_cpp (форк) | Упрощённое главное меню с отдельным входом в персонализацию |
 | [[CSE/personalization]] | Player personalization | Скины оружия по уровню и сохранённые T/CT-оперативники с автовыбором класса |
+| [[CSE/profile]] | Player profile | Summary XP, daily/weekly-задачи, история матчей и статистика карт |
 | [[CSE/personalization-ProjectMap]] | Personalization Project Map | Поток между `menu.dll`, профилем, конфигом и `joinclass`; точки изменения и инварианты |
 | [[CSE/progression]] | Player progression | Локальный профиль, статистика, XP и уровни в клиенте |
 | [[CSE/map-actions]] | Действия на картах | Исследование штатных кнопок/триггеров, серверного расширения и кастомного HUD-события |

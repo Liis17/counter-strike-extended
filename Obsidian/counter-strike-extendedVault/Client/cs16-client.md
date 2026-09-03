@@ -41,6 +41,8 @@ CVars клиента (hud_color, xhair_*, cl_weaponlag и др.) докумен�
 - [[CSE/personalization]] — `cl_dll/cse_profile.cpp` хранит выбранных T/CT-оперативников и публикует
   профильные cvar для отдельной `menu.dll`; экран в `3rdparty/mainui_cpp` выбирает скины и модели,
   а class-menu преобразует сохранённую модель в штатную команду `joinclass` после выбора стороны.
+- [[CSE/profile]] — отдельный экран `3rdparty/mainui_cpp/menus/Profile.cpp`, получает summary и задачи
+  через `cse_*` cvar, а полную историю матчей и статистику карт читает из текущего профиля.
 - Быстрое переключение оружия — `cl_dll/ammo.cpp`: `SelectWeaponImmediately()` отправляет
   имя оружия серверу и заполняет `cmd->weaponselect`; `WeaponsResource::SelectSlot()`,
   `CHudAmmo::UserCmd_NextWeapon()` и `UserCmd_PrevWeapon()` вызывают его сразу для цифровых
