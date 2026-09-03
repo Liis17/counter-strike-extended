@@ -78,7 +78,7 @@ C++ внутри mainui_cpp, вынести её из submodule нельзя, п
 [[CSE/personalization]].
 
 Кнопка «Профиль» открывает отдельный экран `CMenuProfile` (`menus/Profile.cpp`). Он не линкуется
-с `client.dll`: summary и задачи получает через `cse_*` cvar, а историю и статистику карт читает
+с `client.dll`: summary и задачи получает через `cse_*` cvar, а историю и статистику карт/оружия читает
 из файла профиля. Подробности — [[CSE/profile]].
 
 ## Выбор карт в Create Game

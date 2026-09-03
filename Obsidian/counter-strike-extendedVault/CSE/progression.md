@@ -25,6 +25,9 @@ Parent: [[Index]]
 геометрическими деталями; клиент применяет выбранный вариант к собственным `v/p/w`-поверхностям, включая
 установленную C4 и shield-комбинации. Добавлен отдельный экран профиля с summary, daily/weekly-задачами,
 историей матчей и статистикой карт.
+Этап 6f реализован: `CseProg` дополнен metadata-потоком для предметов — сервер закрепляет variant за
+weaponbox/shield-pickup/брошенной гранатой/установленной C4, а клиент сохраняет его при подборе до следующего выброса;
+экран профиля также показывает lifetime-статистику по всем 30 категориям оружия.
 
 ## Где живёт код
 
@@ -35,13 +38,13 @@ Parent: [[Index]]
 | Общий каталог оружия | `src/cs16-client/game_shared/cse_weapon_catalog.{h,cpp}` | Стабильный порядок 30 слотов, алиасы имён оружия и DeathMsg |
 | Codec loadout | `src/cs16-client/game_shared/cse_loadout.{h,cpp}` | Round-trip формат `v2:` + 60 hex-символов для выбранных вариантов |
 | Daily/weekly задачи | `src/cs16-client/game_shared/cse_challenges.{h,cpp}` | Фиксированные пулы, UTC-периоды, FNV-1a-ротация, scaled progress и XP rewards |
-| Протокол прогрессии | `src/cs16-client/game_shared/cse_protocol.h` | Versioned opcodes для handshake, результата раунда и подтверждённых objectives |
+| Протокол прогрессии | `src/cs16-client/game_shared/cse_protocol.h` | Versioned opcodes для handshake, результата раунда, objectives и metadata предметов |
 | Клиентский приёмник сервера | `src/cs16-client/cl_dll/cse_server_events.{h,cpp}` | Hook `CseProg`, reset при смене карты, перевод server events в профиль и XP |
-| Серверный мост | `src/cs16-client/3rdparty/ReGameDLL_CS/regamedll/dlls/cse_progression.{h,cpp}` | Проверка `cse_proto`, отправка user-message и sequence-нумерация |
+| Серверный мост | `src/cs16-client/3rdparty/ReGameDLL_CS/regamedll/dlls/cse_progression.{h,cpp}` | Проверка `cse_proto`, отправка user-message/variant metadata и sequence-нумерация |
 | Каталог косметики | `src/cse/cstrike/scripts/CseCosmetics.txt` | Единый каталог 30 видов оружия, стабильных ID, уровней, палитр, мотивов, деталей и путей `v/p/w` |
 | Проверка каталога | `tools/validate_cosmetics.py` | Проверяет структуру KeyValues, уникальность ID и полный набор из 63 вариантов |
 | Установка каталога | `tools/install_cosmetics.ps1` | Идемпотентно копирует каталог в `runtime/cstrike/scripts/` |
-| Клиентские скины | `src/cs16-client/cl_dll/cse_skins.{h,cpp}` | Команды выбора/списка, проверка уровня, cvar `cse_skins` и разрешение `v/p/w`-моделей каталога |
+| Клиентские скины | `src/cs16-client/cl_dll/cse_skins.{h,cpp}` | Команды выбора/списка, проверка уровня, cvar `cse_skins`, разрешение `v/p/w` и item-override |
 | HUD прогрессии | `src/cs16-client/cl_dll/hud/xpbar.cpp` | `CHudXPBar`: уровень, полоса XP и popup `+XP`, с layout id `XPBar` |
 | Конфиг проекта | `src/cse/cstrike/scripts/CseProgression.txt` | Источник правды для развёртывания в runtime |
 | Установка | `tools/install_progression.ps1` | Идемпотентное копирование конфига в `runtime/cstrike/scripts/` |
@@ -51,7 +54,7 @@ Parent: [[Index]]
 | Генератор полного каталога | `tools/generate_cosmetics.py` | Декомпилирует stock-модели, меняет палитру, добавляет detail mesh и собирает 208 `.mdl` |
 | Установка полного каталога | `tools/install_cosmetic_models.ps1` | Находит `mdldec`/`studiomdl`, запускает генератор и пишет модели в `runtime/cstrike/models/cse/` |
 | Экран персонализации | `src/cs16-client/3rdparty/mainui_cpp/menus/Personalization.cpp` | Читает `CseCosmetics`, показывает 63 варианта, блокировки и вызывает `cse_skin` |
-| Экран профиля | `src/cs16-client/3rdparty/mainui_cpp/menus/Profile.cpp` | Показывает cvar-summary, задачи, полную историю матчей и статистику карт |
+| Экран профиля | `src/cs16-client/3rdparty/mainui_cpp/menus/Profile.cpp` | Показывает cvar-summary, задачи, полную историю матчей и статистику карт/оружия |
 
 Клиентская часть находится в форке `src/cs16-client`; проектный KV-конфиг остаётся в `src/cse/`.
 
@@ -68,14 +71,16 @@ Parent: [[Index]]
 4. `CHud::Redraw()` передаёт состояние intermission в `CSE_OnIntermission()`; фронт `0 → 1` начисляет
    результат матча только при участии хотя бы в одном раунде на этой карте.
 5. Профиль сохраняется после учтённого раунда, на фронте intermission и в `CHud::Shutdown()`.
-6. `cse_skin <weapon> <skin>` проверяет запись `CseCosmetics` и вычисленный уровень, обновляет legacy-представление
+6. `cse_skin <weapon> <skin|default>` проверяет запись `CseCosmetics` и вычисленный уровень, обновляет legacy-представление
    `equipped` и v2 loadout в профиле, затем `CSE_SkinsSyncCvar()` публикует выбор через cvar.
 7. Профиль публикует вычисленный уровень, summary-счётчики, daily/weekly-задачи и T/CT-оперативников через
    `cse_level`, `cse_xp`, `cse_*` и `cse_operator_t`/`cse_operator_ct`; `cse_operator <t|ct> <model>` валидирует
    и сохраняет новый выбор.
 8. `CSE_SkinViewModel()` разрешает выбранный `v_`-путь. Рендереры игрока и `HUD_AddEntity()` аналогично
-   разрешают `p_` и `w_`; для C4 выбирается отдельная модель установленной бомбы, для щита — соответствующая
-   `v/p`-комбинация. При отсутствующем производном файле используется stock-модель.
+   разрешают `p_` и `w_`; для третьеличного игрока metadata выбирает variant конкретного владельца, для C4
+   выбирается отдельная модель установленной бомбы, для щита — соответствующая `v/p`-комбинация. Явный
+   server-side variant показывается даже если локальный профиль наблюдателя ещё не достиг unlock-уровня.
+   При отсутствующем производном файле используется stock-модель.
 9. `CHudXPBar::Draw()` берёт XP из профиля, вычисляет уровень и порог следующего уровня через
    `cse_progression.cpp`; изменение XP между кадрами запускает popup только для положительного прироста.
 10. `CSE_WeaponCatalog` использует один стабильный порядок из 30 слотов, а `CSE_Loadout` кодирует выбранные
@@ -94,6 +99,10 @@ Parent: [[Index]]
 authoritative result по sequence. Objective-сообщение отправляется только игроку-исполнителю после успешного
 plant/defuse, rescue, VIP escape/kill или terrorist escape. При смене карты server-proto сбрасывается; обычный
 сервер снова использует legacy-события клиента.
+15. При добавлении предмета сервер кодирует variant как `iuser4 = variant_id + 1`; нулевое значение означает,
+что предмет ещё не получил item identity. Weaponbox, shield-pickup и летящие/установленные гранаты наследуют
+metadata исходного предмета. `ITEM_VARIANT` передаёт identity подобранному игроку, `ITEM_DROPPED` снимает его локальный view-override;
+так визуальный вариант не пересчитывается по loadout уже после подбора.
 
 ### Защита от ложных раундов
 
@@ -203,7 +212,9 @@ Legacy-профили без `version` и `loadout` продолжают чит�
 
 Server-to-client user-message `CseProg` имеет общий заголовок `byte protocol`, `byte opcode`, `short sequence`.
 `HELLO` добавляет `short featureFlags`; `ROUND_RESULT` — `byte winner` (`0` draw, `1` T, `2` CT) и `short
-roundNumber`; `OBJECTIVE` — `byte objective`. Sequence начинается заново при активации сервера, а клиент
+roundNumber`; `OBJECTIVE` — `byte objective`; `ITEM_VARIANT` — `byte catalogIndex` и `byte encodedVariant`;
+`ITEM_DROPPED` — `byte catalogIndex`; `PLAYER_VARIANT` — `byte playerIndex`, `byte catalogIndex` и
+`byte encodedVariant`. Sequence начинается заново при активации сервера, а клиент
 игнорирует повторные/устаревшие кадры. События не рассылаются клиентам без `cse_proto`.
 
 ## Методы
@@ -229,19 +240,27 @@ roundNumber`; `OBJECTIVE` — `byte objective`. Sequence начинается з
 | `CSE_MapStatsCount()` / `CSE_MapStatsAt()` | Дают меню статистику по картам |
 | `CSE_MatchHistoryCount()` / `CSE_MatchHistoryAt()` | Дают меню историю завершённых и прерванных сессий |
 | `CSE_WeaponStatsAt()` | Возвращает lifetime kills/headshots по стабильному индексу оружия |
+| `CSE_ServerItemPickedUp()` / `CSE_ServerItemDropped()` | Передают item identity клиенту и очищают override владельца при выбросе |
+| `CSE_ServerTransferItemVariant()` | Переносит variant оружия в летящую гранату или установленную C4 |
+| `CSE_ServerShieldPickedUp()` / `CSE_ServerShieldDropped()` | Передают identity отдельного shield-pickup и сохраняют его world-модель |
+| `CSE_ServerPlayerVariant()` | Передаёт variant активного игрока наблюдателям, включая shield-комбинации |
 | `CSE_SkinsInit()` / `CSE_SkinsSyncCvar()` | Регистрирует команды/cvar и публикует выбор из профиля в userinfo |
 | `CSE_SetLoadoutVariant()` | Проверяет слот/variant ID, сохраняет выбранный каталогом вариант и синхронизирует cvar |
 | `CSE_SkinViewModel()` / `CSE_SkinPlayerModel()` / `CSE_SkinWorldModel()` | Возвращают разрешённый `v/p/w`-путь или stock-путь |
+| `CSE_SkinPlayerModelForPlayer()` | Выбирает `p_`-модель по metadata конкретного игрока |
+| `CSE_SkinWorldModelForEntity()` | Разрешает world-модель по metadata конкретного сетевого предмета |
+| `CSE_SkinItemVariantReceived()` / `CSE_SkinItemDropped()` | Хранят и очищают локальный override подобранного предмета |
 | `CSE_ServerEventsInit()` / `CSE_ServerEventsReset()` | Регистрируют `CseProg` и сбрасывают состояние совместимого сервера |
 | `CSE_ServerClientReady()` / `CSE_ServerUserInfoChanged()` | Выполняют handshake с клиентом, у которого есть `cse_proto` |
 | `CSE_ServerRoundResult()` / `CSE_ServerObjective()` | Отправляют round/objective-события из ReGameDLL через sequence |
 | `cse_stats` | Печатает XP, уровень и статистику в консоль |
 | `cse_profile_reload` | Повторно читает конфиг и профиль без перезапуска клиента |
-| `cse_skin <weapon> <skin>` | Надевает доступный по уровню скин и сохраняет выбор в профиле |
+| `cse_skin <weapon> <skin|default>` | Надевает доступный по уровню скин или сбрасывает слот в default |
 | `cse_skin_list` | Показывает доступные и заблокированные рецепты |
 | `cse_operator <t|ct> <model>` | Валидирует и сохраняет оперативника выбранной стороны |
 | `CSESkinListModel::Update()` | Читает полный `CseCosmetics`-каталог для menu.dll |
 | `CMenuProfile::Reload()` | Обновляет summary, задачи и таблицы профиля при открытии экрана |
+| `CSEWeaponModel` / `CSE_ParseWeapons()` | Показывают kills/headshots по стабильным 30 слотам оружия |
 | `CHudXPBar::Init()` / `CHudXPBar::Draw()` | Регистрируют и рисуют HUD-элемент `XPBar` |
 
 ## Следующие этапы

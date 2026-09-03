@@ -602,13 +602,11 @@ def _build_one(
     variant: CosmeticVariant,
     surface: str,
     combo: str | None,
-    output_root: Path,
 ) -> Path:
     source = _model_source(game_root, variant.weapon, surface, combo)
     if not source.is_file():
         raise FileNotFoundError(f"stock model not found: {source}")
     destination = _output_path(game_root, variant, surface, combo)
-    output_root.mkdir(parents=True, exist_ok=True)
     output_stem = destination.stem
     seed = _fnv1a(f"{variant.weapon}/{variant.slug}/{surface}/{combo or ''}")
     with tempfile.TemporaryDirectory(prefix="cse-cosmetic-") as temporary:
@@ -670,7 +668,6 @@ def main() -> int:
                 variant,
                 surface,
                 combo,
-                args.root.resolve() / "models" / "cse",
             )
             print(f"[{number}/{len(jobs)}] {destination.relative_to(args.root.resolve())}")
         print(f"OK: generated={len(jobs)}")
