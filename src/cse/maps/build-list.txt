@@ -1,0 +1,2 @@
+# Карты CSE, которые проходят внешний hl* pipeline.
+cse_test_actions

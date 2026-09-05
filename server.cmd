@@ -4,7 +4,7 @@ setlocal enableextensions
 rem ============================================================
 rem  CS Dedicated Server Launcher (Xash3D FWGS + YaPB bots)
 rem  Repo: counter-strike-extended
-rem  Usage: server.cmd [map]      (optional explicit start map)
+rem  Usage: server.cmd [map] [-nobots]   (optional explicit map / no bots)
 rem ============================================================
 
 rem --- Server parameters (edit here) ---
@@ -22,9 +22,12 @@ set "BOT_QUOTA=9"
 set "BOT_QUOTA_MODE=normal"
 set "BOT_DIFFICULTY=0"
 set "BOT_LANGUAGE=ru"
+set "SERVER_NO_BOTS=0"
 
 rem --- Allow map override from command-line arg ---
 if not "%~1"=="" set "SERVER_MAP=%~1"
+if /I "%~2"=="-nobots" set "SERVER_NO_BOTS=1"
+if "%SERVER_NO_BOTS%"=="1" set "BOT_QUOTA=0"
 
 rem --- Resolve runtime directory relative to this script ---
 set "ROOT=%~dp0"
