@@ -48,8 +48,9 @@ ReGameDLL, отдельные экраны Personalization/Profile и полны
 | UI | Personalization отдельно отвечает за выбор косметики; Profile отдельно показывает summary, задачи, историю, карты и оружие |
 
 Производные модели не хранятся в git. `tools/generate_cosmetics.py` детерминированно строит 208 `.mdl`
-из локальных лицензированных stock-ассетов; `tools/install_cosmetic_models.ps1` требует `mdldec` и
-внешний совместимый `studiomdl.exe`. Старые AK/AWP Red/Gold визуально заменены новыми вариантами
+из локальных лицензированных stock-ассетов; прямой запуск `tools/install_cosmetic_models.ps1` требует `mdldec` и
+внешний совместимый `studiomdl.exe`, а корневой `build-cse.cmd` может пропустить отсутствующий toolchain через
+`-SkipIfUnavailable`. Старые AK/AWP Red/Gold визуально заменены новыми вариантами
 каталога и не используются новым резолвером.
 
 После ревизии 2026-09-03 item identity стала частью server/client-потока: ReGameDLL кодирует variant

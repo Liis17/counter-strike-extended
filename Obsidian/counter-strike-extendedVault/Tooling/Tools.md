@@ -20,7 +20,7 @@ Parent: [[Index]]
 - `tools/mdl_recolor.py` — меняет только RGB-палитры GoldSrc `.mdl`, не затрагивая геометрию и анимации; поддерживает внешний `<name>T.mdl`
 - `tools/install_skins.ps1` — читает `src/cse/cstrike/scripts/CseSkinRecipes.txt`, запускает генератор и пишет производные модели в `runtime/cstrike/models/cse/` (есть `-DryRun`)
 - `tools/generate_cosmetics.py` — детерминированно строит полный каталог из stock-моделей: палитры, procedural detail mesh, 63 варианта, 208 `.mdl`
-- `tools/install_cosmetic_models.ps1` — запускает полный генератор; требует локальный `mdldec` и внешний `studiomdl.exe` (есть `-DryRun`)
+- `tools/install_cosmetic_models.ps1` — запускает полный генератор; в обычном режиме требует локальный `mdldec` и внешний `studiomdl.exe`, а `-SkipIfUnavailable` позволяет корневой сборке пропустить отсутствующий toolchain с предупреждением (есть `-DryRun`)
 - `tools/install_yapb_map_configs.ps1` — по loose `.bsp` и картам из `.pk3`/`.zip` создаёт отсутствующие per-map конфиги YaPB в `src/cse/` и копирует их в runtime
 - `tools/mcp-game/` — MCP-сервер `game` для opencode (build/deploy/run игры без ручных shell-команд). Подробнее: [[Tooling/mcp-game]]
 - `server.cmd` — запуск dedicated-сервера CS с ботами YaPB, случайной ротацией карт и матчем до 6 побед; `server.cmd cse_lobby -nobots` запускает карту без ботов. Важный нюанс: `-dll` требует путь относительно gamedir (`dlls\cse_mapcycle.dll`, не bare-имя). Подробнее: [[Tooling/server-cmd]]
@@ -42,7 +42,7 @@ Parent: [[Index]]
 | `prepare_server_maps.ps1 [-Root <path>] [-StartMap <map>]` | Выбирает стартовую карту, валидирует её в пуле и записывает runtime-пул |
 | `mdl_recolor.py <source> <output> [--hue-shift <degrees>] [--tint R G B]` | Копирует `.mdl`, преобразуя только его 256-цветные палитры |
 | `install_skins.ps1 [-DryRun] [-Root <path>]` | Генерирует модели по `CseSkinRecipes.txt`; требует локальные исходные `.mdl` в `runtime/cstrike/models/` |
-| `install_cosmetic_models.ps1 [-DryRun] [-Mdldec <path>] [-StudioMdl <path>] [-Root <path>]` | Генерирует 208 моделей по `CseCosmetics.txt`; `-DryRun` не требует внешних инструментов |
+| `install_cosmetic_models.ps1 [-DryRun] [-SkipIfUnavailable] [-Mdldec <path>] [-StudioMdl <path>] [-Root <path>]` | Генерирует 208 моделей по `CseCosmetics.txt`; `-DryRun` не требует внешних инструментов, `-SkipIfUnavailable` успешно пропускает отсутствующий toolchain |
 | `install_yapb_map_configs.ps1 [-DryRun] [-Root <path>]` | Находит loose `.bsp` и карты в `.pk3`/`.zip`, создаёт отсутствующие `yb_difficulty 0` в `src/cse/yapb/conf/maps/` и копирует все `.cfg` в YaPB runtime |
 | `hud-editor` — «Открыть.../Сохранить» | Читает/пишет `HudLayout.txt` напрямую через File System Access API; парсер/сериализатор — зеркало `CHud::LoadLayout()`/формата из `hud_layout.cpp`. Функции редактора описаны в [[Tooling/hud-editor]] |
 
@@ -52,4 +52,4 @@ Parent: [[Index]]
 - `build_cse_maps.ps1` собирает только карты из `src/cse/maps/build-list.txt`; `de_dust2.map` и `de_dust2_generated.wad` туда не входят.
 - Для случайной серверной ротации `build-cse.cmd` собирает `src/cse/server/mapcycle_proxy.cpp` в x86 `cse_mapcycle.dll`; прокси загружает соседний `yapb.dll`
 - Для генератора моделей нужен Python 3; исходные модели берутся из лицензированного `runtime/` и не попадают в git
-- Полный генератор также требует `mdldec.exe` (собирается из `src/xash3d-fwgs/utils/mdldec`) и внешний совместимый `studiomdl.exe`; бинарники инструментов не хранятся в репозитории
+- Полный генератор также требует `mdldec.exe` (собирается из `src/xash3d-fwgs/utils/mdldec`) и внешний совместимый `studiomdl.exe`; бинарники инструментов не хранятся в репозитории. Шаг `build-cse.cmd` передаёт `-SkipIfUnavailable`, поэтому отсутствие toolchain не ломает общую сборку; прямой запуск без флага остаётся строгим.
