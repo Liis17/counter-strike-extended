@@ -267,7 +267,11 @@ function Test-EntitySnapshot {
           throw "$MapName.ent: ambient_generic без message"
         }
         if ($message[0] -notin @('!', '#', '*')) {
-          Test-ResourceFile -RelativePath $message -Context "$MapName.ent ambient_generic"
+          $soundPath = Convert-ToRuntimeRelativePath -Path $message
+          if (-not $soundPath.StartsWith('sound/', [StringComparison]::OrdinalIgnoreCase)) {
+            $soundPath = "sound/$soundPath"
+          }
+          Test-ResourceFile -RelativePath $soundPath -Context "$MapName.ent ambient_generic"
         }
       }
       'infodecal' {
