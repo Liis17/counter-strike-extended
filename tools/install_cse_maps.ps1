@@ -32,6 +32,7 @@ else {
 $sourceMapRoot = Join-Path $Root 'src\cse\maps'
 $sourceEntRoot = Join-Path $sourceMapRoot 'ent'
 $sourceResRoot = Join-Path $sourceMapRoot 'res'
+$sourceCseCstrike = Join-Path $Root 'src\cse\cstrike'
 $runtimeCstrike = Join-Path $Root 'runtime\cstrike'
 $runtimeMaps = Join-Path $runtimeCstrike 'maps'
 $buildRoot = Join-Path $Root 'build\cse-maps'
@@ -197,8 +198,10 @@ function Test-ResourceFile {
   }
 
   $fullPath = Join-Path $runtimeCstrike ($normalized.Replace('/', '\'))
-  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf)) {
-    throw "Resource не найден в runtime/cstrike ($Context): $normalized"
+  $sourcePath = Join-Path $sourceCseCstrike ($normalized.Replace('/', '\'))
+  if (-not (Test-Path -LiteralPath $fullPath -PathType Leaf) -and
+      -not (Test-Path -LiteralPath $sourcePath -PathType Leaf)) {
+    throw "Resource не найден в runtime/cstrike или src/cse/cstrike ($Context): $normalized"
   }
 }
 
