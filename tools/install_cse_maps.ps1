@@ -351,6 +351,11 @@ function Test-ResourceManifest {
 
   if ($CheckFiles) {
     foreach ($resource in $normalizedLines) {
+      if ($resource -ieq "maps/$MapName.bsp" -and
+          -not (Test-Path -LiteralPath (Join-Path $runtimeMaps "$MapName.bsp") -PathType Leaf)) {
+        # A missing BSP is expected when the external toolchain was skipped.
+        continue
+      }
       Test-ResourceFile -RelativePath $resource -Context "$MapName.res"
     }
   }
