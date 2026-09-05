@@ -157,7 +157,11 @@ if ($DryRun) {
   foreach ($mapName in $mapNames) {
     Write-Output "DRY-RUN: $mapName — WADs: halflife.wad, cstrike.wad"
     foreach ($compilerName in $compilerNames) {
-      Write-Output "  & $($compilerPaths[$compilerName]) -console 0 -chart -threads 4 $mapName -low -wadautodetect"
+      $options = "-console 0 -chart -threads 4 $mapName -low"
+      if ($compilerName -eq 'hlcsg') {
+        $options += ' -wadautodetect'
+      }
+      Write-Output "  & $($compilerPaths[$compilerName]) $options"
     }
   }
   Write-Output '(dry-run — файлы и BSP не записывались)'
@@ -182,7 +186,10 @@ foreach ($mapName in $mapNames) {
 
   foreach ($compilerName in $compilerNames) {
     $logPath = Join-Path $mapWork "$compilerName.log"
-    $arguments = @('-console', '0', '-chart', '-threads', '4', $mapName, '-low', '-wadautodetect')
+    $arguments = @('-console', '0', '-chart', '-threads', '4', $mapName, '-low')
+    if ($compilerName -eq 'hlcsg') {
+      $arguments += '-wadautodetect'
+    }
     Write-Output "BUILD: $mapName / $compilerName"
 
     Push-Location $mapWork
@@ -217,7 +224,7 @@ foreach ($mapName in $mapNames) {
 
 $finalManifest = [ordered]@{
   version = 1
-  built = @($builtMaps)
+  built = $builtMaps.ToArray()
   skipped = @()
 }
 $finalManifest | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath $manifestPath -Encoding UTF8

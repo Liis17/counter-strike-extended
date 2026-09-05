@@ -28,7 +28,8 @@
     "de_vertigo"
   ],
   "cse": [
-    "cse_test_actions"
+    "cse_test_actions",
+    "cse_lobby"
   ],
   "third_party": []
 }
