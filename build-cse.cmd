@@ -91,8 +91,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cosmet
 echo === [16/17] Install bot avatars ===
 powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_bot_avatars.ps1" || goto :fail
 
-echo === [17/17] Generate cosmetic models ===
-powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cosmetic_models.ps1" || goto :fail
+echo === [17/17] Generate cosmetic models (optional toolchain) ===
+powershell -NoProfile -ExecutionPolicy Bypass -File "%ROOT%\tools\install_cosmetic_models.ps1" -SkipIfUnavailable || goto :fail
 
 echo.
 echo Build complete. Artifacts deployed to runtime\.

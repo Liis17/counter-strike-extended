@@ -17,6 +17,11 @@
 .PARAMETER StudioMdl
   Путь к официальному/совместимому studiomdl.exe.
 
+.PARAMETER SkipIfUnavailable
+  Для оркестрируемой сборки вывести красное предупреждение и успешно пропустить
+  этап, если внешний toolchain отсутствует. Ошибка уже запущенного генератора
+  остаётся ошибкой.
+
 .PARAMETER Activities
   Каталог mdldec с activities.txt.
 
@@ -26,6 +31,7 @@
 [CmdletBinding()]
 param(
   [switch]$DryRun,
+  [switch]$SkipIfUnavailable,
   [string]$Mdldec,
   [string]$StudioMdl,
   [string]$Activities,
@@ -33,6 +39,17 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Skip-IfUnavailable {
+  param([Parameter(Mandatory = $true)] [string]$Message)
+
+  if ($SkipIfUnavailable) {
+    Write-Host "WARNING: $Message Cosmetic model generation skipped." -ForegroundColor Red
+    exit 0
+  }
+
+  throw $Message
+}
 
 if ([string]::IsNullOrWhiteSpace($Root)) {
   $Root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
@@ -56,7 +73,7 @@ if ($null -eq $python) {
   $python = Get-Command python.exe -ErrorAction SilentlyContinue
 }
 if ($null -eq $python) {
-  throw 'Python 3 not found: install Python or add py.exe/python.exe to PATH.'
+  Skip-IfUnavailable 'Python 3 not found: install Python or add py.exe/python.exe to PATH.'
 }
 $pythonLauncherArgs = @()
 if ($python.Name -eq 'py.exe') {
@@ -102,17 +119,17 @@ if ([string]::IsNullOrWhiteSpace($StudioMdl)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($Mdldec) -or -not (Test-Path -LiteralPath $Mdldec -PathType Leaf)) {
-  throw 'mdldec.exe not found. Build Xash3D with utils enabled or pass -Mdldec <path>.'
+  Skip-IfUnavailable 'mdldec.exe not found. Build Xash3D with utils enabled or pass -Mdldec <path>.'
 }
 if ([string]::IsNullOrWhiteSpace($StudioMdl) -or -not (Test-Path -LiteralPath $StudioMdl -PathType Leaf)) {
-  throw 'studiomdl.exe not found. Pass -StudioMdl <path> or set CSE_STUDIOMDL.'
+  Skip-IfUnavailable 'studiomdl.exe not found. Pass -StudioMdl <path> or set CSE_STUDIOMDL.'
 }
 if ([string]::IsNullOrWhiteSpace($Activities)) {
   $Activities = Join-Path $Root 'src\xash3d-fwgs\utils\mdldec\res'
 }
 if (-not (Test-Path -LiteralPath $Activities -PathType Container) -and
     -not (Test-Path -LiteralPath $Activities -PathType Leaf)) {
-  throw "mdldec activities path not found: $Activities"
+  Skip-IfUnavailable "mdldec activities path not found: $Activities"
 }
 
 $pythonArgs += @(
