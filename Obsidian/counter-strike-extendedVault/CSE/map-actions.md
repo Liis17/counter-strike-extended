@@ -3,9 +3,9 @@
 Parent: [[Index]] | Связано: [[Архитектура]], [[Client/HUD-TeamBar]]
 
 Статическое исследование завершено: [custom-map-actions.md](../../../docs/research/custom-map-actions.md).
-Исходник стенда создан: `src/cse/maps/cse_test_actions.map`. J.A.C.K./ZHLT 3.4 собрал BSP,
-который локально установлен в `runtime/cstrike/maps/cse_test_actions.bsp`; install-скрипта и
-C++-реализации пока нет.
+Исходник стенда хранится в `src/cse/maps/cse_test_actions.map`; J.A.C.K./ZHLT 3.4
+собирает его через общий pipeline карт. Детали data-only dressing и собственного
+`cse_lobby` описаны в [[CSE/map-atmosphere]].
 
 Штатный уровень 1 покрывает кнопки, триггеры, двери, текст, звук, `env_*`, оружие, HP и очки.
 Цепочка — `func_button`/`trigger_multiple` → `target`/`targetname`; `multi_manager` сохраняет
@@ -15,9 +15,10 @@ C++-реализации пока нет.
 `map entity → server Use → user message → HOOK_MESSAGE → HUD`; для простого текста сначала
 используются `game_text`, `TextMsg`, `HudText` или `HudTextPro`.
 
-Следующий практический шаг — запустить двухклиентский стенд уровня 1 и записать фактические результаты. Fork ReGameDLL и exception из
-правила `src/cse/` пока не приняты; текущий launcher/plugin path нужно доказать отдельно.
+Следующий практический шаг для map actions — запустить двухклиентский стенд уровня 1
+и записать фактические результаты. Fork ReGameDLL и exception из правила `src/cse/`
+по-прежнему не являются частью этого data-only этапа.
 
-Предложение по контенту карт (свои карты с нуля, пропы/мусор на стоковых картах через `.ent`) —
-[map-content-roadmap.md](../../../docs/plans/map-content-roadmap.md). Реализации нет, решения владельца
-по доставке BSP и waypoints ещё не приняты.
+Исходный план контента карт — [map-content-roadmap.md](../../../docs/plans/map-content-roadmap.md);
+реализованный первый этап и его ограничения — [[CSE/map-atmosphere]]. Waypoints для
+`cse_lobby` не создаются: карта запускается через `server.cmd cse_lobby -nobots`.

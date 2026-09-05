@@ -39,8 +39,10 @@
 | `YAPB` | `src/cs16-client/3rdparty/yapb` | `4967a220ba3a58c461ee1cef8b6fb37c6fd93b5e` |
 | Parent | текущий корневой commit до этой итерации | `2d7d4e56b8e18640b8953c36c256d2139e916bde` |
 
-В `src/cse/cstrike/gameinfo.txt:1-18` задано `gamedll "dlls\\mp.dll"`; при этом
-`server.cmd:7-22,65-74` явно запускает `dlls\\yapb.dll`, задаёт 12 слотов и квоту 9 ботов.
+В `src/cse/cstrike/gameinfo.txt:1-18` задано `gamedll "dlls\\mp.dll"`; обычный
+`server.cmd` запускает CSE proxy поверх YaPB, задаёт 12 слотов и квоту 9 ботов.
+Исключение — явный `server.cmd cse_lobby -nobots`, который использует штатный
+`mp.dll` без YaPB для карты без waypoint-графа.
 `src/cs16-client/CMakeLists.txt:56-64` подключает YaPB и ReGameDLL при `BUILD_SERVER`.
 На Windows CMake ReGameDLL собирает Xash-совместимую библиотеку с postfix `mp`, а список
 серверных исходников задан явно (`REGAME/regamedll/CMakeLists.txt:203-255,376-386,447-455`).
@@ -402,10 +404,10 @@ All Players; для персонального эффекта — прямой t
 использовать отдельный runtime-каталог или другую машину:
 общий runtime не проверяет отсутствие файла у клиента.
 
-`server.cmd` безусловно задаёт `BOT_QUOTA=9` и передаёт `+yb_quota 9`
-(`server.cmd:18-22,65-74`). Для стенда после запуска выполнить `yb_quota 0` или подготовить
-отдельный launcher. В тесте доставки явно записать `sv_allowdownload`, `sv_downloadurl`,
-`cl_allowdownload` и `cl_download_ingame`.
+Обычный `server.cmd` задаёт `BOT_QUOTA=9` и передаёт `+yb_quota 9`
+(`server.cmd`, значения по умолчанию). Для `cse_lobby` предусмотрен отдельный
+`server.cmd cse_lobby -nobots`, который не загружает YaPB. В тесте доставки явно
+записать `sv_allowdownload`, `sv_downloadurl`, `cl_allowdownload` и `cl_download_ingame`.
 
 ### Конфигурация созданной карты
 

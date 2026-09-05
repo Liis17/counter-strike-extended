@@ -161,10 +161,10 @@ runtime-каталог или другая машина: один общий run
 | `trigger_multiple` `trg_global` | target `mm_global`, wait 5 |
 | Точечная `cse_unknown_probe` | Без targets; только для отдельной проверки поведения неизвестного classname. Никогда не заменять ей brush-сущность |
 
-Запускать `server.cmd cse_test_actions`. `BOT_QUOTA=0` в окружении не подходит: `server.cmd` сам
-безусловно назначает квоту 9. При необходимости после старта выполнить консольную команду `yb_quota 0`
-или подготовить отдельный тестовый launcher в следующей итерации. В тесте доставки явно задавать и
-записывать `sv_allowdownload`, `sv_downloadurl` и `cl_allowdownload`, не полагаться на defaults.
+Запускать `server.cmd cse_test_actions`. Обычный launcher использует YaPB с квотой 9;
+для карты без waypoint-графа есть отдельный режим `server.cmd cse_lobby -nobots`,
+который выбирает штатный `mp.dll` без YaPB. В тесте доставки явно задавать и записывать
+`sv_allowdownload`, `sv_downloadurl` и `cl_allowdownload`, не полагаться на defaults.
 
 | # | Проверяем | Критерий и что записать |
 |---|-----------|--------------------------|

@@ -33,6 +33,7 @@
 | [[CSE/personalization-ProjectMap]] | Personalization Project Map | Поток между `menu.dll`, профилем, конфигом и `joinclass`; точки изменения и инварианты |
 | [[CSE/progression]] | Player progression | Локальный профиль, статистика, XP и уровни в клиенте |
 | [[CSE/map-actions]] | Действия на картах | Исследование штатных кнопок/триггеров, серверного расширения и кастомного HUD-события |
+| [[CSE/map-atmosphere]] | Атмосфера карт | `.ent`-dressing, stock resources, map build/install pipeline и `cse_lobby` |
 | [[CSE/de_dust2]] | Исходник de_dust2 | Приближённая декомпиляция BSP для редактирования в Hammer/J.A.C.K. |
 
 ### Tooling

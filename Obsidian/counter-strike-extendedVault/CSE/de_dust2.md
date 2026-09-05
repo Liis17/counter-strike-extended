@@ -7,7 +7,9 @@ Parent: [[cse-structure]]
 - `src/cse/maps/de_dust2.map` — source-only `.map`, полученный из `runtime/cstrike/maps/de_dust2.bsp`.
 - `src/cse/maps/de_dust2_generated.wad` — WAD3 с 15 текстурами, которые были встроены в BSP и отсутствовали в исходных WAD.
 
-Исходный BSP в `runtime/` не изменён. Исходники карт не компилируются текущим build-контуром и не устанавливаются автоматически.
+Исходный BSP в `runtime/` не изменён. `de_dust2` намеренно отсутствует в
+`src/cse/maps/build-list.txt`, поэтому её исходник и WAD не компилируются и не
+устанавливаются автоматически.
 
 ## Декомпиляция
 

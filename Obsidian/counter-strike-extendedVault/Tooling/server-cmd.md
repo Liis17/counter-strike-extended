@@ -7,7 +7,7 @@ Parent: [[Index]] · Domain: [[Tooling/Tools]]
 Корневой `server.cmd` репозитория, рабочий каталог — `runtime/`.
 
 ```
-server.cmd [map]   (без аргумента стартовая карта выбирается случайно)
+server.cmd [map] [-nobots]   (без аргумента стартовая карта выбирается случайно)
 ```
 
 Параметры сервера/ботов редактируются в шапке скрипта (`SERVER_*`, `BOT_*`). Перед запуском
@@ -28,6 +28,11 @@ server.cmd [map]   (без аргумента стартовая карта вы
 
 `cse_mapcycle.dll` — собственная DLL-прокси из `src/cse/server/`: она форвардит entry points в соседний
 `yapb.dll` и подменяет только `pfnChangeLevel`. Сборка и копирование выполняются шагом `build-cse.cmd`.
+
+Для `cse_lobby` без waypoint-графа YaPB предусмотрен режим без ботов:
+`server.cmd cse_lobby -nobots`. В этом режиме launcher использует штатный
+`mp.dll` без YaPB/proxy и передаёт серверу `+yb_quota 0`; обычный mapcycle-файл
+не меняется.
 
 ## Важный нюанс: путь к серверной DLL
 

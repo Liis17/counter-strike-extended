@@ -1,7 +1,7 @@
 # cse — Counter-Strike Extended (собственный код проекта)
 
 Parent: [[Index]]
-Связанные: [[Локализация]], [[Архитектура]], [[Tooling/Tools]], [[Tooling/server-mapcycle]]
+Связанные: [[Локализация]], [[Архитектура]], [[CSE/map-atmosphere]], [[Tooling/Tools]], [[Tooling/server-mapcycle]]
 
 ## Назначение
 
@@ -59,9 +59,13 @@ src/cse/
 │   ├── sound/                          # → runtime/cstrike/sound/ (проектные звуковые замены; loop cue проверяет install-скрипт)
 │   └── scripts/CseSkinRecipes.txt      # рецепты производных моделей из runtime-ассетов
 ├── maps/                                # исходники карт, компилируемые внешним Hammer/J.A.C.K.
+│   ├── build-list.txt                   # явный список автоматической сборки
 │   ├── cse_test_actions.map
+│   ├── cse_lobby.map                    # техдвор без objectives/ботов
+│   ├── ent/<map>.ent                    # полные snapshots для stock-map dressing
+│   ├── res/<map>.res                    # resource manifests; .ent обязан быть перечислен
 │   ├── de_dust2.map                     # декомпилированный исходник, см. [[CSE/de_dust2]]
-│   └── de_dust2_generated.wad           # встроенные текстуры исходного BSP
+│   └── de_dust2_generated.wad           # встроенные текстуры исходного BSP; не собирается автоматически
 ├── yapb/
 │   └── conf/maps/                  # → runtime/cstrike/addons/yapb/conf/maps/
 │       └── <map>.cfg               # per-map YaPB config, default yb_difficulty 0
@@ -90,6 +94,8 @@ chunk с точкой цикла; без него движок может уда
 | Скрипт | Что копирует |
 |--------|--------------|
 | `tools/install_3rdpartymaps.ps1` | `src/3rdpartymaps/**` → `runtime/cstrike/**`, сохраняя структуру стороннего набора и перезаписывая одноимённые файлы |
+| `tools/build_cse_maps.ps1` | `src/cse/maps/build-list.txt` → временный `build/cse-maps/` через `hlcsg → hlbsp → hlvis → hlrad`; J.A.C.K./ZHLT задаётся параметром или `CSE_MAP_TOOLCHAIN_ROOT` |
+| `tools/install_cse_maps.ps1` | завершённые BSP → `runtime/cstrike/maps/`; snapshots `.ent` проверяются на сохранение base entities, лимиты и resources, затем `.ent/.res` копируются в runtime |
 | `tools/install_cse_assets.ps1` | `src/cse/cstrike/**` → `runtime/cstrike/**`, с перезаписью одноимённых базовых файлов |
 | `tools/generate_map_catalog.ps1` | шаблон каталога + `src/3rdpartymaps/maps/*.bsp` → `runtime/cstrike/scripts/CseMapCatalog.json` |
 | `tools/install_localization.ps1` | `src/cse/localization/**` → `runtime/<gamedir>/...` |
@@ -105,7 +111,7 @@ chunk с точкой цикла; без него движок может уда
 | `tools/install_skins.ps1` | читает `CseSkinRecipes.txt`, запускает `tools/mdl_recolor.py` и создаёт производные `.mdl` в `runtime/cstrike/models/cse/` |
 | `tools/install_yapb_map_configs.ps1` | loose `runtime/cstrike/maps/*.bsp` и карты из `.pk3`/`.zip` → создаёт отсутствующие `src/cse/yapb/conf/maps/*.cfg` и копирует их в `runtime/cstrike/addons/yapb/conf/maps/` |
 | `tools/install_richpresence.ps1` | `src/cse/rich_presence/steam_appid.txt` + собранный `cse_steamrp.exe` → `runtime/` |
-| `build-cse.cmd` | собирает `src/cse/server/` и разворачивает `cse_mapcycle.dll` рядом с `runtime/cstrike/dlls/yapb.dll` |
+| `build-cse.cmd` | собирает `src/cse/server/`, компилирует/устанавливает карты CSE и разворачивает `cse_mapcycle.dll` рядом с `runtime/cstrike/dlls/yapb.dll` |
 
 При запуске `server.cmd` скрипт `tools/prepare_server_maps.ps1` выбирает стартовую карту и записывает
 стабильный пул в runtime `mapcycle.txt` и `cse_map_pool.txt`. Затем `cse_mapcycle.dll` загружается
@@ -114,8 +120,15 @@ chunk с точкой цикла; без него движок может уда
 боевого пула.
 
 Скрипты принимают `-DryRun` для предварительного просмотра и `-Root` для
-переопределения корня репозитория. Сгенерированные модели не отслеживаются git: это производные
-файлы от лицензированных исходников Valve в `runtime/`.
+переопределения корня репозитория. Если J.A.C.K./ZHLT отсутствует, map build
+выводит красное предупреждение и пропускает карты; ошибка запущенного компилятора
+останавливает pipeline без установки частичного BSP. Сгенерированные модели и
+BSP не отслеживаются git: это производные файлы в `runtime/`.
+
+`cse_lobby` добавлена в `CseMapCatalog.json`, но намеренно не добавлена в
+`src/cse/cstrike/mapcycle.txt`. Запуск для ручной проверки: `server.cmd cse_lobby -nobots`. В v1 dressing ограничен `cs_backalley` и `de_torn`; разрешены только
+`ambient_generic`, `infodecal`, `env_rain`/`env_snow`, `env_fog`, `env_sprite`,
+`env_glow` и несолидный `cycler_wreckage` с лимитами 24/8/4/12/1/1.
 
 ## История
 
