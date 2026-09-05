@@ -454,7 +454,7 @@ if (Test-Path -LiteralPath $sourceResRoot -PathType Container) {
     if ($DryRun) {
       Write-Output "DRY-RUN: $($resourceFile.FullName) -> $targetRes"
     }
-    elseif (-not (Test-Path -LiteralPath $targetRes -PathType Leaf)) {
+    else {
       Copy-Item -LiteralPath $resourceFile.FullName -Destination $targetRes -Force
       Write-Output "OK: maps/$($resourceFile.Name)"
     }
