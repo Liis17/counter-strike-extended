@@ -326,7 +326,8 @@ function Test-ResourceManifest {
   param(
     [Parameter(Mandatory = $true)] [string]$MapName,
     [Parameter(Mandatory = $true)] [string]$ResourcePath,
-    [switch]$RequireEntitySnapshot
+    [switch]$RequireEntitySnapshot,
+    [switch]$CheckFiles
   )
 
   $lines = @(Get-Content -LiteralPath $ResourcePath)
@@ -344,6 +345,12 @@ function Test-ResourceManifest {
       $trimmed
     }
   )
+
+  if ($CheckFiles) {
+    foreach ($resource in $normalizedLines) {
+      Test-ResourceFile -RelativePath $resource -Context "$MapName.res"
+    }
+  }
 
   if ($RequireEntitySnapshot) {
     $required = "maps/$MapName.ent"
@@ -436,7 +443,13 @@ if (Test-Path -LiteralPath $sourceEntRoot -PathType Container) {
 
 if (Test-Path -LiteralPath $sourceResRoot -PathType Container) {
   foreach ($resourceFile in @(Get-ChildItem -LiteralPath $sourceResRoot -File -Filter '*.res')) {
-    Test-ResourceManifest -MapName $resourceFile.BaseName.ToLowerInvariant() -ResourcePath $resourceFile.FullName
+    $resourceMapName = $resourceFile.BaseName.ToLowerInvariant()
+    if ($DryRun) {
+      Test-ResourceManifest -MapName $resourceMapName -ResourcePath $resourceFile.FullName
+    }
+    else {
+      Test-ResourceManifest -MapName $resourceMapName -ResourcePath $resourceFile.FullName -CheckFiles
+    }
     $targetRes = Join-Path $runtimeMaps $resourceFile.Name
     if ($DryRun) {
       Write-Output "DRY-RUN: $($resourceFile.FullName) -> $targetRes"
