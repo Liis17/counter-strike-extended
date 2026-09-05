@@ -27,7 +27,10 @@ set "SERVER_NO_BOTS=0"
 rem --- Allow map override from command-line arg ---
 if not "%~1"=="" set "SERVER_MAP=%~1"
 if /I "%~2"=="-nobots" set "SERVER_NO_BOTS=1"
-if "%SERVER_NO_BOTS%"=="1" set "BOT_QUOTA=0"
+if "%SERVER_NO_BOTS%"=="1" (
+    set "BOT_QUOTA=0"
+    if /I "%SERVER_MAP%"=="cse_lobby" set "SERVER_DLL=dlls\mp.dll"
+)
 
 rem --- Resolve runtime directory relative to this script ---
 set "ROOT=%~dp0"
